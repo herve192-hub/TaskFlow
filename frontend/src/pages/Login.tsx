@@ -17,6 +17,13 @@ import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
+import Divider from "@mui/material/Divider";
+import GoogleIcon from "@mui/icons-material/Google";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import OAuthButton from "../components/oAuthButtonProps.tsx";
+
+import Stack from "@mui/material/Stack";
+
 interface LoginFormData {
     email: string;
     password: string;
@@ -116,6 +123,21 @@ export default function Login() {
                     >
                         Sign In
                     </Button>
+                    <Stack 
+                        direction="column" 
+                        spacing={2}
+                    >
+                        <Divider sx={{ my: 4 }}> or </Divider>
+                        <OAuthButton 
+                            text="Continue with Google"
+                            icon={<GoogleIcon />}
+                        />
+                        <OAuthButton 
+                            text="Continue with GitHub"
+                            icon={<GitHubIcon />}
+                            // sx={{ mt: 2 }}
+                        />
+                    </Stack>
                 </form>
                 <Box sx={{textAlign: "center", mt: 3 }}>
                     <Typography>

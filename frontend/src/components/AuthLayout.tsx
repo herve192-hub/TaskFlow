@@ -1,8 +1,12 @@
-{/* */}
+// 
 import { Box, Typography } from "@mui/material";
 import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import { ReactNode } from "react";
 
+{/* this interface defines the props for the AuthLayout component, 
+ which expects a single prop called "children" of type ReactNode. 
+ This allows the component to accept any valid React elements as its children, 
+ enabling flexible composition of UI elements within the layout.*/}
 interface Props {
   children: ReactNode;
 }
