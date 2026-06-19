@@ -1,3 +1,4 @@
+// 
 import {
     Paper,
     Button,
@@ -10,24 +11,33 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import AuthLayout from "../components/AuthLayout";
 
+import { useState } from "react";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+
 interface LoginFormData {
     email: string;
     password: string;
 }
 
 export default function Login() {
-
+// Initialize form handling with react-hook-form ...
     const {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
     } = useForm<LoginFormData>();
-
+// Handle form submission ...
     const onSubmit = async (data: LoginFormData) => {
         console.log(data);
         // 
         // handle login logic ...
     };
+// handle password visibility toggle ...
+    const [showPassword, setShowPassword] = useState(false);
+// 
     return (
         <AuthLayout>
             <Paper
@@ -70,7 +80,7 @@ export default function Login() {
                     <TextField
                         fullWidth
                         label="Password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         margin="normal"
                         error={!!errors.password}
                         helperText={errors.password?.message}
@@ -81,6 +91,21 @@ export default function Login() {
                                 message: "Password must be at least 8 characters",
                             },
                         })}
+                        slotProps={{
+                            input: {
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            onMouseDown={(e) => e.preventDefault()}
+                                            onClick={() => setShowPassword((prev) => !prev)}
+                                            edge="end"
+                                        >
+                                            {showPassword ? (<VisibilityOff />) : (<Visibility />)}
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            },
+                        }}
                     /> 
                     <Button
                         type="submit"
@@ -92,7 +117,6 @@ export default function Login() {
                         Sign In
                     </Button>
                 </form>
-
                 <Box sx={{textAlign: "center", mt: 3 }}>
                     <Typography>
                         Don't have an account?{" "}

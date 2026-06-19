@@ -10,6 +10,13 @@ import { Link} from "react-router-dom";
 import { useForm } from "react-hook-form";
 import AuthLayout from "../components/AuthLayout.tsx";
 
+import { useState } from "react";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+
+
 
 interface SignupFormData {
     fullName: string;
@@ -19,19 +26,26 @@ interface SignupFormData {
 }
 
 export default function Signup() {
+// Initialize form handling with react-hook-form ...
     const { 
         register, 
         handleSubmit,
         watch,
         formState: { errors, isSubmitting },
      } = useForm<SignupFormData>();
-
+// Watch password field for confirm password validation ...
      const password = watch("password");
+// Handle form submission ...
      const onSubmit = async (data: SignupFormData) => {
         console.log(data);
         // 
         // Handle signup logic ...
      };
+// Handle password visibility toggles ...
+     const [showPassword, setShowPassword] = useState(false);
+// handle confirm password visibility toggle ...
+     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+     
     return (
         <AuthLayout>
             <Paper
@@ -88,7 +102,7 @@ export default function Signup() {
                     <TextField
                         fullWidth
                         label="Password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         margin="normal"
                         error={!!errors.password}
                         helperText={errors.password?.message}
@@ -99,11 +113,27 @@ export default function Signup() {
                                 message: "Password must be at least 8 characters",
                             },
                         })}
+                    // Add visibility toggle for password field ...
+                        slotProps={{
+                            input: {
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            onMouseDown={(e) => e.preventDefault()}
+                                            onClick={() => setShowPassword((prev) => !prev)}
+                                            edge="end"
+                                        >
+                                            {showPassword ? (<VisibilityOff />) : (<Visibility />)}
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            },
+                        }}
                     />
-                      <TextField
+                    <TextField
                         fullWidth
                         label="Confirm Password"
-                        type="password"
+                        type={showConfirmPassword ? "text" : "password"}
                         margin="normal"
                         error={!!errors.confirmPassword}
                         helperText={errors.confirmPassword?.message}
@@ -112,6 +142,22 @@ export default function Signup() {
                             validate: (value) => 
                                 value === password || "Passwords do not match",
                         })}
+                    // Add visibility toggle for confirm password field ...
+                        slotProps={{
+                            input: {
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            onMouseDown={(e) => e.preventDefault()}
+                                            onClick={() => setShowConfirmPassword((prev) => !prev)}
+                                            edge="end"
+                                        >
+                                            {showConfirmPassword ? (<VisibilityOff />) : (<Visibility />)}
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            },
+                        }}
                     />
                     <Button
                     type="submit"
