@@ -23,10 +23,16 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import OAuthButton from "../components/oAuthButtonProps.tsx";
 
 import Stack from "@mui/material/Stack";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import MuiLink from "@mui/material/Link";
+
+
 
 interface LoginFormData {
     email: string;
     password: string;
+    rememberMe: boolean;
 }
 
 export default function Login() {
@@ -34,8 +40,12 @@ export default function Login() {
     const {
         register,
         handleSubmit,
-        formState: { errors, isSubmitting },
-    } = useForm<LoginFormData>();
+        formState: { errors },
+    } = useForm<LoginFormData>({
+        defaultValues: {
+            rememberMe: false,
+        },
+    });
 // Handle form submission ...
     const onSubmit = async (data: LoginFormData) => {
         console.log(data);
@@ -63,8 +73,10 @@ export default function Login() {
                     Welcome Back
                 </Typography>
                 <Typography 
-                    color="text.secondary"
-                    sx={{ mb: 4 }}
+                    sx={{ 
+                        color: "text.secondary",
+                        mb: 4,
+                     }}
                 >
                     Sign in to continue to TaskFlow
                 </Typography>
@@ -113,7 +125,41 @@ export default function Login() {
                                 ),
                             },
                         }}
-                    /> 
+                    />
+                    <Box 
+                        sx={{ 
+                            display: "flex", 
+                            justifyContent: "space-between", 
+                            alignItems: "center", 
+                            mt: 1, 
+                            mb: 2,
+
+                        }}
+                    >
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    {...register("rememberMe")}
+                                    color="primary"
+                                /> 
+                            }
+                            label="Remember me"
+                        />
+                        <MuiLink
+                            variant="body2"
+                            component={Link}
+                            to="/forgot-password"
+                            // href="/forgot-password"
+                            // color="primary"
+                            sx={{ 
+                                textDecoration: "none",
+                                cursor: "pointer",
+                                fontWeight: "500",
+                             }}
+                        >
+                            Forgot password?
+                        </MuiLink>
+                    </Box>
                     <Button
                         type="submit"
                         fullWidth
@@ -139,7 +185,13 @@ export default function Login() {
                         />
                     </Stack>
                 </form>
-                <Box sx={{textAlign: "center", mt: 3 }}>
+                <Box 
+                    sx={{
+                        textAlign: "center", 
+                        mt: 3,
+                        color: "text.secondary",
+                    }}
+                >
                     <Typography>
                         Don't have an account?{" "}
                         <Link to="/signup">Create one</Link>

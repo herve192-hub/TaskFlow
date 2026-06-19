@@ -173,7 +173,11 @@ export default function Signup() {
                     </Button>
                 </form>
                 <Box 
-                    sx={{ textAlign: "center",  mt: 3, }}
+                    sx={{ 
+                        textAlign: "center",  
+                        mt: 3, 
+                        color: "text.secondary",
+                    }}
                 >
                      <Typography>
                         Already have an account?{" "}
