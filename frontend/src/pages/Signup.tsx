@@ -9,6 +9,7 @@ import {
 import { Link} from "react-router-dom";
 import { useForm } from "react-hook-form";
 import AuthLayout from "../components/AuthLayout.tsx";
+import { toast } from "react-toastify";
 
 import { useState } from "react";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -38,6 +39,10 @@ export default function Signup() {
 // Handle form submission ...
      const onSubmit = async (data: SignupFormData) => {
         console.log(data);
+
+        toast.success(
+            "Account created successfully!"
+        );
         // 
         // Handle signup logic ...
      };

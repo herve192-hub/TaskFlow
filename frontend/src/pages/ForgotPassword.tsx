@@ -7,6 +7,7 @@ import {
 
 import { useForm } from "react-hook-form";
 import AuthLayout from "../components/AuthLayout.tsx";
+import { toast } from "react-toastify";
 
 interface ForgotPasswordFormData {
     email: string;
@@ -23,6 +24,9 @@ export default function ForgotPassword() {
         data: ForgotPasswordFormData
         ) => {
         console.log(data);
+        toast.success(
+            "Reset link sent to your email"
+        );
         // 
         // Handle forgot password logic ...
     };

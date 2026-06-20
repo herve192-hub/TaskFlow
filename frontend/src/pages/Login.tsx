@@ -10,6 +10,7 @@ import {
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import AuthLayout from "../components/AuthLayout";
+import { toast } from "react-toastify";
 
 import { useState } from "react";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -49,6 +50,10 @@ export default function Login() {
 // Handle form submission ...
     const onSubmit = async (data: LoginFormData) => {
         console.log(data);
+
+        toast.success(
+            "Login successful!"
+        );
         // 
         // handle login logic ...
     };
