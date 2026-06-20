@@ -28,6 +28,10 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import MuiLink from "@mui/material/Link";
 
+import { authService } from "../services/authService.ts";
+import { authStorage } from "../types/auth.ts";
+
+
 
 
 interface LoginFormData {
@@ -49,14 +53,32 @@ export default function Login() {
     });
 // Handle form submission ...
     const onSubmit = async (data: LoginFormData) => {
-        console.log(data);
+        try {
+            const response =
+            await authService.login(data);
 
-        toast.success(
-            "Login successful!"
-        );
+            authStorage.saveTokens(
+                response.accessToken,
+                response.refreshToken
+            );
+
+            console.log(response);
+
+             toast.success(
+                "Login successful!"
+            );
+        } catch (error) {
+            toast.error(
+                error instanceof Error
+                ? error.message
+                : "Login failed"
+            );
+        }
         // 
         // handle login logic ...
     };
+//
+
 // handle password visibility toggle ...
     const [showPassword, setShowPassword] = useState(false);
 // 
@@ -69,21 +91,17 @@ export default function Login() {
                     maxWidth: 450,
                     p: 5,
                     borderRadius: 4,
-                    border:  "1px solid #E2E8F0",
+                    border: "1px solid #E2E8F0",
                 }}
             >
-                <Typography variant="h4" 
-                        sx={{ mb: 1, fontWeight: "bold" }}
-                >
-                    Welcome Back
-                </Typography>
                 <Typography 
+                    variant="h4"
                     sx={{ 
-                        color: "text.secondary",
-                        mb: 4,
+                        mb: 1,
+                        fontWeight: "bold",
                      }}
                 >
-                    Sign in to continue to TaskFlow
+                    Welcome Back
                 </Typography>
 
                 <form onSubmit={handleSubmit(onSubmit)}>

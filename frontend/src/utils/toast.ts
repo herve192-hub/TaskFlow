@@ -15,3 +15,12 @@ export const notify = {
     info: (message: string) =>
         toast.info(message),
 };
+
+export const isAuthenticated = () =>
+    !!localStorage.getItem("accessToken");
+
+
+export const logout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+}

@@ -16,6 +16,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { authService } from "../services/authService.ts";
 
 
 
@@ -36,13 +37,23 @@ export default function Signup() {
      } = useForm<SignupFormData>();
 // Watch password field for confirm password validation ...
      const password = watch("password");
-// Handle form submission ...
-     const onSubmit = async (data: SignupFormData) => {
-        console.log(data);
 
-        toast.success(
-            "Account created successfully!"
+     // Handle form submission ...
+     const onSubmit = async (data: SignupFormData) => {
+       try {
+            await authService.signup({
+                fullName: data.fullName,
+                email: data.email,
+                password: data.password,
+            });
+            toast.success(
+                "Account created successfully!"
+            );
+       } catch {
+        toast.error(
+            "Unable to create account"
         );
+       }
         // 
         // Handle signup logic ...
      };
