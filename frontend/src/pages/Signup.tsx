@@ -32,11 +32,9 @@ export default function Signup() {
     const { 
         register, 
         handleSubmit,
-        watch,
-        formState: { errors, isSubmitting },
+        getValues,
+        formState: { errors },
      } = useForm<SignupFormData>();
-// Watch password field for confirm password validation ...
-     const password = watch("password");
 
      // Handle form submission ...
      const onSubmit = async (data: SignupFormData) => {
@@ -156,7 +154,7 @@ export default function Signup() {
                         {...register("confirmPassword", { 
                             required: "Please confirm your password",
                             validate: (value) => 
-                                value === password || "Passwords do not match",
+                                value === getValues("password") || "Passwords do not match",
                         })}
                     // Add visibility toggle for confirm password field ...
                         slotProps={{

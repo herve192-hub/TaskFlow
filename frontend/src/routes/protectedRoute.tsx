@@ -1,4 +1,4 @@
-import { Navigate, replace } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 interface Props {
     children: React.ReactNode;
