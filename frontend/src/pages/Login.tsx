@@ -31,6 +31,8 @@ import MuiLink from "@mui/material/Link";
 import { authService } from "../services/authService.ts";
 import { authStorage } from "../types/auth.ts";
 
+import { useNavigate } from "react-router-dom";
+
 
 
 
@@ -51,23 +53,27 @@ export default function Login() {
             rememberMe: false,
         },
     });
+// 
+    const navigate = useNavigate();
+
 // Handle form submission ...
     const onSubmit = async (data: LoginFormData) => {
         try {
             const response =
             await authService.login(data);
-
+// 
             authStorage.saveTokens(
                 response.accessToken,
                 response.refreshToken
             );
 
             console.log(response);
-
+// 
              toast.success(
                 "Login successful!"
             );
-        } catch (error) {
+            navigate("/dashboard");
+        } catch (error) {  // 
             toast.error(
                 error instanceof Error
                 ? error.message
