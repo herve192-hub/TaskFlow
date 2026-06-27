@@ -5,6 +5,7 @@ import Signup from "../pages/Signup";
 import Login from "../pages/Login";
 import ForgotPassword from "../pages/ForgotPassword";
 import Dashboard from "../pages/Dashboard";
+import DashboardLayout from "../components/DashboardLayout";
 import ProtectedRoute from "./protectedRoute";
 
 export default function AppRoutes() {
@@ -15,12 +16,16 @@ export default function AppRoutes() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/forgot-password" element={<ForgotPassword />}/>
-                <Route path="/dashboard" element={
-                    <ProtectedRoute>
-                        <Dashboard />
-                    </ProtectedRoute>
+                <Route
+                    path="/dashboard"
+                    element={
+                        <ProtectedRoute>
+                            <DashboardLayout />
+                        </ProtectedRoute>
                     }
-                />
+                >
+                    <Route index element={<Dashboard />} />
+                </Route>
             </Routes>
         </BrowserRouter>
     );
