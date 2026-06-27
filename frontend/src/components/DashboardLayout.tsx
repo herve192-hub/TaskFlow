@@ -4,49 +4,168 @@ import {
     Toolbar,
     AppBar,
     Typography,
+    IconButton,
 } from "@mui/material";
 
-import { ReactNode } from "react";
-import Button from "@mui/material/Button";
-import { useNavigate } from "react-router-dom";
+import {
+    List,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+} from "@mui/material"
+
+import { useState } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
+
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import TaskIcon from "@mui/icons-material/Task";
+import FolderIcon from "@mui/icons-material/Folder";
+import GroupIcon from "@mui/icons-material/Group";
+import SettingsIcon from "@mui/icons-material/Settings";
+
+import SearchIcon from "@mui/icons-material/Search";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import Avatar from "@mui/material/Avatar";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
 const drawerWidth = 240;
 
 interface Props {
-    children: ReactNode;
 }
 
 
 export default function DashboardLayout({
-    children,
 }: Props) {
     const navigate = useNavigate();
     const handleLogout = () => {
         localStorage.clear();
         navigate("/");
     }
+
+    const [anchorE1, setAnchorE1] = useState<null | HTMLElement>(null);
+    const open = Boolean(anchorE1);
+    const handleClick = (
+        event: React.MouseEvent<HTMLElement>
+    ) => {
+        setAnchorE1(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorE1(null);
+    };
     return (
         <Box sx={{ display: "flex" }}>
             <AppBar
                 position="fixed"
                 sx={{
-                    zIndex: 1201,
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                    ml: `${drawerWidth}px`,
+                    px: { xs: 1, sm: 2 },
+                    backgroundColor: "background.paper",
+                    color: "text.primary",
+                    boxShadow: "0px 2px 10px rgba(15, 23, 42, 0.08)",
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
                 }}
             >
-                <Toolbar>
-                    <Typography
-                        sx={{variant: "h6",
-                        fontWeight: "bold",
+                <Toolbar
+                    sx={{
+                        justifyContent: "space-between",
+                        minHeight: 72,
+                    }}
+                >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                        <Box
+                            sx={{
+                                width: 36,
+                                height: 36,
+                                borderRadius: "10px",
+                                bgcolor: "primary.main",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                color: "white",
+                                fontWeight: 700,
+                            }}
+                        >
+                            T
+                        </Box>
+                        <Typography
+                            sx={{
+                                variant: "h6",
+                                fontWeight: 700,
+                                letterSpacing: 0.3,
+                            }}
+                        >
+                            TaskFlow
+                        </Typography>
+                    </Box>
+                    <Box 
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1.2,
                         }}
                     >
-                        TaskFlow
-                    </Typography>
-                    {/* <Button
-                        color="inherit"
-                        onClick={handleLogout}
-                    >
-                        Logout
-                    </Button> */}
+                        <IconButton
+                            sx={{
+                                border: "1px solid",
+                                borderColor: "divider",
+                                bgcolor: "grey.50",
+                                "&:hover": { bgcolor: "grey.100" },
+                            }}
+                        >
+                            <SearchIcon />
+                        </IconButton>
+
+                        <IconButton
+                            sx={{
+                                border: "1px solid",
+                                borderColor: "divider",
+                                bgcolor: "grey.50",
+                                "&:hover": { bgcolor: "grey.100" },
+                            }}
+                        >
+                            <NotificationsIcon />
+                        </IconButton>
+
+                        <Avatar
+                            onClick={handleClick}
+                            sx={{
+                                bgcolor: "primary.main",
+                                cursor: "pointer",
+                                width: 40,
+                                height: 40,
+                                border: "2px solid",
+                                borderColor: "primary.light",
+                            }}
+                        >
+                            H
+                            {/* {UserActivation.fullName.charAt(0)} */}
+                        </Avatar>
+
+                        <Menu 
+                            anchorEl={anchorE1}
+                            open={open}
+                            onClose={handleClose}
+                        >
+                            <MenuItem>
+                                Profile
+                            </MenuItem>
+
+                            <MenuItem>
+                                Settings
+                            </MenuItem>
+
+                            <MenuItem 
+                                onClick={handleLogout}
+                            >
+                                Logout
+                            </MenuItem>
+                        </Menu>
+
+                    </Box>
                 </Toolbar>
             </AppBar>
             <Drawer
@@ -61,40 +180,60 @@ export default function DashboardLayout({
                     },
                 }}
             >
-                <Toolbar/>
-                <Box sx={{p: "2" }}>
-                    <Typography>
-                        Dashboard
-                    </Typography>
-                    <Typography sx={{mt: "2"}}>
-                        Projects
-                    </Typography>
-                    <Typography sx={{mt: "2"}}>
-                        Tasks
-                    </Typography>
-                    <Typography sx={{mt: "2"}}>
-                        Teams
-                    </Typography>
-                    <Typography sx={{mt: "2"}}>
-                        Settings
-                    </Typography>
-                </Box>
-                                <Button
-                    color="inherit"
-                    onClick={handleLogout}
+                <Toolbar />
+                <List
+                    sx={{
+                        pt: 4,
+                    }}
                 >
-                    Logout
-                </Button>
+                    <ListItemButton selected>
+                        <ListItemIcon>
+                            <DashboardIcon/>
+                        </ListItemIcon>
+                        <ListItemText primary="Dashboard" />
+                    </ListItemButton>
+
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <TaskIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Tasks" />
+                    </ListItemButton>
+
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <FolderIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Projects" />
+                    </ListItemButton>
+
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <GroupIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Teams" />
+                    </ListItemButton>
+
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <SettingsIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Settings" />
+                    </ListItemButton>
+                </List>
             </Drawer>
             <Box
                 component="main"
                 sx={{
                     flexGrow: 1,
                     p: 3,
+                    px: { xs: 2, sm: 3, md: 4 },
+                    mx: { xs: 1, sm: 2 },
+                    overflowX: "hidden",
                 }}
             >
-                <Toolbar/>
-                {children}
+                <Toolbar />
+                <Outlet />
             </Box>
         </Box>
     );
