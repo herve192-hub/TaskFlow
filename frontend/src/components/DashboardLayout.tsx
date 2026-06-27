@@ -31,12 +31,7 @@ import MenuItem from "@mui/material/MenuItem";
 
 const drawerWidth = 240;
 
-interface Props {
-}
-
-
-export default function DashboardLayout({
-}: Props) {
+export default function DashboardLayout() {
     const navigate = useNavigate();
     const handleLogout = () => {
         localStorage.clear();
