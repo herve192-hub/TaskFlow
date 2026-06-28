@@ -1,3 +1,5 @@
+// DashboardLayout.tsx ...
+
 import {
     Box,
     Drawer,
@@ -87,8 +89,8 @@ export default function DashboardLayout() {
                             T
                         </Box>
                         <Typography
+                            variant = "h6"
                             sx={{
-                                variant: "h6",
                                 fontWeight: 700,
                                 letterSpacing: 0.3,
                             }}
@@ -144,17 +146,97 @@ export default function DashboardLayout() {
                             anchorEl={anchorE1}
                             open={open}
                             onClose={handleClose}
+                            slotProps={{
+                                paper: {
+                                    sx: {
+                                        mt: 1.6,
+                                        borderRadius: 2,
+                                        boxShadow: "0px 16px 40px rgba(15, 23, 42, 0.14)",
+                                        border: "1px solid",
+                                        borderColor: "divider",
+                                        minWidth: 300,
+                                        overflow: "hidden",
+                                        bgcolor: "background.paper",
+                                        py: 0.8,
+                                    },
+                                },
+                            }}
                         >
-                            <MenuItem>
+                            <Box
+                                sx={{
+                                    px: 2,
+                                    py: 1.4,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1.2,
+                                    bgcolor: "linear-gradient(135deg, rgba(25,118,210,0.08), rgba(25,118,210,0.02))",
+                                }}
+                            >
+                                <Avatar
+                                    sx={{
+                                        width: 36,
+                                        height: 36,
+                                        bgcolor: "primary.main",
+                                        fontWeight: 700,
+                                    }}
+                                >
+                                    H
+                                </Avatar>
+                                <Box>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                                        Haris
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        haris@email.com
+                                    </Typography>
+                                </Box>
+                            </Box>
+
+                            <Box sx={{ borderTop: "1px solid", borderColor: "divider", my: 0.8, mx: 1 }} />
+
+                            <MenuItem
+                                sx={{
+                                    py: 1.3,
+                                    px: 1.8,
+                                    borderRadius: 1.5,
+                                    mx: 1,
+                                    mt: 0.5,
+                                    fontWeight: 600,
+                                    color: "text.primary",
+                                    "&:hover": { bgcolor: "primary.50", color: "primary.main" },
+                                }}
+                            >
                                 Profile
                             </MenuItem>
 
-                            <MenuItem>
+                            <MenuItem
+                                sx={{
+                                    py: 1.3,
+                                    px: 1.8,
+                                    borderRadius: 1.5,
+                                    mx: 1,
+                                    fontWeight: 600,
+                                    color: "text.primary",
+                                    "&:hover": { bgcolor: "primary.50", color: "primary.main" },
+                                }}
+                            >
                                 Settings
                             </MenuItem>
 
+                            <Box sx={{ borderTop: "1px solid", borderColor: "divider", my: 0.8, mx: 1 }} />
+
                             <MenuItem 
                                 onClick={handleLogout}
+                                sx={{
+                                    py: 1.3,
+                                    px: 1.8,
+                                    borderRadius: 1.5,
+                                    mx: 1,
+                                    mb: 0.5,
+                                    fontWeight: 600,
+                                    color: "error.main",
+                                    "&:hover": { bgcolor: "error.50", color: "error.dark" },
+                                }}
                             >
                                 Logout
                             </MenuItem>
