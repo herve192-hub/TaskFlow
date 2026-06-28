@@ -10,6 +10,7 @@ import StatCard from "./StatCard";
 import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
+import QuickActions from "./QuickActions";
 
 export default function Dashboard() {
     return (
@@ -52,6 +53,7 @@ export default function Dashboard() {
                     />
                 </Grid>
             </Grid>
+            <QuickActions/>
         </Box>
     );
 }
