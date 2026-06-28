@@ -11,6 +11,7 @@ import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import QuickActions from "./QuickActions";
+import RecentAtivity from "./RecentActivity";
 
 export default function Dashboard() {
     return (
@@ -53,7 +54,8 @@ export default function Dashboard() {
                     />
                 </Grid>
             </Grid>
-            <QuickActions/>
+            <QuickActions />
+            <RecentAtivity />
         </Box>
     );
 }
