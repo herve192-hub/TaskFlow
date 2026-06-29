@@ -1,13 +1,17 @@
-// 
+// Topbar.tsx ...
 import { AppBar, Avatar, Box, IconButton, Menu, MenuItem, Toolbar, Typography } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 
-import { drawerWidth } from "./layoutConstants";
+import { collapsedDrawerWidth, drawerWidth } from "./layoutConstants";
 
-export default function Topbar() {
+type TopbarProps = {
+  collapsed: boolean;
+};
+
+export default function Topbar({ collapsed }: TopbarProps) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -30,7 +34,7 @@ export default function Topbar() {
       position="fixed"
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
-        ml: `${drawerWidth}px`,
+        ml: collapsed ? `${collapsedDrawerWidth}px` : `${drawerWidth}px`,
         px: { xs: 1, sm: 2 },
         backgroundColor: "background.paper",
         color: "text.primary",

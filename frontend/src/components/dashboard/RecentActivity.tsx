@@ -12,6 +12,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import PersonIcon from "@mui/icons-material/Person";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 
 const activities = [
@@ -74,6 +75,14 @@ export default function RecentAtivity() {
                             alignItems: "center",
                             justifyContent: "space-between",
                             py: 2,
+                            px: 1,
+                            borderRadius: 2,
+                            transition: "0.2s ease",
+                            cursor: "pointer",
+                            "&:hover": {
+                                bgcolor: "primary.50",
+                                transform: "translateX(4px)",
+                            },
                         }}
                     >
                         <Box
@@ -107,16 +116,23 @@ export default function RecentAtivity() {
                                 </Typography>
                             </Box>
                         </Box>
-                        <Chip
-                            label={activity.type}
-                            color={
-                                activity.color as
-                                    | "primary"
-                                    | "secondary"
-                                    | "success"
-                                    | "warning"
-                            }
-                            size="small" />
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                            <Chip
+                                label={activity.type}
+                                color={
+                                    activity.color as
+                                        | "primary"
+                                        | "secondary"
+                                        | "success"
+                                        | "warning"
+                                }
+                                size="small"
+                            />
+                            <ArrowForwardIosIcon
+                                fontSize="small"
+                                color="disabled"
+                            />
+                        </Box>
                     </Box>
                     {index !== activities.length - 1 && (
                         <Divider />

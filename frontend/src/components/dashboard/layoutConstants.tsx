@@ -1,0 +1,3 @@
+// layoutConstants.tsx ...
+export const drawerWidth = 240;
+export const collapsedDrawerWidth = 72;

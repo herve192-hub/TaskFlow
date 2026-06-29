@@ -1,16 +1,21 @@
 // DashboardLayout.tsx ...
-
-import { Box, Toolbar } from "@mui/material";
+import { Box, Toolbar, useMediaQuery, useTheme } from "@mui/material";
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 
 import Sidebar from "./dashboard/Sidebar";
 import Topbar from "./dashboard/Topbar";
 
 export default function DashboardLayout() {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const [collapsed, setCollapsed] = useState(false);
+  const isCollapsed = isSmallScreen || collapsed;
+
   return (
     <Box sx={{ display: "flex" }}>
-      <Topbar />
-      <Sidebar />
+      <Topbar collapsed={isCollapsed} />
+      <Sidebar collapsed={isCollapsed} onToggle={() => setCollapsed((prev) => !prev)} />
 
       <Box
         component="main"
