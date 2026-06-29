@@ -4,6 +4,7 @@ import {
     Box,
     Typography,
     Grid,
+    Toolbar,
 } from "@mui/material";
 import StatCard from "./StatCard";
 
@@ -12,6 +13,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import QuickActions from "./QuickActions";
 import RecentAtivity from "./RecentActivity";
+import DashboardSummary from "./DashboardSummary";
 
 export default function Dashboard() {
     return (
@@ -31,6 +33,8 @@ export default function Dashboard() {
             >
                 Here's what's happening today.
             </Typography>
+            <DashboardSummary />
+            <Toolbar />
             <Grid container spacing={3}>
                 <Grid size={{xs: 12, md: 4}}>
                     <StatCard
