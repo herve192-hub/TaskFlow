@@ -14,6 +14,8 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import QuickActions from "./QuickActions";
 import RecentAtivity from "./RecentActivity";
 import DashboardSummary from "./DashboardSummary";
+import UpcomingDeadlines from "./UpcomingDeadlines";
+import ProgressWidget from "./ProgressWidget";
 
 export default function Dashboard() {
     return (
@@ -33,7 +35,9 @@ export default function Dashboard() {
             >
                 Here's what's happening today.
             </Typography>
-            <DashboardSummary />
+            <Grid size={{xs:12 }}>
+                <DashboardSummary />
+            </Grid>
             <Toolbar />
             <Grid container spacing={3}>
                 <Grid size={{xs: 12, md: 4}}>
@@ -58,8 +62,24 @@ export default function Dashboard() {
                     />
                 </Grid>
             </Grid>
-            <QuickActions />
-            <RecentAtivity />
+            <Grid size={{xs:12 }}>
+                <QuickActions />
+            </Grid>
+            <Grid container spacing={3} sx={{ mt: 1, alignItems: "stretch" }}>
+                <Grid size={{ xs: 12, lg: 7 }}>
+                    <RecentAtivity />
+                </Grid>
+                <Grid size={{ xs: 12, lg: 5 }}>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 3, height: "100%", mt: 4 }}>
+                        <Box sx={{ flex: 1 }}>
+                            <UpcomingDeadlines />
+                        </Box>
+                        <Box sx={{ flex: 1 }}>
+                            <ProgressWidget />
+                        </Box>
+                    </Box>
+                </Grid>
+            </Grid>
         </Box>
     );
 }
