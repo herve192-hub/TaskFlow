@@ -56,6 +56,9 @@ export default function RecentAtivity() {
                 borderRadius: 3,
                 border: "1px solid",
                 borderColor: "divider",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
             }}
         >
             <Typography
