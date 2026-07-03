@@ -21,6 +21,8 @@ export default function StatCard({
                 border: "1px solid",
                 borderColor: "divider",
                 height: "100%",
+                overflow: "hidden",
+                minWidth: 0,
             }} 
         >
             <Box
@@ -28,7 +30,10 @@ export default function StatCard({
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
+                    flexWrap: { xs: "wrap", sm: "nowrap" },
+                    gap: 2,
                     mb: 3,
+                    minWidth: 0,
                 }}
             >
                 <Box
@@ -40,19 +45,27 @@ export default function StatCard({
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        flexShrink: 0,
                     }}
                 >
                     {icon}
                 </Box>
                 <Typography 
                     variant="body2"
-                    color="text.secondary" 
+                    color="text.secondary"
+                    sx={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        minWidth: 0,
+                        flexGrow: 1,
+                    }}
                 >
                     {title}
                 </Typography>
                 <Typography
                     variant="h3"
-                    sx={{ fontWeight: 700 }}
+                    sx={{ fontWeight: 700, flexShrink: 0 }}
                 >
                     {value}
                 </Typography>

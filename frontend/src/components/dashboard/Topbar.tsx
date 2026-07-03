@@ -1,5 +1,24 @@
 // Topbar.tsx ...
-import { AppBar, Avatar, Box, IconButton, Menu, MenuItem, Toolbar, Typography } from "@mui/material";
+import {
+  AppBar,
+  Avatar,
+  Box,
+  IconButton,
+  InputBase,
+  Paper,
+  Popper,
+  ClickAwayListener,
+  Badge,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Typography,
+  ListItemButton,
+} from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
@@ -15,6 +34,19 @@ export default function Topbar({ collapsed }: TopbarProps) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchAnchor, setSearchAnchor] = useState<null | HTMLElement>(null);
+
+  const [notifAnchor, setNotifAnchor] = useState<null | HTMLElement>(null);
+  const notifOpen = Boolean(notifAnchor);
+
+  const [notifications, setNotifications] = useState(
+    [
+      { id: 1, title: "Task overdue", body: "Project A task is overdue.", unread: true },
+      { id: 2, title: "New comment", body: "You have a new comment on Task 4.", unread: true },
+      { id: 3, title: "Deployment", body: "Deployment succeeded.", unread: false },
+    ] as { id: number; title: string; body: string; unread: boolean }[]
+  );
 
   const handleLogout = () => {
     localStorage.clear();
@@ -34,7 +66,7 @@ export default function Topbar({ collapsed }: TopbarProps) {
       position="fixed"
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
-        ml: collapsed ? `${collapsedDrawerWidth}px` : `${drawerWidth}px`,
+        ml: { xs: 0, sm: collapsed ? `${collapsedDrawerWidth}px` : `${drawerWidth}px` },
         px: { xs: 1, sm: 2 },
         backgroundColor: "background.paper",
         color: "text.primary",
@@ -43,7 +75,7 @@ export default function Topbar({ collapsed }: TopbarProps) {
         borderColor: "divider",
       }}
     >
-      <Toolbar sx={{ justifyContent: "space-between", minHeight: 72 }}>
+      <Toolbar sx={{ justifyContent: "space-between", minHeight: { xs: 64, sm: 72 } }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
           <Box
             sx={{
@@ -60,13 +92,103 @@ export default function Topbar({ collapsed }: TopbarProps) {
           >
             T
           </Box>
-          <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: 0.3 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: 0.3,
+              display: { xs: "none", sm: "block" },
+            }}
+          >
             TaskFlow
           </Typography>
         </Box>
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+        {/* Centered search area */}
+        <Box sx={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <IconButton
+              onClick={(e) => setSearchAnchor((a) => (a ? null : e.currentTarget))}
+              sx={{
+                border: "1px solid",
+                borderColor: "divider",
+                bgcolor: "grey.50",
+                "&:hover": { bgcolor: "grey.100" },
+                display: { xs: "inline-flex", sm: "none" },
+              }}
+            >
+              <SearchIcon />
+            </IconButton>
+
+            <Box sx={{ display: { xs: "none", sm: "block" }, ml: 1, width: 320 }}>
+              <Paper
+                component="form"
+                onSubmit={(e) => e.preventDefault()}
+                sx={{ display: "flex", alignItems: "center", px: 1, py: 0.3 }}
+              >
+                <SearchIcon color="action" />
+                <InputBase
+                  placeholder="Search tasks, projects, people..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  sx={{ ml: 1, flex: 1 }}
+                />
+              </Paper>
+              {searchQuery && (
+                <Paper sx={{ mt: 0.5, maxHeight: 240, overflow: "auto" }}>
+                  <List dense>
+                    {["Create task", "Project A", "Haris"].
+                      filter((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
+                      .map((s, i) => (
+                        <ListItem key={i} disablePadding>
+                          <ListItemButton onClick={() => setSearchQuery(s)}>
+                            <ListItemText primary={s} />
+                          </ListItemButton>
+                        </ListItem>
+                      ))}
+                  </List>
+                </Paper>
+              )}
+            </Box>
+
+            <Popper open={Boolean(searchAnchor)} anchorEl={searchAnchor} placement="bottom-start">
+              <ClickAwayListener onClickAway={() => setSearchAnchor(null)}>
+                <Paper sx={{ p: 1, mt: 1, width: 260 }}>
+                  <Paper
+                    component="form"
+                    onSubmit={(e) => e.preventDefault()}
+                    sx={{ display: "flex", alignItems: "center", px: 1, py: 0.3 }}
+                  >
+                    <SearchIcon color="action" />
+                    <InputBase
+                      placeholder="Search tasks, projects, people..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      sx={{ ml: 1, flex: 1 }}
+                      autoFocus
+                    />
+                  </Paper>
+                  {searchQuery && (
+                    <List dense sx={{ mt: 1, maxHeight: 200, overflow: "auto" }}>
+                      {["Create task", "Project A", "Haris"].
+                        filter((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
+                        .map((s, i) => (
+                          <ListItem key={i} disablePadding>
+                            <ListItemButton onClick={() => setSearchQuery(s)}>
+                              <ListItemText primary={s} />
+                            </ListItemButton>
+                        </ListItem>
+                        ))}
+                    </List>
+                  )}
+                </Paper>
+              </ClickAwayListener>
+            </Popper>
+          </Box>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.8, sm: 1.2 } }}>
           <IconButton
+            onClick={(e) => setNotifAnchor(e.currentTarget)}
             sx={{
               border: "1px solid",
               borderColor: "divider",
@@ -74,27 +196,47 @@ export default function Topbar({ collapsed }: TopbarProps) {
               "&:hover": { bgcolor: "grey.100" },
             }}
           >
-            <SearchIcon />
+            <Badge color="error" badgeContent={notifications.filter((n) => n.unread).length}>
+              <NotificationsIcon />
+            </Badge>
           </IconButton>
 
-          <IconButton
-            sx={{
-              border: "1px solid",
-              borderColor: "divider",
-              bgcolor: "grey.50",
-              "&:hover": { bgcolor: "grey.100" },
-            }}
+          <Menu
+            anchorEl={notifAnchor}
+            open={notifOpen}
+            onClose={() => setNotifAnchor(null)}
+            slotProps={{ paper: { sx: { mt: 1.6, minWidth: 320 } } }}
           >
-            <NotificationsIcon />
-          </IconButton>
+            <Box sx={{ px: 2, py: 1 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                Notifications
+              </Typography>
+            </Box>
+            <Divider />
+            {notifications.map((n) => (
+              <MenuItem
+                key={n.id}
+                onClick={() => {
+                  setNotifications((prev) => prev.map((p) => (p.id === n.id ? { ...p, unread: false } : p)));
+                }}
+                sx={{ whiteSpace: "normal" }}
+              >
+                <ListItemText primary={n.title} secondary={n.body} />
+              </MenuItem>
+            ))}
+            <Divider />
+            <MenuItem onClick={() => { setNotifications([]); setNotifAnchor(null); }} sx={{ justifyContent: "center" }}>
+              Clear all
+            </MenuItem>
+          </Menu>
 
           <Avatar
             onClick={handleClick}
             sx={{
               bgcolor: "primary.main",
               cursor: "pointer",
-              width: 40,
-              height: 40,
+              width: { xs: 34, sm: 40 },
+              height: { xs: 34, sm: 40 },
               border: "2px solid",
               borderColor: "primary.light",
             }}

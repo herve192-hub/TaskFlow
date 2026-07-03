@@ -1,5 +1,5 @@
+// 
 // Dashboard.tsx ...
-
 import {
     Box,
     Typography,
@@ -16,6 +16,7 @@ import RecentAtivity from "./RecentActivity";
 import DashboardSummary from "./DashboardSummary";
 import UpcomingDeadlines from "./UpcomingDeadlines";
 import ProgressWidget from "./ProgressWidget";
+import AnimatedCard from "./animatedCard";
 
 export default function Dashboard() {
     return (
@@ -41,25 +42,31 @@ export default function Dashboard() {
             <Toolbar />
             <Grid container spacing={3}>
                 <Grid size={{xs: 12, md: 4}}>
-                    <StatCard
-                        title="Total Tasks"
-                        value={42}
-                        icon={<TaskAltIcon color="primary" />}
-                    />
+                    <AnimatedCard>
+                        <StatCard
+                            title="Total Tasks"
+                            value={42}
+                            icon={<TaskAltIcon color="primary" />}
+                        />
+                    </AnimatedCard>
                 </Grid>
                 <Grid size={{xs: 12, md: 4}}>
-                    <StatCard
-                        title="Completed"
-                        value={28}
-                        icon={<CheckCircleIcon color="primary" />}
-                    />
+                    <AnimatedCard>
+                        <StatCard
+                            title="Completed"
+                            value={28}
+                            icon={<CheckCircleIcon color="primary" />}
+                        />
+                    </AnimatedCard>
                 </Grid>
                 <Grid size={{xs: 12, md: 4}}>
-                    <StatCard
-                        title="Projects"
-                        value={6}
-                        icon={<FolderOpenIcon color="primary" />}
-                    />
+                    <AnimatedCard>
+                        <StatCard
+                            title="Projects"
+                            value={6}
+                            icon={<FolderOpenIcon color="primary" />}
+                        />
+                    </AnimatedCard>
                 </Grid>
             </Grid>
             <Grid size={{xs:12 }}>

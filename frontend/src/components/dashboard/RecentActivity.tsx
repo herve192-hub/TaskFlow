@@ -75,6 +75,7 @@ export default function RecentAtivity() {
                     <Box
                         sx={{
                             display: "flex",
+                            flexWrap: "wrap",
                             alignItems: "center",
                             justifyContent: "space-between",
                             py: 2,
@@ -91,8 +92,10 @@ export default function RecentAtivity() {
                         <Box
                             sx={{
                                 display: "flex",
-                                alignContent: "center",
+                                alignItems: "center",
                                 gap: 2,
+                                minWidth: 0,
+                                flex: 1,
                             }}
                         >
                             <Avatar
@@ -101,25 +104,33 @@ export default function RecentAtivity() {
                                     color: `${activity.color}.main`,
                                     width: 42,
                                     height: 42,
+                                    flexShrink: 0,
                                 }}
                             >
                                 {activity.icon}
                             </Avatar>
-                            <Box>
+                            <Box sx={{ minWidth: 0 }}>
                                 <Typography
-                                    sx={{ fontWeight: 600 }}
+                                    sx={{
+                                        fontWeight: 600,
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "normal",
+                                        wordBreak: "break-word",
+                                    }}
                                 >
                                     {activity.title}
                                 </Typography>
                                 <Typography
                                     variant="body2"
                                     color="text.secondary"
+                                    sx={{ overflowWrap: "anywhere" }}
                                 >
                                     {activity.time}
                                 </Typography>
                             </Box>
                         </Box>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexShrink: 0, mt: { xs: 1, sm: 0 } }}>
                             <Chip
                                 label={activity.type}
                                 color={
