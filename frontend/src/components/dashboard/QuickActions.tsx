@@ -93,16 +93,18 @@ export default function QuickActions() {
                                 border: "1px solid",
                                 borderColor: "divider",
                                 height: "100%",
-                                transition: "all.25s ease",
+                                overflow: "hidden",
+                                minWidth: 0,
+                                transition: "all .25s ease",
 
                                 "&:hover": {
-                                    transform: "translateY(-px)",
+                                    transform: "translateY(-2px)",
                                     boxShadow: 6,
                                     borderColor: "primary.main",
                                 },
 
                                  "&:active": {
-                                    transform: "translateY(-px)",
+                                    transform: "translateY(-2px)",
                                 },
                             }}
                         >
@@ -114,6 +116,7 @@ export default function QuickActions() {
                                     bgcolor: "grey.100",
                                     justifyContent: "center",
                                     alignItems: "center",
+                                    display: "flex",
                                     mb: 2,
                                 }}
                             >
@@ -121,13 +124,18 @@ export default function QuickActions() {
                             </Box>
                             <Typography
                                 variant="h6"
-                                sx={{fontWeight: 700 }}
+                                sx={{
+                                    fontWeight: 700,
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                }}
                             >
                                 {action.title}
                             </Typography>
                             <Typography
                                 variant="body2"
-                                sx={{ color: "text.secondary", mt: 1 }}
+                                sx={{ color: "text.secondary", mt: 1, overflowWrap: "anywhere" }}
                             >
                                 {action.subtitle}
                             </Typography>
