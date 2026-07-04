@@ -6,10 +6,15 @@ on:
       - main
       - develop
       - dev/feature-workflows
+    paths:
+      - 'frontend/**'
+      
   pull_request:
     branches:
       - main
       - develop
+    paths:
+      - 'frontend/**'
 
 jobs:
   build-and-test:
