@@ -1,7 +1,7 @@
 <!-- Herve Chendjou -->
 
 <!-- ======================== -->
-       <!-- parent POM -->
+<!--        parent POM        -->
 <!-- ======================== -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -31,18 +31,10 @@
     <!-- MODULES (MICROSERVICES) -->
     <!-- ===================== -->
     <modules>
-
         <!-- Infrastructure -->
-        <module>infrastructure/discovery-server</module>
-        <module>infrastructure/config-server</module>
-        <module>infrastructure/api-gateway</module>
-
+        <module>infrastructure</module>
         <!-- Business Services -->
-        <module>services/auth-service</module>
-        <module>services/user-service</module>
-        <module>services/task-service</module>
-        <module>services/project-service</module>
-
+        <module>services</module>
     </modules>
 
     <!-- ===================== -->
