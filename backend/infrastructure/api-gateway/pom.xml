@@ -1,6 +1,6 @@
 <!-- Herve Chendjou -->
-<!-- this pom file contains the dependencies for the config server -->
-<!-- it allows the application to fetch configuration from a remote source -->
+<!-- this pom file contains the dependencies for the api gateway -->
+<!-- it allows the application to route requests to the appropriate microservices -->
 
 <project>
 
@@ -13,12 +13,11 @@
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
-
-	<artifactId>config-server</artifactId>
+	<artifactId>api-gateway</artifactId>
 	
-	<name>Taskflow Config Server</name>
+	<name>api-gateway</name>
 	
-	<description>Config Server for TaskFlow</description>
+	<description>API Gateway for TaskFlow</description>
 
 	<dependencies>
 		<!-- Spring Boot Actuator dependency -->
@@ -26,10 +25,15 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		<!-- Spring Cloud Config Server dependency -->
+		<!-- Spring Cloud Config dependency -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-config-server</artifactId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
+		<!-- Spring Cloud Gateway dependency -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-gateway</artifactId>
 		</dependency>
 		<!-- Eureka Client dependency -->
 		<dependency>

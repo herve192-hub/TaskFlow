@@ -1,3 +1,6 @@
+# this is the configuration file for the Config Server application. It defines the server port, application name, active profile, and the location of the configuration repository. 
+# It also configures Eureka client settings and management endpoints for monitoring and health checks.
+
 server:
   port: 8888
 
@@ -7,18 +10,21 @@ spring:
 
   profiles:
     active: native
-
+  # The 'native' profile is used to indicate that the configuration files are 
+  # stored locally in the file system. The search-locations property specifies the path to the configuration repository, 
+  # which is located two levels up from the current directory in the 'config-repo' folder.
   cloud:
     config:
       server:
         native:
           search-locations: file:../../config-repo
-
+# The 'eureka' section configures the Eureka client settings for the Config Server application.
+# It specifies the default zone for the Eureka server, which is used for service discovery and registration.
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-
+# The 'management' section configures management endpoints for monitoring and managing the application ...
 management:
   endpoints:
     web:

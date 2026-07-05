@@ -1,0 +1,33 @@
+# api-gateway application.yaml ...
+# 
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  # config server configuration for centralized configuration management ...
+  # this allows the api-gateway to fetch its configuration from the config server ...
+  config:
+    import: optional:configserver:http://localhost:8888
+# eureka client configuration for service discovery ...
+# it allows the api-gateway to register itself with the eureka server and discover other microservices registered with eureka ...
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+# service discovery configuration for routing requests to the appropriate microservices ...
+# this allows the api-gateway to route requests to the appropriate microservices based on their service IDs ...
+cloud:
+  gateway:
+    discovery:
+      locator:
+        enabled: true
+        lower-case-service-id: true
+# management endpoints configuration for monitoring and managing the api-gateway ...
+# this allows the api-gateway to expose management endpoints for monitoring and managing the application ...
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
