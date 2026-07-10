@@ -1,0 +1,79 @@
+# version: '3.9'
+
+services:
+
+  # Discovery Server service is built from the Dockerfile located at infrastructure/discovery-server/Dockerfile.
+  # It is named discovery-server and exposes port 8761. 
+  # It is connected to the taskflow-network and has a healthcheck that checks the /actuator/health endpoint. ...
+  discovery-server:
+    build:
+      context: ./backend
+      dockerfile: infrastructure/discovery-server/Dockerfile
+
+    container_name: discovery-server
+    ports:
+      - "8761:8761"
+
+    networks:
+      - taskflow-network
+    # here we define a healthcheck for the discovery-server service, which checks the health 
+    # of the service by sending a request to the /actuator/health endpoint. ...
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:8761/actuator/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      # start_period: 30s
+  # Config Server service is built from the Dockerfile located at infrastructure/config-server/Dockerfile.
+  # It is named config-server and exposes port 8888. It is connected to the taskflow-network 
+  # and has a healthcheck that checks the /actuator/health endpoint. ...
+  config-server:
+    build:
+      context: ./backend
+      dockerfile: infrastructure/config-server/Dockerfile
+
+    container_name: config-server
+    ports:
+      - "8888:8888"
+
+    networks:
+      - taskflow-network
+
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:8888/actuator/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      # start_period: 30s
+
+  # API Gateway service is built from the Dockerfile located at infrastructure/api-gateway/Dockerfile.
+  # It is named api-gateway and exposes port 8080. It depends on the discovery-server and config-server services, is connected to the taskflow-network,
+  # and has a healthcheck that checks the /actuator/health endpoint. ...
+  api-gateway:
+    build:
+      context: ./backend
+      dockerfile: infrastructure/api-gateway/Dockerfile
+
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+    networks:
+      - taskflow-network
+
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:8080/actuator/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      # start_period: 30s
+
+networks:
+  taskflow-network:
+    driver: bridge

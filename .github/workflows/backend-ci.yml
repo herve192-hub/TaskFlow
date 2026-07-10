@@ -65,3 +65,12 @@ jobs:
       # this is the step that builds the backend using Maven, running the clean and verify goals. ...
       - name: Build Backend
         run: ./mvnw clean verify
+
+      - name: Build Discovery Server Image
+        run: docker build -f infrastructure/discovery-server/Dockerfile -t taskflow/discovery-server .
+      
+      - name: Build Config Server Image
+        run: docker build -f infrastructure/config-server/Dockerfile -t taskflow/config-server .
+
+      - name: Build API Gateway Image
+        run: docker build -f infrastructure/api-gateway/Dockerfile -t taskflow/api-gateway .
