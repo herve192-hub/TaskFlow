@@ -1,5 +1,9 @@
-name: Backend CI
 
+# The workflow is triggered on push and pull request events for the specified branches and paths. ...
+# It checks out the repository, sets up JDK 21, verifies Java and Maven, and then builds the backend using Maven. ...
+# The workflow has a timeout of 15 minutes and ensures that only one run per branch is in progress at a time. ...
+
+name: Backend CI
 
 on:
   push:
@@ -9,22 +13,35 @@ on:
       - dev/feature-workflows
     paths:
       - 'backend/**'
-      
+  # 
   pull_request:
     branches:
       - main
       - develop
     paths:
       - 'backend/**'
+  # 
+permissions:
+  contents: read
+  # pull-requests: write
 
+# concurrency ensures that only one workflow run per branch is in progress at a time. ...
+# If a new run is triggered while another is in progress, the in-progress run will be canceled. ...
+concurrency:
+  group: backend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# the jobs section defines the build-and-test job, which runs on the latest Ubuntu environment. ...
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     defaults:
       run:
         working-directory: backend
-
+    # the steps section defines the individual steps of the job, including checking out the repository, 
+    # setting up JDK 21, verifying Java and Maven, and building the backend using Maven. ...
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -39,26 +56,12 @@ jobs:
       - name: Make Maven wrapper executable
         run: chmod +x mvnw
 
-      - name: Verify Maven
-        run: mvn -version
-        
+      - name: Verify Java
+        run: java -version
+
+      - name: Verify Maven Wrapper
+        run: ./mvnw -version
+      
+      # this is the step that builds the backend using Maven, running the clean and verify goals. ...
       - name: Build Backend
         run: ./mvnw clean verify
-
-      # - name: Clean Project
-      #   run: mvn clean
-
-      # - name: Compile Project
-      #   run: mvn compile
-
-      # - name: Run Unit Tests
-      #   run: mvn test
-
-      # - name: Package Service
-      #   run: mvn package
-
-    #   - name: Run Integration Tests
-    #     run: mvn integration-test
-
-      # - name: Verify Build
-      #   run: mvn verify
