@@ -1,0 +1,9 @@
+server:
+  port: 8085
+
+spring:
+  data:
+    mongodb:
+      database: notificationdb
+      # uri: ${MONGO_URI}
+      # database: ${MONGO_DATABASE}
