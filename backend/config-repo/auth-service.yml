@@ -1,0 +1,9 @@
+server:
+  port: 8081
+
+spring:
+  data:
+    mongodb:
+      database: authdb
+      # uri: ${MONGO_URI}
+      # database: ${MONGO_DATABASE}

@@ -11,11 +11,19 @@ services:
       dockerfile: infrastructure/discovery-server/Dockerfile
 
     container_name: discovery-server
+
     ports:
-      - "8761:8761"
+      - "${DISCOVERY_PORT}:8761"
+
+    # very handy because it allows you to set environment variables in a .env file and reference them in the docker-compose.yml file.
+    # no need to hardcode values in the docker-compose.yml file, making it more flexible and easier to manage. ...
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE}
 
     networks:
       - taskflow-network
+    restart: unless-stopped
+
     # here we define a healthcheck for the discovery-server service, which checks the health 
     # of the service by sending a request to the /actuator/health endpoint. ...
     healthcheck:
@@ -24,6 +32,7 @@ services:
       timeout: 10s
       retries: 5
       # start_period: 30s
+
   # Config Server service is built from the Dockerfile located at infrastructure/config-server/Dockerfile.
   # It is named config-server and exposes port 8888. It is connected to the taskflow-network 
   # and has a healthcheck that checks the /actuator/health endpoint. ...
@@ -33,12 +42,30 @@ services:
       dockerfile: infrastructure/config-server/Dockerfile
 
     container_name: config-server
+
+    # very handy because it allows you to set environment variables in a 
+    # .env file and reference them in the docker-compose.yml file. 
+    # no need to hardcode values in the docker-compose.yml file, making it more flexible and easier to manage. ...
+    env_file:
+      - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     ports:
-      - "8888:8888"
+      - "${CONFIG_PORT}:8888"
+    # The depends_on option specifies that the config-server service depends on the discovery-server service.
+    # The condition: service_healthy option specifies that the config-server service 
+    # should only start after the discovery-server service is healthy. ...
+    depends_on:
+      discovery-server:
+        condition: service_healthy
 
     networks:
       - taskflow-network
+    restart: unless-stopped
 
+    # here is define a healthcheck for the config-server service, which checks the health 
+    # of the service by sending a request to the /actuator/health endpoint. ...
     healthcheck:
       test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:8888/actuator/health"]
       interval: 20s
@@ -55,9 +82,23 @@ services:
       dockerfile: infrastructure/api-gateway/Dockerfile
 
     container_name: api-gateway
+
     ports:
-      - "8080:8080"
-    
+      - "${API_GATEWAY_PORT}:8080"
+
+    #  very handy because it allows you to set environment variables in a 
+    # .env file and reference them in the docker-compose.yml file. no need to hardcode values in the docker-compose.yml file,
+    #  making it more flexible and easier to manage. ...
+    env_file:
+      - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:8888
+      
+    # The depends_on option specifies that the api-gateway service depends on the discovery-server and config-server services.
+    # The condition: service_healthy option specifies that the api-gateway service should only start after 
+    # the discovery-server and config-server services are healthy. This ensures that the api-gateway service does not start until its dependencies are ready. ...
     depends_on:
       discovery-server:
         condition: service_healthy
@@ -66,13 +107,42 @@ services:
 
     networks:
       - taskflow-network
+    restart: unless-stopped
 
+    # here we define a healthcheck for the api-gateway service, 
+    # which checks the health of the service by sending a request to the /actuator/health endpoint. ...
     healthcheck:
       test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:8080/actuator/health"]
       interval: 20s
       timeout: 10s
       retries: 5
       # start_period: 30s
+
+  mongodb:
+    image: mongo:latest
+
+    container_name: mongodb
+
+    restart: unless-stopped
+
+    ports:
+      - "${MONGO_PORT}:27017"
+
+    env_file:
+      - .env
+    environment:
+      - MONGO_INIT_ROOT_USERNAME= ${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INIT_ROOT_PASSWORD= ${MONGO_INITDB_ROOT_PASSWORD}
+
+    volumes:
+      - mongodb-data:/data/db
+
+    networks:
+      - taskflow-network
+
+volumes:
+  mongodb-data:
+    # driver: local
 
 networks:
   taskflow-network:

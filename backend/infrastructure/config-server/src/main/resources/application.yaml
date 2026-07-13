@@ -17,7 +17,7 @@ spring:
     config:
       server:
         native:
-          search-locations: file:/app/config-repo
+          search-locations: classpath:/config,file:./config-repo
 # The 'eureka' section configures the Eureka client settings for the Config Server application.
 # It specifies the default zone for the Eureka server, which is used for service discovery and registration.
 eureka:

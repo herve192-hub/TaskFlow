@@ -1,0 +1,9 @@
+server:
+  port: 8082
+
+spring:
+  data:
+    mongodb:
+      database: taskdb
+      # uri: ${MONGO_URI}
+      # database: ${MONGO_DATABASE}
