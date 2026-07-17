@@ -18,7 +18,8 @@ services:
     # very handy because it allows you to set environment variables in a .env file and reference them in the docker-compose.yml file.
     # no need to hardcode values in the docker-compose.yml file, making it more flexible and easier to manage. ...
     environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE}
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - EUREKA_URL=http://discovery-server:8761/eureka/
 
     networks:
       - taskflow-network
@@ -50,7 +51,8 @@ services:
       - .env
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - EUREKA_URL=http://discovery-server:8761/eureka/
+      - CONFIG_SERVER_URL=http://config-server:8888
     ports:
       - "${CONFIG_PORT}:8888"
     # The depends_on option specifies that the config-server service depends on the discovery-server service.
@@ -92,8 +94,8 @@ services:
     env_file:
       - .env
     environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE}
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - EUREKA_URL=http://discovery-server:8761/eureka/
       - CONFIG_SERVER_URL=http://config-server:8888
       
     # The depends_on option specifies that the api-gateway service depends on the discovery-server and config-server services.
@@ -126,7 +128,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - "${MONGO_PORT}:27017"
+      - "${MONGODB_PORT}:27017"
 
     env_file:
       - .env

@@ -1,9 +1,12 @@
+
+# taskflow/backend/config-repo/user-service.yml ...
 server:
   port: 8084
 
 spring:
+  application:
+    name: user-service
+  
   data:
     mongodb:
       database: userdb
-      # uri: ${MONGO_URI}
-      # database: ${MONGO_DATABASE}
