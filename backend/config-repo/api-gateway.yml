@@ -1,10 +1,27 @@
+# taskflow/backend/config-repo/api-gateway.yml ...
 server:
   port: 8080
 
 spring:
+  application:
+    name: api-gateway
   cloud:
     gateway:
-      mvc:
-        routes: []
+      
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
 
-  
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin # this filter removes duplicate Access-Control-Allow-Origin headers from the response ...
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO

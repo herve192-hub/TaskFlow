@@ -1,9 +1,11 @@
+# project-service.yml ...
 server:
   port: 8083
 
 spring:
+  application:
+    name: project-service
+  
   data:
     mongodb:
       database: projectdb
-      # uri: ${MONGO_URI}
-      # database: ${MONGO_DATABASE}

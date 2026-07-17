@@ -1,9 +1,11 @@
+# taskflow/backend/config-repo/notification-service.yml ...
 server:
   port: 8085
 
 spring:
+  application:
+    name: notification-service
+
   data:
     mongodb:
       database: notificationdb
-      # uri: ${MONGO_URI}
-      # database: ${MONGO_DATABASE}
