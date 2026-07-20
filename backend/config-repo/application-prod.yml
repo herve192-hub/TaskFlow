@@ -1,0 +1,29 @@
+# TASKFLOW/backend/config-repo/application-prod.yml
+# for AWS ...
+
+spring:
+    data:
+        mongodb:
+            uri: ${MONGO_URI}
+
+    kafka:
+        bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+
+eureka:
+    client:
+        service-url:
+            defaultZone: ${EUREKE_URL}
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health,info
+
+logging:
+    level:
+        root: WARN
+        com.taskflow: INFO
+
+app:
+    environment: production

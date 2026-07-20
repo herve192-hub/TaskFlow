@@ -7,12 +7,16 @@ server:
 spring:
   application:
     name: discovery-server
+  profiles:
+    active: ${SPRING_PROFILE_ACTIVE:dev}
+
 # The 'eureka' section configures the Eureka client settings for the Discovery Server application ...
 # It specifies that the Discovery Server should not register itself with Eureka and should not fetch the registry ...
 eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
+    
 # The 'server' section configures the Discovery Server's self-preservation mode ...
   server:
     enable-self-preservation: true
