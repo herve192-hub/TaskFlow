@@ -7,6 +7,22 @@ spring:
     name: api-gateway
   cloud:
     gateway:
+    # prepare gateway for CORS ...
+      globalcors:
+        corsConfigurations:
+          '[/**]'
+            allowedOrigins:
+              - http://localhost:3000
+              - http://localhost:5173
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
       
       discovery:
         locator:

@@ -1,0 +1,27 @@
+# 
+spring:
+    data:
+        mongodb:
+            uri: mongodb://admin:admin123@mongodb:27017/?authSource=admin
+
+    kafka:
+        bootstrap-servers: kafka:9092
+
+eureka:
+    client:
+        service-url:
+            defaultZone: http://discovery-server:8761/eureka/
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health,info,metrics,prometheus
+
+logging:
+    level:
+        comt.taskflow: INFO
+
+app:
+    environment: docker
+                

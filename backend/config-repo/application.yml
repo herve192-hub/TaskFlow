@@ -1,12 +1,13 @@
 # taskflow/backend/config-repo/application.yml ...
+# all the shared configurations here ...
 
 spring:
   data:
     mongodb:
       uri: ${MONGO_URI:mongodb://admin:admin123@mongodb:27017/?authSource=admin}
 
-kafka:
-  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
 
 eureka:
   client:

@@ -18,8 +18,7 @@ services:
     # very handy because it allows you to set environment variables in a .env file and reference them in the docker-compose.yml file.
     # no need to hardcode values in the docker-compose.yml file, making it more flexible and easier to manage. ...
     environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - EUREKA_URL=http://discovery-server:8761/eureka/
+      SPRING_PROFILES_ACTIVE: native
 
     networks:
       - taskflow-network
@@ -50,9 +49,9 @@ services:
     env_file:
       - .env
     environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - EUREKA_URL=http://discovery-server:8761/eureka/
-      - CONFIG_SERVER_URL=http://config-server:8888
+      # SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_PROFILES_ACTIVE: native
+      EUREKA_URL: ${EUREKA_URL}
     ports:
       - "${CONFIG_PORT}:8888"
     # The depends_on option specifies that the config-server service depends on the discovery-server service.
@@ -94,9 +93,10 @@ services:
     env_file:
       - .env
     environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - EUREKA_URL=http://discovery-server:8761/eureka/
-      - CONFIG_SERVER_URL=http://config-server:8888
+      # SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_URL: ${EUREKA_URL}
+      CONFIG_SERVER_URL: ${CONFIG_SERVER_URL}
       
     # The depends_on option specifies that the api-gateway service depends on the discovery-server and config-server services.
     # The condition: service_healthy option specifies that the api-gateway service should only start after 
@@ -121,7 +121,7 @@ services:
       # start_period: 30s
 
   mongodb:
-    image: mongo:latest
+    image: mongo:8.0
 
     container_name: mongodb
 
@@ -133,14 +133,21 @@ services:
     env_file:
       - .env
     environment:
-      - MONGO_INIT_ROOT_USERNAME= ${MONGO_INITDB_ROOT_USERNAME}
-      - MONGO_INIT_ROOT_PASSWORD= ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
 
     volumes:
       - mongodb-data:/data/db
 
     networks:
       - taskflow-network
+    
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      # start_period: 30s
 
 volumes:
   mongodb-data:
