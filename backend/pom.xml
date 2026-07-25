@@ -33,7 +33,7 @@
     <!-- ===================== -->
     <modules>
         <!-- shared module -->
-        <module>commons</module>
+        <!-- <module>commons</module> -->
         <!-- Infrastructure -->
         <module>infrastructure</module>
         <!-- Business Services -->
