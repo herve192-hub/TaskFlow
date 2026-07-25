@@ -1,0 +1,22 @@
+<project>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.taskflow</groupId>
+        <artifactId>taskflow-backend</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>commons</artifactId>
+
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>common-models</module>
+        <module>common-security</module>
+        <module>common-events</module>
+        <module>common-exceptions</module>
+    </modules>
+
+</project>

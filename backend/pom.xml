@@ -25,12 +25,15 @@
         <java.version>21</java.version>
         <spring.boot.version>3.5.3</spring.boot.version>
         <spring.cloud.version>2025.0.0</spring.cloud.version>
+        <jjwt.version>0.12.7</jjwt.version>
     </properties>
 
     <!-- ===================== -->
     <!-- MODULES (MICROSERVICES) -->
     <!-- ===================== -->
     <modules>
+        <!-- shared module -->
+        <!-- <module>commons</module> -->
         <!-- Infrastructure -->
         <module>infrastructure</module>
         <!-- Business Services -->
