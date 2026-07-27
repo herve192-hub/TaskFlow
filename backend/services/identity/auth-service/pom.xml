@@ -97,7 +97,7 @@
 		</dependency>
 
 		<!-- for the shared modules -->
-		<!-- <dependency>
+		<dependency>
 			<groupId>com.taskflow</groupId>
 			<artifactId>common-security</artifactId>
 		</dependency>
@@ -112,7 +112,7 @@
 		<dependency>
 			<groupId>com.taskflow</groupId>
 			<artifactId>common-exceptions</artifactId>
-		</dependency> -->
+		</dependency>
 
 		<!-- for API documentation ... -->
 		<dependency>
