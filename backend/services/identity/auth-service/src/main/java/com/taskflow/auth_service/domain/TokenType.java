@@ -1,5 +1,5 @@
 // 
-package com.taskflow.auth.domain;
+package com.taskflow.auth_service.domain;
 
 public enum TokenType {
     ACCESS,

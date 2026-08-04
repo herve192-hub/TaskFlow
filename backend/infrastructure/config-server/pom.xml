@@ -1,7 +1,7 @@
 <!-- Herve Chendjou -->
 <!-- this pom file contains the dependencies for the config server -->
 <!-- it allows the application to fetch configuration from a remote source -->
-
+<!-- backend/infrastructure/config-server -->
 <project>
 
 	<modelVersion>4.0.0</modelVersion>

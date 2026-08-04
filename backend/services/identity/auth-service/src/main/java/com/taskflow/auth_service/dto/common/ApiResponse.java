@@ -1,7 +1,7 @@
 // 
-package com.taskflow.auth.dto.common;
+package com.taskflow.auth_service.dto.common;
 
-import lombok.builder;
+import lombok.Builder;
 import lombok.Data;
 
 @Data

@@ -9,3 +9,14 @@ spring:
   data:
     mongodb:
       database: authdb
+
+eureka:
+  client:
+  service-url:
+    defaultZone: ${EUREKA_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

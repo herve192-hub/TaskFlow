@@ -1,5 +1,5 @@
 // 
-package com.taskflow.auth.dto.response;
+package com.taskflow.auth_service.dto.response;
 
 import lombok.Builder;
 import lombok.Data;

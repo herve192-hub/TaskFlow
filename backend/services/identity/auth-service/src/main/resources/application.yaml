@@ -1,3 +1,44 @@
 spring:
   application:
     name: auth-service
+
+  config:
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+  
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+
+  instance:
+    prefer-ip-address: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  issuer: taskflow
+  expiration: ${JWT_EXPIRATION_MS:3600000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION_MS:604800000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO
+    com.taskflow: DEBUG
+
+server:
+  shutdown: graceful
