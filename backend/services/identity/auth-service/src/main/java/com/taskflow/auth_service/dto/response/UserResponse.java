@@ -1,8 +1,8 @@
 // 
-package com.taskflow.auth.dto.response;
+package com.taskflow.auth_service.dto.response;
 
-import com.taskflow.auth.domain.AuthProvider;
-import com.taskflow.auth.domain.Role;
+import com.taskflow.auth_service.domain.AuthProvider;
+import com.taskflow.auth_service.domain.Role;
 import lombok.Builder;
 import lombok.Data;
 

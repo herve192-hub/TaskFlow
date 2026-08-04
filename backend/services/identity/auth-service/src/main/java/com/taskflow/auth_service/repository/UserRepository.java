@@ -1,6 +1,6 @@
-package com.taskflow.auth.repository;
+package com.taskflow.auth_service.repository;
 
-import com.taskflow.auth.domain.User;
+import com.taskflow.auth_service.domain.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;

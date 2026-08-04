@@ -1,4 +1,4 @@
-package com.taskflow.auth.domain;
+package com.taskflow.auth_service.domain;
 
 public enum Role {
     ROLE_USER,

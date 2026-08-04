@@ -1,4 +1,6 @@
 <!-- Herve Chendjou -->
+<!-- Services module for TaskFlow -->
+<!-- backend/services/pom.xml -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -18,7 +20,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <!-- <module>identity/auth-service</module> -->
+        <module>identity/auth-service</module>
         <!-- <module>identity/user-service</module> -->
         <!-- <module>work-management/task-service</module> -->
         <!-- <module>work-management/project-service</module> -->
