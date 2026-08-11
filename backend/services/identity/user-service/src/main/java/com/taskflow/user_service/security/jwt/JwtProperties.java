@@ -1,8 +1,9 @@
-// 
-package com.taskflow.auth_service.security.jwt;
+
+package com.taskflow.user_service.security.jwt;
 
 import lombok.Getter;
 import lombok.Setter;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,18 +13,12 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class JwtProperties {
 
-    /**
-     * Secret used to sign JWT tokens.
-     */
     private String secret;
 
-    /**
-     * Access token validity (milliseconds)
-     */
+    private String issuer;
+
     private long expiration;
 
-    /**
-     * Refresh token validity (milliseconds)
-     */
     private long refreshExpiration;
 }
+
