@@ -1,0 +1,15 @@
+# VCS and local tooling
+.git
+.gitignore
+.vscode/
+.idea/
+
+# Build outputs
+**/target/
+**/build/
+**/out/
+**/node_modules/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db

@@ -66,7 +66,7 @@ services:
       interval: 20s
       timeout: 10s
       retries: 5
-      # start_period: 30s
+      start_period: 30s
 
   # Config Server service is built from the Dockerfile located at infrastructure/config-server/Dockerfile.
   # It is named config-server and exposes port 8888. It is connected to the taskflow-network 
@@ -155,7 +155,7 @@ services:
       interval: 20s
       timeout: 10s
       retries: 5
-      # start_period: 30s
+      start_period: 30s
   auth-service:
     build:
       context: ./backend
@@ -194,7 +194,11 @@ services:
       interval: 20s
       timeout: 10s
       retries: 5
-# 
+      start_period: 30s
+      
+# User Service is built from the Dockerfile located at services/identity/user-service/Dockerfile.
+# It is named user-service and exposes port 8082. It depends on the discovery-server, config-server, and mongodb services, is connected to the taskflow-network,
+# and has a healthcheck that checks the /actuator/health endpoint. ...
   user-service:
     build:
       context: ./backend
@@ -241,6 +245,60 @@ services:
 
     healthcheck:
       test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:8082/actuator/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  # Project Service is built from the Dockerfile located at services/work-management/project-service/Dockerfile.
+  # It is named project-service and exposes port 8083. It depends on the discovery-server, config-server, and mongodb services, is connected to the taskflow-network,
+  # and has a healthcheck that checks the /actuator/health endpoint. ...
+  project-service:
+    build:
+      context: ./backend
+      dockerfile: services/work-management/project-service/Dockerfile
+
+    container_name: project-service
+
+    ports:
+      - "${PROJECT_SERVICE_PORT}:8083"
+
+    env_file:
+      - .env
+
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      EUREKA_URL: ${EUREKA_URL}
+      CONFIG_SERVER_URL: ${CONFIG_SERVER_URL}
+
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: ${MONGODB_PORT}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+
+      LOGGING_LEVEL_ROOT: ${LOGGING_LEVEL_ROOT}
+      LOGGING_LEVEL_COM_TASKFLOW: ${LOGGING_LEVEL_COM_TASKFLOW}
+
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+        required: true
+
+      config-server:
+        condition: service_healthy
+        required: true
+
+      mongodb:
+        condition: service_healthy
+        required: true
+
+    networks:
+      - taskflow-network
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:8083/actuator/health"]
       interval: 20s
       timeout: 10s
       retries: 10
