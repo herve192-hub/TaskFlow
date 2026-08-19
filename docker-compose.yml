@@ -303,7 +303,64 @@ services:
       timeout: 10s
       retries: 10
       start_period: 60s
+  # 
+  task-service:
+    build:
+      context: ./backend
+      dockerfile: services/work-management/task-service/Dockerfile
 
+    container_name: task-service
+
+    ports:
+      - "${TASK_SERVICE_PORT}:8084"
+
+    env_file:
+      - .env
+
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      EUREKA_URL: ${EUREKA_URL}
+      CONFIG_SERVER_URL: ${CONFIG_SERVER_URL}
+
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: ${MONGODB_PORT}
+      MONGODB_DATABASE: taskflow-tasks
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+
+      LOGGING_LEVEL_ROOT: ${LOGGING_LEVEL_ROOT}
+      LOGGING_LEVEL_COM_TASKFLOW: ${LOGGING_LEVEL_COM_TASKFLOW}
+
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+
+      config-server:
+        condition: service_healthy
+
+      mongodb:
+        condition: service_healthy
+
+    networks:
+      - taskflow-network
+
+    restart: unless-stopped
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--spider",
+          "--quiet",
+          "http://localhost:8084/actuator/health"
+        ]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+      
 volumes:
   mongodb-data:
     # driver: local
