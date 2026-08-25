@@ -1,5 +1,9 @@
 package com.taskflow.user_service.events;
 
-public class UserDeletedEvent {
-    
+import java.time.Instant;
+
+public record UserDeletedEvent(
+        String authUserId,
+        Instant deactivatedAt
+) {
 }

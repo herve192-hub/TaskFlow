@@ -1,8 +1,12 @@
 package com.taskflow.user_service.dto.request;
 
-import com.taskflow.user_service.domain.Address;
-import com.taskflow.user_service.domain.enums.Gender;
-import lombok.*;
+import jakarta.validation.constraints.Size;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -11,17 +15,15 @@ import lombok.*;
 @AllArgsConstructor
 public class UpdateUserRequest {
 
+    @Size(max = 100)
     private String firstName;
 
+    @Size(max = 100)
     private String lastName;
 
-    private Gender gender;
+    @Size(max = 30)
+    private String phone;
 
-    private String phoneNumber;
-
-    private String jobTitle;
-
-    private Address address;
-
-    private String departmentId;
+    @Size(max = 500)
+    private String bio;
 }
