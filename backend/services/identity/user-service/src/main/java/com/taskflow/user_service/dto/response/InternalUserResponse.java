@@ -8,16 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.Instant;
-
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponse {
-
-    private String id;
+public class InternalUserResponse {
 
     private String authUserId;
 
@@ -25,19 +21,9 @@ public class UserResponse {
 
     private String lastName;
 
-    private String fullName;
-
     private String email;
-
-    private String phone;
 
     private String avatarUrl;
 
-    private String bio;
-
     private UserStatus status;
-
-    private Instant createdAt;
-
-    private Instant updatedAt;
 }

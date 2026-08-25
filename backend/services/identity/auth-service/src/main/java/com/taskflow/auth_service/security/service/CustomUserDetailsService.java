@@ -1,13 +1,15 @@
 package com.taskflow.auth_service.security.service;
 
-import com.taskflow.auth_service.domain.Role;
 import com.taskflow.auth_service.domain.User;
 import com.taskflow.auth_service.repository.UserRepository;
 import com.taskflow.auth_service.security.model.CustomUserDetails;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,11 +20,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) {
-        User user = repository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException(
-                        "User not found: " + email));
 
-        Role role = user.getRoles().stream().findFirst().orElse(null);
+        User user = repository.findByEmail(email)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException(
+                                "User not found: " + email
+                        )
+                );
 
         return CustomUserDetails.builder()
                 .id(user.getId())
@@ -30,7 +34,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .lastname(user.getLastName())
                 .email(user.getEmail())
                 .password(user.getPassword())
-                .role(role)
+                .roles(user.getRoles())
                 .enabled(user.isEnabled())
                 .build();
     }

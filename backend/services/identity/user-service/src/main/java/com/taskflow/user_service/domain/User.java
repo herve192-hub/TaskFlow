@@ -1,17 +1,21 @@
 package com.taskflow.user_service.domain;
 
-import com.taskflow.user_service.domain.enums.Gender;
 import com.taskflow.user_service.domain.enums.UserStatus;
-import jakarta.validation.Valid;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.DBRef;
+
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
@@ -27,8 +31,13 @@ public class User {
     @Id
     private String id;
 
+    /**
+     * Canonical identity from auth-service.
+     * This value matches the JWT subject ("sub").
+     */
     @NotBlank
-    private String employeeId;
+    @Indexed(unique = true)
+    private String authUserId;
 
     @NotBlank
     private String firstName;
@@ -38,23 +47,17 @@ public class User {
 
     @Email
     @NotBlank
+    @Indexed(unique = true)
     private String email;
 
     private String phone;
 
-    @NotNull
-    private Gender gender;
+    private String avatarUrl;
+
+    private String bio;
 
     @Builder.Default
     private UserStatus status = UserStatus.ACTIVE;
-
-    @Valid
-    private Address address;
-
-    @DBRef
-    private Department department;
-
-    private String profileImage;
 
     @CreatedDate
     private Instant createdAt;
