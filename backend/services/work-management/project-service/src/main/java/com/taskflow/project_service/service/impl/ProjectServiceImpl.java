@@ -1,5 +1,6 @@
 package com.taskflow.project_service.service.impl;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.data.domain.Page;
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.taskflow.project_service.client.UserServiceClient;
 import com.taskflow.project_service.domain.Project;
 import com.taskflow.project_service.domain.ProjectMember;
 import com.taskflow.project_service.domain.enums.ProjectRole;
@@ -15,6 +17,7 @@ import com.taskflow.project_service.dto.request.CreateProjectRequest;
 import com.taskflow.project_service.dto.request.UpdateProjectMemberRequest;
 import com.taskflow.project_service.dto.request.UpdateProjectRequest;
 import com.taskflow.project_service.dto.response.PageResponse;
+import com.taskflow.project_service.dto.response.ProjectAccessResponse;
 import com.taskflow.project_service.dto.response.ProjectMemberResponse;
 import com.taskflow.project_service.dto.response.ProjectResponse;
 import com.taskflow.project_service.dto.response.ProjectSummaryResponse;
@@ -28,6 +31,7 @@ import com.taskflow.project_service.repository.ProjectRepository;
 import com.taskflow.project_service.service.interfaces.ProjectService;
 
 import lombok.RequiredArgsConstructor;
+// import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +41,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
     private final ProjectMapper projectMapper;
+    private final UserServiceClient userServiceClient;
 
     @Override
     public ProjectResponse createProject(
@@ -51,7 +56,6 @@ public class ProjectServiceImpl implements ProjectService {
                     "Project creation request cannot be null"
             );
         }
-
         /*
          * Prevent duplicate project names for the same owner.
          *
@@ -94,6 +98,89 @@ public class ProjectServiceImpl implements ProjectService {
 
         return projectMapper.toResponse(savedProject);
     }
+
+
+
+        @Override
+        @Transactional(readOnly = true)
+        public boolean projectExists(String projectId) {
+
+        validateProjectId(projectId);
+
+        return projectRepository.existsById(projectId);
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public boolean isProjectMember(
+                String projectId,
+                String userId
+        ) {
+
+        validateProjectId(projectId);
+        validateUserId(userId);
+
+        return projectMemberRepository
+                .existsByProjectIdAndUserId(
+                        projectId,
+                        userId
+                );
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public ProjectAccessResponse getProjectAccess(
+                String projectId,
+                String userId
+        ) {
+
+        validateProjectId(projectId);
+        validateUserId(userId);
+
+        findProject(projectId);
+
+        ProjectMember member =
+                projectMemberRepository
+                        .findByProjectIdAndUserId(
+                                projectId,
+                                userId
+                        )
+                        .orElse(null);
+
+        if (member == null) {
+
+                return ProjectAccessResponse.builder()
+                        .projectId(projectId)
+                        .userId(userId)
+                        .member(false)
+                        .canView(false)
+                        .canEdit(false)
+                        .canManageMembers(false)
+                        .build();
+        }
+
+        ProjectRole role = member.getRole();
+
+        boolean canEdit =
+                role == ProjectRole.OWNER
+                        || role == ProjectRole.ADMIN
+                        || role == ProjectRole.MANAGER;
+
+        boolean canManageMembers =
+                role == ProjectRole.OWNER
+                        || role == ProjectRole.ADMIN;
+
+        return ProjectAccessResponse.builder()
+                .projectId(projectId)
+                .userId(userId)
+                .member(true)
+                .role(role)
+                .canView(true)
+                .canEdit(canEdit)
+                .canManageMembers(canManageMembers)
+                .build();
+        }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -182,94 +269,165 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.delete(project);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public PageResponse<ProjectSummaryResponse> getProjects(
-            String userId,
-            Pageable pageable
-    ) {
+        @Override
+        @Transactional(readOnly = true)
+        public PageResponse<ProjectSummaryResponse> getProjects(
+                String userId,
+                Pageable pageable
+        ) {
 
         validateUserId(userId);
 
-        Page<Project> projects =
-                projectRepository.findProjectsForUser(
-                        userId,
+        List<String> projectIds =
+                projectMemberRepository
+                        .findByUserId(userId)
+                        .stream()
+                        .map(ProjectMember::getProjectId)
+                        .distinct()
+                        .toList();
+
+        Page<Project> projects;
+
+        if (projectIds.isEmpty()) {
+                projects = Page.empty(pageable);
+        } else {
+                projects = projectRepository.findByIdIn(
+                        projectIds,
                         pageable
                 );
-
-        return PageResponse.from(
-                projects.map(projectMapper::toSummaryResponse)
-        );
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public PageResponse<ProjectSummaryResponse> searchProjects(
-            String userId,
-            String search,
-            Pageable pageable
-    ) {
-
-        validateUserId(userId);
-
-        if (search == null || search.trim().isEmpty()) {
-            return getProjects(userId, pageable);
         }
 
-        Page<Project> projects =
-                projectRepository.searchProjectsForUser(
-                        userId,
-                        search.trim(),
-                        pageable
-                );
+        return PageResponse.from(
+                projects.map(project -> {
+
+                        long memberCount =
+                                projectMemberRepository
+                                        .countByProjectId(
+                                                project.getId()
+                                        );
+
+                        return projectMapper.toSummaryResponse(
+                                project,
+                                memberCount
+                        );
+                })
+        );
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public PageResponse<ProjectSummaryResponse> searchProjects(
+                String userId,
+                String search,
+                Pageable pageable
+        ) {
+
+        validateUserId(userId);
+
+        if (search == null || search.isBlank()) {
+                return getProjects(userId, pageable);
+        }
+
+        List<String> projectIds =
+                projectMemberRepository
+                        .findByUserId(userId)
+                        .stream()
+                        .map(ProjectMember::getProjectId)
+                        .distinct()
+                        .toList();
+
+        Page<Project> projects;
+
+        if (projectIds.isEmpty()) {
+                projects = Page.empty(pageable);
+        } else {
+                projects =
+                        projectRepository
+                                .findByIdInAndNameContainingIgnoreCase(
+                                        projectIds,
+                                        search.trim(),
+                                        pageable
+                                );
+        }
 
         return PageResponse.from(
-                projects.map(projectMapper::toSummaryResponse)
-        );
-    }
+                projects.map(project -> {
 
-    @Override
-    public ProjectMemberResponse addProjectMember(
-            String projectId,
-            AddProjectMemberRequest request,
-            String userId
-    ) {
+                        long memberCount =
+                                projectMemberRepository
+                                        .countByProjectId(
+                                                project.getId()
+                                        );
+
+                        return projectMapper.toSummaryResponse(
+                                project,
+                                memberCount
+                        );
+                })
+        );
+        }
+
+
+@Override
+public ProjectMemberResponse addProjectMember(
+                String projectId,
+                AddProjectMemberRequest request,
+                String userId
+        ) {
 
         validateProjectId(projectId);
         validateUserId(userId);
 
         if (request == null) {
-            throw new InvalidProjectException(
-                    "Add member request cannot be null"
-            );
+                throw new InvalidProjectException(
+                        "Add member request cannot be null"
+                );
         }
 
+        validateUserId(request.getUserId());
+
+        // Make sure the project actually exists.
         findProject(projectId);
 
+        // Only OWNER / ADMIN can add project members.
         ensureProjectAdminAccess(projectId, userId);
 
-        if (projectMemberRepository.existsByProjectIdAndUserId(
-                projectId,
-                request.getUserId()
-        )) {
-
-            throw new InvalidProjectException(
-                    "User is already a member of this project"
-            );
+        // Make sure the target user exists in user-service.
+        if (!userServiceClient.userExists(request.getUserId())) {
+                throw new InvalidProjectException(
+                        "User does not exist"
+                );
         }
 
-        ProjectMember member = projectMapper.toMemberEntity(
-                request,
-                projectId
-        );
+        // Prevent duplicate memberships.
+        if (projectMemberRepository
+                .existsByProjectIdAndUserId(
+                        projectId,
+                        request.getUserId()
+                )) {
+
+                throw new InvalidProjectException(
+                        "User is already a member of this project"
+                );
+        }
+
+        ProjectMember member =
+                projectMapper.toMemberEntity(
+                        request,
+                        projectId
+                );
 
         ProjectMember savedMember =
                 projectMemberRepository.save(
-                        Objects.requireNonNull(member, "Project member cannot be null")
+                        Objects.requireNonNull(
+                                member,
+                                "Project member cannot be null"
+                        )
                 );
 
         return projectMapper.toMemberResponse(savedMember);
-    }
+}
+
 
     @Override
     public ProjectMemberResponse updateProjectMember(
@@ -443,6 +601,37 @@ public class ProjectServiceImpl implements ProjectService {
             );
         }
     }
+
+
+
+    private void ensureProjectEditAccess(
+        String projectId,
+        String userId
+        ) {
+
+                ProjectMember member =
+                        projectMemberRepository
+                                .findByProjectIdAndUserId(
+                                        projectId,
+                                        userId
+                                )
+                                .orElseThrow(() ->
+                                        new ProjectAccessDeniedException(
+                                                "You are not a member of this project"
+                                        )
+                                );
+
+                ProjectRole role = member.getRole();
+
+                if (role != ProjectRole.OWNER
+                        && role != ProjectRole.ADMIN
+                        && role != ProjectRole.MANAGER) {
+
+                        throw new ProjectAccessDeniedException(
+                                "You do not have permission to modify this project"
+                        );
+                }
+        }
 
     private void validateProjectId(String projectId) {
 
