@@ -24,7 +24,8 @@ public class ProjectMember {
     private String id;
 
     /**
-     * ID of the user from user-service.
+     * Canonical auth-service user ID.
+     * Matches the JWT subject ("sub").
      */
     private String userId;
 

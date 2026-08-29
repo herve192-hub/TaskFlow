@@ -5,6 +5,7 @@ import com.taskflow.project_service.dto.request.CreateProjectRequest;
 import com.taskflow.project_service.dto.request.UpdateProjectMemberRequest;
 import com.taskflow.project_service.dto.request.UpdateProjectRequest;
 import com.taskflow.project_service.dto.response.PageResponse;
+import com.taskflow.project_service.dto.response.ProjectAccessResponse;
 import com.taskflow.project_service.dto.response.ProjectMemberResponse;
 import com.taskflow.project_service.dto.response.ProjectResponse;
 import com.taskflow.project_service.dto.response.ProjectSummaryResponse;
@@ -68,4 +69,10 @@ public interface ProjectService {
             String userId,
             Pageable pageable
     );
+
+    boolean projectExists(String projectId);
+
+    boolean isProjectMember(String projectId, String userId);
+
+    ProjectAccessResponse getProjectAccess(String projectId, String userId);
 }

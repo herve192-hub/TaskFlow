@@ -52,16 +52,16 @@ public class ProjectMapper {
         return modelMapper.map(project, ProjectResponse.class);
     }
 
-    public ProjectSummaryResponse toSummaryResponse(Project project) {
+    public ProjectSummaryResponse toSummaryResponse(
+            Project project,
+            long memberCount
+    ) {
         ProjectSummaryResponse response =
-                modelMapper.map(project, ProjectSummaryResponse.class);
-
-        if (project.getMemberIds() != null) {
-            response.setMemberCount(project.getMemberIds().size());
-        } else {
-            response.setMemberCount(0);
-        }
-
+                modelMapper.map(
+                        project,
+                        ProjectSummaryResponse.class
+                );
+        response.setMemberCount(memberCount);
         return response;
     }
 

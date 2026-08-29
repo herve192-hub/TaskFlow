@@ -12,6 +12,7 @@ import javax.crypto.SecretKey;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +21,6 @@ public class JwtServiceImpl implements JwtService {
     private final JwtProperties jwtProperties;
 
     private SecretKey getSigningKey() {
-
         return Keys.hmacShaKeyFor(
                 jwtProperties.getSecret()
                         .getBytes(StandardCharsets.UTF_8)
@@ -28,7 +28,6 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
@@ -38,36 +37,29 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String extractUserId(String token) {
-
-        Claims claims = extractAllClaims(token);
-
-        /*
-         * The preferred claim should be "userId".
-         *
-         * If your auth-service currently uses "sub" as the
-         * user identifier, this falls back to subject.
-         */
-        Object userId = claims.get("userId");
-
-        if (userId != null) {
-            return userId.toString();
-        }
-
-        return claims.getSubject();
+        return extractAllClaims(token)
+                .getSubject();
     }
 
     @Override
-    public String extractUsername(String token) {
+    public String extractEmail(String token) {
+        return extractAllClaims(token)
+                .get("email", String.class);
+    }
 
-        Claims claims = extractAllClaims(token);
+    @Override
+    public List<String> extractRoles(String token) {
 
-        Object username = claims.get("username");
+        Object roles = extractAllClaims(token)
+                .get("roles");
 
-        if (username != null) {
-            return username.toString();
+        if (!(roles instanceof List<?> roleList)) {
+            return List.of();
         }
 
-        return claims.getSubject();
+        return roleList.stream()
+                .map(Object::toString)
+                .toList();
     }
 
     @Override
@@ -77,18 +69,27 @@ public class JwtServiceImpl implements JwtService {
 
             Claims claims = extractAllClaims(token);
 
+            String userId = claims.getSubject();
             String issuer = claims.getIssuer();
+            Date expiration = claims.getExpiration();
 
-            if (jwtProperties.getIssuer() != null
-                    && !jwtProperties.getIssuer().equals(issuer)) {
-
+            if (userId == null || userId.isBlank()) {
                 return false;
             }
 
-            return !isTokenExpired(token);
+            if (issuer == null ||
+                    !issuer.equals(jwtProperties.getIssuer())) {
+                return false;
+            }
+
+            if (expiration == null ||
+                    expiration.before(new Date())) {
+                return false;
+            }
+
+            return true;
 
         } catch (Exception exception) {
-
             return false;
         }
     }
@@ -96,10 +97,11 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public boolean isTokenExpired(String token) {
 
-        Claims claims = extractAllClaims(token);
+        Date expiration =
+                extractAllClaims(token)
+                        .getExpiration();
 
-        Date expiration = claims.getExpiration();
-
-        return expiration.before(new Date());
+        return expiration == null ||
+                expiration.before(new Date());
     }
 }
