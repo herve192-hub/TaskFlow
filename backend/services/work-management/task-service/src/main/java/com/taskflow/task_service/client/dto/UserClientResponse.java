@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserClientResponse {
 
-    private String id;
+    private String authUserId;
 
     private String firstName;
 

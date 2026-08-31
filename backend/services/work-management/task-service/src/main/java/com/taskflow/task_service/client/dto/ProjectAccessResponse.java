@@ -22,4 +22,6 @@ public class ProjectAccessResponse {
     private boolean canView;
 
     private boolean canEdit;
+
+    private boolean canManageMembers;
 }
