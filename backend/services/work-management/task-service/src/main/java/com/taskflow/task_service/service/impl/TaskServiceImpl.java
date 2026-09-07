@@ -54,8 +54,6 @@ import com.taskflow.task_service.service.policy.TaskLifecyclePolicy;
 
 import org.springframework.context.ApplicationEventPublisher;
 
-import com.taskflow.task_service.dto.request.ChangeTaskStatusRequest;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
