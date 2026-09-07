@@ -1,7 +1,6 @@
 package com.taskflow.task_service.dto.request;
 
 import com.taskflow.task_service.domain.enums.TaskPriority;
-import com.taskflow.task_service.domain.enums.TaskStatus;
 import com.taskflow.task_service.domain.enums.TaskType;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
