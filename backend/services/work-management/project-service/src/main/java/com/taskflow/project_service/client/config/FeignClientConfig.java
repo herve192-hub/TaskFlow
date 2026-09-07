@@ -3,18 +3,15 @@ package com.taskflow.project_service.client.config;
 import feign.RequestInterceptor;
 import feign.codec.ErrorDecoder;
 
-import jakarta.servlet.http.HttpServletRequest;
-
-import lombok.RequiredArgsConstructor;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@RequiredArgsConstructor
 public class FeignClientConfig {
 
-    private final HttpServletRequest httpServletRequest;
     /**
      * Forward the incoming JWT to downstream services.
      */
@@ -23,8 +20,13 @@ public class FeignClientConfig {
 
         return requestTemplate -> {
 
-            String authorization =
-                    httpServletRequest.getHeader( "Authorization" );
+            ServletRequestAttributes requestAttributes =
+                (ServletRequestAttributes) RequestContextHolder
+                    .getRequestAttributes();
+            String authorization = requestAttributes == null
+                ? null
+                : requestAttributes.getRequest()
+                    .getHeader( "Authorization" );
             if (authorization != null
                     && authorization.startsWith("Bearer ")) {
                 requestTemplate.header(
