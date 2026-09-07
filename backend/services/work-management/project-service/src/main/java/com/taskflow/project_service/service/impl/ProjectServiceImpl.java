@@ -30,6 +30,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.taskflow.project_service.exception.UserServiceUnavailableException;
+
+import feign.RetryableException;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -361,11 +365,7 @@ public class ProjectServiceImpl implements ProjectService {
         /*
          * User must exist in user-service.
          */
-        if (!userServiceClient
-                .userExists(
-                        request.getUserId()
-                )) {
-
+        if (!userExists(request.getUserId())) {
             throw new InvalidProjectException( "User does not exist" );
         }
 
@@ -577,6 +577,25 @@ public class ProjectServiceImpl implements ProjectService {
             );
         }
     }
+
+        //     =================================
+        // 
+        //  ====================================
+        private boolean userExists( String userId ) {
+
+                validateUserId(userId);
+
+                try {
+                        return userServiceClient
+                                .userExists(userId);
+                } catch (RetryableException exception) {
+
+                        throw new UserServiceUnavailableException(
+                                "User service is temporarily unavailable",
+                                exception
+                        );
+                }
+        }
 
     // =========================================================
     // VALIDATION

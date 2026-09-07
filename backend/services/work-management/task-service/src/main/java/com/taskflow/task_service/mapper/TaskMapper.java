@@ -51,10 +51,6 @@ public class TaskMapper {
             task.setDescription(request.getDescription());
         }
 
-        if (request.getStatus() != null) {
-            task.setStatus(request.getStatus());
-        }
-
         if (request.getPriority() != null) {
             task.setPriority(request.getPriority());
         }

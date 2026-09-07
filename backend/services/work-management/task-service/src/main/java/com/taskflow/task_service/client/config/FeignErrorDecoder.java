@@ -8,9 +8,9 @@ import com.taskflow.task_service.exception.UserServiceUnavailableException;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 
-import org.springframework.stereotype.Component;
+// import org.springframework.stereotype.Component;
 
-@Component
+// @Component
 public class FeignErrorDecoder
         implements ErrorDecoder {
 

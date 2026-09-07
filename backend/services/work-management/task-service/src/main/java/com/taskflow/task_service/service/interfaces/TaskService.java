@@ -8,6 +8,8 @@ import com.taskflow.task_service.dto.response.TaskCommentResponse;
 import com.taskflow.task_service.dto.response.TaskResponse;
 import com.taskflow.task_service.dto.response.TaskSummaryResponse;
 
+import com.taskflow.task_service.dto.request.ChangeTaskStatusRequest;
+
 import org.springframework.data.domain.Pageable;
 
 public interface TaskService {
@@ -69,6 +71,12 @@ public interface TaskService {
 
     TaskResponse unarchiveTask(
             String taskId,
+            String userId
+    );
+
+    TaskResponse changeTaskStatus(
+            String taskId,
+            ChangeTaskStatusRequest request,
             String userId
     );
 

@@ -1,6 +1,7 @@
 package com.taskflow.task_service.controller;
 
 import com.taskflow.task_service.dto.request.AddTaskCommentRequest;
+import com.taskflow.task_service.dto.request.ChangeTaskStatusRequest;
 import com.taskflow.task_service.dto.request.CreateTaskRequest;
 import com.taskflow.task_service.dto.request.UpdateTaskRequest;
 import com.taskflow.task_service.dto.response.PageResponse;
@@ -27,9 +28,8 @@ import org.springframework.web.bind.annotation.*;
 public class TaskController {
 
     private final TaskService taskService;
-
     /**
-     * Create a new task.
+     * Create a new task...
      */
     @PostMapping
     public ResponseEntity<TaskResponse> createTask(
@@ -45,9 +45,8 @@ public class TaskController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
-
     /**
-     * Get a task by ID.
+     * Get a task by ID...
      */
     @GetMapping("/{taskId}")
     public ResponseEntity<TaskResponse> getTask(
@@ -60,9 +59,8 @@ public class TaskController {
                 taskService.getTaskById(taskId, userId)
         );
     }
-
     /**
-     * Update a task.
+     * Update a task...
      */
     @PutMapping("/{taskId}")
     public ResponseEntity<TaskResponse> updateTask(
@@ -80,9 +78,8 @@ public class TaskController {
                 )
         );
     }
-
     /**
-     * Soft delete a task.
+     * Soft delete a task...
      */
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> deleteTask(
@@ -95,9 +92,8 @@ public class TaskController {
 
         return ResponseEntity.noContent().build();
     }
-
     /**
-     * Get all active tasks belonging to a project.
+     * Get all active tasks belonging to a project...
      */
     @GetMapping("/project/{projectId}")
     public ResponseEntity<PageResponse<TaskSummaryResponse>> getProjectTasks(
@@ -121,9 +117,8 @@ public class TaskController {
                 )
         );
     }
-
     /**
-     * Get the currently authenticated user's assigned tasks.
+     * Get the currently authenticated user's assigned tasks...
      */
     @GetMapping("/me")
     public ResponseEntity<PageResponse<TaskSummaryResponse>> getMyTasks(
@@ -144,9 +139,8 @@ public class TaskController {
                 )
         );
     }
-
     /**
-     * Get tasks created by the authenticated user.
+     * Get tasks created by the authenticated user...
      */
     @GetMapping("/created-by-me")
     public ResponseEntity<PageResponse<TaskSummaryResponse>> getCreatedTasks(
@@ -167,9 +161,8 @@ public class TaskController {
                 )
         );
     }
-
     /**
-     * Get project tasks filtered by status.
+     * Get project tasks filtered by status...
      */
     @GetMapping("/project/{projectId}/status/{status}")
     public ResponseEntity<PageResponse<TaskSummaryResponse>> getTasksByStatus(
@@ -195,9 +188,8 @@ public class TaskController {
                 )
         );
     }
-
     /**
-     * Assign a task to a user.
+     * Assign a task to a user...
      *
      * Example:
      *
@@ -219,9 +211,8 @@ public class TaskController {
                 )
         );
     }
-
     /**
-     * Archive a task.
+     * Archive a task...
      */
     @PutMapping("/{taskId}/archive")
     public ResponseEntity<TaskResponse> archiveTask(
@@ -237,9 +228,8 @@ public class TaskController {
                 )
         );
     }
-
     /**
-     * Unarchive a task.
+     * Unarchive a task...
      */
     @PutMapping("/{taskId}/unarchive")
     public ResponseEntity<TaskResponse> unarchiveTask(
@@ -259,9 +249,8 @@ public class TaskController {
     // =========================================================
     // COMMENTS
     // =========================================================
-
     /**
-     * Add a comment to a task.
+     * Add a comment to a task...
      */
     @PostMapping("/{taskId}/comments")
     public ResponseEntity<TaskCommentResponse> addComment(
@@ -286,9 +275,8 @@ public class TaskController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
-
     /**
-     * Get comments for a task.
+     * Get comments for a task...
      */
     @GetMapping("/{taskId}/comments")
     public ResponseEntity<PageResponse<TaskCommentResponse>> getComments(
@@ -336,7 +324,7 @@ public class TaskController {
     }
 
     /**
-     * Count active tasks in a project by status.
+     * Count active tasks in a project by status...
      */
     @GetMapping("/project/{projectId}/count/{status}")
     public ResponseEntity<Long> countProjectTasksByStatus(
@@ -371,4 +359,25 @@ public class TaskController {
 
         return authentication.getName();
     }
+
+         /**
+         * Change the lifecycle status of a task.
+         */
+        @PatchMapping("/{taskId}/status")
+        public ResponseEntity<TaskResponse> changeTaskStatus(
+                @PathVariable String taskId,
+
+                @Valid
+                @RequestBody
+                ChangeTaskStatusRequest request,
+
+                Authentication authentication
+        ) {
+
+                String userId = getUserId(authentication);
+
+                return ResponseEntity.ok(
+                        taskService.changeTaskStatus( taskId, request, userId )
+                );
+        }
 }
