@@ -44,6 +44,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.Objects;
 
+
+import com.taskflow.task_service.dto.request.ChangeTaskStatusRequest;
+
+import com.taskflow.task_service.events.TaskCompletedEvent;
+import com.taskflow.task_service.events.TaskStatusChangedEvent;
+
+import com.taskflow.task_service.service.policy.TaskLifecyclePolicy;
+
+import org.springframework.context.ApplicationEventPublisher;
+
+import com.taskflow.task_service.dto.request.ChangeTaskStatusRequest;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -58,6 +70,10 @@ public class TaskServiceImpl implements TaskService {
     private final ProjectServiceClient projectServiceClient;
 
     private final UserServiceClient userServiceClient;
+
+    private final TaskLifecyclePolicy taskLifecyclePolicy;
+
+    private final ApplicationEventPublisher eventPublisher;
 
 
     // =========================================================
@@ -138,7 +154,7 @@ public class TaskServiceImpl implements TaskService {
 
         taskMapper.updateEntity( task, request );
 
-        updateCompletionTimestamp(task);
+        // updateCompletionTimestamp(task);
 
         Task updatedTask =
                 taskRepository.save(task);
@@ -354,6 +370,99 @@ public class TaskServiceImpl implements TaskService {
                 .countByProjectIdAndStatusAndArchivedFalse( projectId, parseStatus(status));
     }
 
+
+    @Override
+    public TaskResponse changeTaskStatus(
+            String taskId,
+            ChangeTaskStatusRequest request,
+            String userId
+    ) {
+
+        validateUserId(userId);
+
+        if (request == null || request.getStatus() == null) {
+
+            throw new InvalidTaskException( "Task status is required" );
+        }
+
+        Task task = findActiveTask(taskId);
+
+        TaskStatus previousStatus = task.getStatus();
+
+        TaskStatus newStatus = request.getStatus();
+
+        /*
+        * Validate lifecycle itself first...
+        */
+        taskLifecyclePolicy.validateTransition( previousStatus, newStatus );
+
+        /*
+        * Then validate whether this user is allowed
+        * to perform this transition...
+        */
+        verifyStatusTransitionAccess( task, previousStatus, newStatus, userId );
+
+        task.setStatus(newStatus);
+
+        updateCompletionTimestamp( task, previousStatus, newStatus );
+
+        Task savedTask = taskRepository.save(task);
+
+        publishStatusEvents( savedTask, previousStatus, newStatus, userId );
+
+        return taskMapper.toResponse( savedTask );
+    }
+
+    // =========================================================
+    // TASK STATUS EVENT PUBLISHING
+    // =========================================================
+
+    private void publishStatusEvents(
+        Task task,
+        TaskStatus previousStatus,
+        TaskStatus newStatus,
+        String userId
+    ) {
+
+        Instant eventTime = Instant.now();
+
+        TaskStatusChangedEvent statusChangedEvent =
+                new TaskStatusChangedEvent(
+                        task.getId(),
+                        task.getProjectId(),
+                        previousStatus,
+                        newStatus,
+                        userId,
+                        eventTime
+                );
+
+        eventPublisher.publishEvent( statusChangedEvent );
+        /*
+        * COMPLETED is important enough to have its
+        * own business event in addition to the generic
+        * status-change event...
+        */
+        if (newStatus == TaskStatus.COMPLETED
+                && previousStatus
+                        != TaskStatus.COMPLETED) {
+
+            TaskCompletedEvent completedEvent =
+                    new TaskCompletedEvent(
+                            task.getId(),
+                            task.getProjectId(),
+                            userId,
+                            task.getAssigneeId(),
+                            task.getEstimatedHours(),
+                            task.getActualHours(),
+                            task.getCompletedAt()
+                    );
+
+            eventPublisher.publishEvent(
+                    completedEvent
+            );
+        }
+    }
+
     // =========================================================
     // TASK LOOKUP HELPERS
     // =========================================================
@@ -519,13 +628,25 @@ public class TaskServiceImpl implements TaskService {
     // =========================================================
     // TASK STATUS HELPERS
     // =========================================================
-    private void updateCompletionTimestamp( Task task ) {
+    private void updateCompletionTimestamp(
+        Task task,
+        TaskStatus previousStatus,
+        TaskStatus newStatus
+    ) {
+        /*
+        * Entering COMPLETED...
+        */
+        if (newStatus == TaskStatus.COMPLETED
+                && previousStatus != TaskStatus.COMPLETED) {
+            task.setCompletedAt( Instant.now() );
 
-        if (task.getStatus() == TaskStatus.COMPLETED) {
-            if (task.getCompletedAt() == null) {
-                task.setCompletedAt( Instant.now());
-            }
-        } else {
+            return;
+        }
+        /*
+        * Reopening completed work...
+        */
+        if (previousStatus == TaskStatus.COMPLETED
+                && newStatus != TaskStatus.COMPLETED) {
             task.setCompletedAt(null);
         }
     }
@@ -588,6 +709,96 @@ public class TaskServiceImpl implements TaskService {
                     .isProjectMember( projectId,userId );
         } catch (RetryableException exception) {
             throw new ProjectServiceUnavailableException( "Project service is temporarily unavailable", exception );
+        }
+    }
+
+// =========================================================
+// TASK STATUS TRANSITION ACCESS VERIFICATION
+// =========================================================
+    private void verifyStatusTransitionAccess(
+        Task task,
+        TaskStatus currentStatus,
+        TaskStatus newStatus,
+        String userId
+    ) {
+
+        ProjectAccessResponse access =
+                getProjectAccess(
+                        task.getProjectId()
+                );
+
+        if (!access.isMember()) {
+
+            throw new TaskAccessDeniedException(
+                    "You are not a member of this project"
+            );
+        }
+
+        String role =
+                access.getRole();
+
+        /*
+        * OWNER / ADMIN / MANAGER may perform any
+        * lifecycle transition permitted by the
+        * TaskLifecyclePolicy...
+        */
+        if (isManagementRole(role)) {
+            return;
+        }
+
+        /*
+        * Guests are always read-only...
+        */
+        if ("GUEST".equals(role)) {
+
+            throw new TaskAccessDeniedException(
+                    "Guests cannot change task status"
+            );
+        }
+
+        if (!"MEMBER".equals(role)) {
+
+            throw new TaskAccessDeniedException(
+                    "You do not have permission to change task status"
+            );
+        }
+
+        /*
+        * Regular members must be either the creator
+        * or the assignee...
+        */
+        boolean creator = Objects.equals( userId, task.getCreatedBy() );
+
+        boolean assignee = Objects.equals( userId, task.getAssigneeId() );
+
+        if (!creator && !assignee) {
+
+            throw new TaskAccessDeniedException(
+                    "You can only change the status of tasks "
+                            + "you created or are assigned to"
+            );
+        }
+
+        /*
+        * Cancellation is a project-management decision...
+        */
+        if (newStatus == TaskStatus.CANCELLED) {
+
+            throw new TaskAccessDeniedException(
+                    "Only project management can cancel tasks"
+            );
+        }
+
+        /*
+        * Reopening completed/cancelled work is also
+        * restricted to project management...
+        */
+        if (currentStatus == TaskStatus.COMPLETED
+                || currentStatus == TaskStatus.CANCELLED) {
+
+            throw new TaskAccessDeniedException(
+                    "Only project management can reopen tasks"
+            );
         }
     }
 

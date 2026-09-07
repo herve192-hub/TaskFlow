@@ -135,4 +135,21 @@ public class GlobalExceptionHandler {
                 .status(status)
                 .body(response);
     }
+
+
+
+        @ExceptionHandler(DownstreamServiceException.class)
+        public ResponseEntity<Map<String, Object>>
+        handleDownstreamServiceException(
+                DownstreamServiceException exception,
+                HttpServletRequest request
+        ) {
+
+        return buildResponse(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "DOWNSTREAM_SERVICE_UNAVAILABLE",
+                exception.getMessage(),
+                request
+                );
+        }
 }
