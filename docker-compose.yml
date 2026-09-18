@@ -36,6 +36,62 @@ services:
       retries: 5
       start_period: 30s
 
+# Kafka service is built from the official Apache Kafka image. It is named taskflow-kafka and exposes port 9092.
+# It is connected to the taskflow-network and has a healthcheck that checks the /actuator/health endpoint. The service uses environment variables to configure Kafka settings, including node ID, process roles, listeners, and replication factors. It also uses a volume to persist Kafka data. ...
+  kafka:
+    image: apache/kafka:4.1.0
+    container_name: taskflow-kafka
+    restart: unless-stopped
+
+    ports:
+      - "${KAFKA_PORT:-9092}:9092"
+
+    environment:
+      KAFKA_NODE_ID: 1
+
+      KAFKA_PROCESS_ROLES: broker,controller
+
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+
+      KAFKA_LISTENERS: >
+        INTERNAL://:29092,
+        CONTROLLER://:29093,
+        EXTERNAL://:9092
+
+      KAFKA_ADVERTISED_LISTENERS: >
+        INTERNAL://kafka:29092,
+        EXTERNAL://localhost:9092
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: >
+        CONTROLLER:PLAINTEXT,
+        INTERNAL:PLAINTEXT,
+        EXTERNAL:PLAINTEXT
+
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+
+    networks:
+      - taskflow-network
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1"
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
   # Discovery Server service is built from the Dockerfile located at infrastructure/discovery-server/Dockerfile.
   # It is named discovery-server and exposes port 8761. 
   # It is connected to the taskflow-network and has a healthcheck that checks the /actuator/health endpoint. ...
@@ -93,6 +149,9 @@ services:
       discovery-server:
         condition: service_healthy
         required: true
+      # kafka:
+      #   condition: service_healthy
+      #   required: true
 
     networks:
       - taskflow-network
@@ -144,6 +203,10 @@ services:
         condition: service_healthy
         required: true
 
+      # kafka:
+      #   condition: service_healthy
+      #   required: true
+
     networks:
       - taskflow-network
     restart: unless-stopped
@@ -184,6 +247,9 @@ services:
       mongodb:
         condition: service_healthy
         required: true
+      # kafka:
+      #   condition: service_healthy
+      #   required: true
 
     networks:
       - taskflow-network
@@ -237,6 +303,10 @@ services:
       mongodb:
         condition: service_healthy
         required: true
+
+      # kafka:
+      #   condition: service_healthy
+      #   required: true
 
     networks:
       - taskflow-network
@@ -292,6 +362,10 @@ services:
         condition: service_healthy
         required: true
 
+      # kafka:
+      #   condition: service_healthy
+      #   required: true
+
     networks:
       - taskflow-network
 
@@ -328,6 +402,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
 
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
       LOGGING_LEVEL_ROOT: ${LOGGING_LEVEL_ROOT}
       LOGGING_LEVEL_COM_TASKFLOW: ${LOGGING_LEVEL_COM_TASKFLOW}
 
@@ -339,6 +415,9 @@ services:
         condition: service_healthy
 
       mongodb:
+        condition: service_healthy
+
+      kafka:
         condition: service_healthy
 
     networks:
@@ -360,9 +439,11 @@ services:
       retries: 10
       start_period: 60s
 
-      
+
 volumes:
   mongodb-data:
+    # driver: local
+  kafka-data:
     # driver: local
 
 networks:
