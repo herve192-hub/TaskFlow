@@ -5,15 +5,16 @@ server:
 spring:
   application:
     name: auth-service
-  
+
   data:
     mongodb:
-      database: authdb
+      uri: ${AUTH_MONGO_URI}
+      database: taskflow-auth
 
 eureka:
   client:
-  service-url:
-    defaultZone: ${EUREKA_URL}
+    service-url:
+      defaultZone: ${EUREKA_URL}
 
 management:
   endpoints:

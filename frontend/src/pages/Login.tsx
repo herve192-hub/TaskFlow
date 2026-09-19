@@ -28,11 +28,12 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import MuiLink from "@mui/material/Link";
 
-import { authService } from "../services/authService.ts";
-import { authStorage } from "../types/auth.ts";
+import { authService } from "../features/auth/services/authService";
+import type { LoginRequest } from "../features/auth/types/auth";
 
 import { useNavigate } from "react-router-dom";
 
+import axios from "axios";
 
 
 
@@ -57,32 +58,29 @@ export default function Login() {
     const navigate = useNavigate();
 
 // Handle form submission ...
-    const onSubmit = async (data: LoginFormData) => {
-        try {
-            const response =
-            await authService.login(data);
-// 
-            authStorage.saveTokens(
-                response.accessToken,
-                response.refreshToken
-            );
+const onSubmit = async (data: LoginRequest) => {
+    try {
+        await authService.login({
+        email: data.email,
+        password: data.password,
+        });
 
-            console.log(response);
-// 
-             toast.success(
-                "Login successful!"
-            );
-            navigate("/dashboard");
-        } catch (error) {  // 
-            toast.error(
-                error instanceof Error
-                ? error.message
-                : "Login failed"
-            );
+        toast.success("Login successful");
+
+        navigate("/dashboard");
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+        const message =
+            error.response?.data?.message ||
+            "Invalid email or password";
+
+        toast.error(message);
+        return;
         }
-        // 
-        // handle login logic ...
-    };
+
+        toast.error("Something went wrong");
+    }
+};
 //
 
 // handle password visibility toggle ...

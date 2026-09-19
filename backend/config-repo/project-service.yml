@@ -5,7 +5,8 @@ server:
 spring:
   application:
     name: project-service
-  
+
   data:
     mongodb:
-      database: projectdb
+      uri: ${PROJECT_MONGO_URI}
+      database: taskflow-projects

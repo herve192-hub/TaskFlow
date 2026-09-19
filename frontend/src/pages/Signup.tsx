@@ -6,7 +6,7 @@ import {
     Paper,
 } from "@mui/material";
 
-import { Link} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import AuthLayout from "../components/AuthLayout.tsx";
 import { toast } from "react-toastify";
@@ -16,45 +16,64 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { authService } from "../services/authService.ts";
+import axios from "axios";
 
-
+import { authService } from "../features/auth/services/authService";
+import type { RegisterRequest } from "../features/auth/types/auth";
 
 interface SignupFormData {
-    fullName: string;
+    firstName: string;
+    lastName: string;
+    username: string;
     email: string;
     password: string;
     confirmPassword: string;
 }
 
 export default function Signup() {
-// Initialize form handling with react-hook-form ...
-    const { 
-        register, 
+    const navigate = useNavigate();
+
+    const {
+        register,
         handleSubmit,
         getValues,
         formState: { errors },
-     } = useForm<SignupFormData>();
+    } = useForm<SignupFormData>();
 
-     // Handle form submission ...
-     const onSubmit = async (data: SignupFormData) => {
-       try {
-            await authService.signup({
-                fullName: data.fullName,
-                email: data.email,
-                password: data.password,
-            });
-            toast.success(
-                "Account created successfully!"
-            );
-       } catch {
-        toast.error(
-            "Unable to create account"
-        );
-       }
-        // 
-        // Handle signup logic ...
-     };
+    const onSubmit = async (data: SignupFormData) => {
+        const request: RegisterRequest = {
+            firstname: data.firstName.trim(),
+            lastname: data.lastName.trim(),
+            username: data.username.trim(),
+            email: data.email.trim().toLowerCase(),
+            password: data.password,
+        };
+
+        try {
+            await authService.register(request);
+            toast.success("Account created successfully");
+            navigate("/login");
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.error("Registration failed:", {
+                    status: error.response?.status,
+                    data: error.response?.data,
+                    message: error.message,
+                });
+
+                const message =
+                    error.response?.data?.message ||
+                    error.response?.data?.error ||
+                    "Unable to create account";
+
+                toast.error(message);
+                return;
+            }
+
+            console.error("Unexpected registration error:", error);
+            toast.error("Something went wrong");
+        }
+    };
 // Handle password visibility toggles ...
      const [showPassword, setShowPassword] = useState(false);
 // handle confirm password visibility toggle ...
@@ -91,12 +110,32 @@ export default function Signup() {
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <TextField
                         fullWidth
-                        label="Full Name"
+                        label="First Name"
                         margin="normal"
-                        error={!!errors.fullName}
-                        helperText={errors.fullName?.message}
-                        {...register("fullName", { 
-                            required: "Full name is required",
+                        error={!!errors.firstName}
+                        helperText={errors.firstName?.message}
+                        {...register("firstName", { 
+                            required: "First name is required",
+                         })}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Last Name"
+                        margin="normal"
+                        error={!!errors.lastName}
+                        helperText={errors.lastName?.message}
+                        {...register("lastName", { 
+                            required: "Last name is required",
+                         })}
+                    />
+                    <TextField
+                        fullWidth
+                        label="Username"
+                        margin="normal"
+                        error={!!errors.username}
+                        helperText={errors.username?.message}
+                        {...register("username", { 
+                            required: "Username is required",
                          })}
                     />
                     <TextField
@@ -120,11 +159,15 @@ export default function Signup() {
                         margin="normal"
                         error={!!errors.password}
                         helperText={errors.password?.message}
-                        {...register("password", { 
+                        {...register("password", {
                             required: "Password is required",
                             minLength: {
                                 value: 8,
                                 message: "Password must be at least 8 characters",
+                            },
+                            pattern: {
+                                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+                                message: "Password must contain uppercase, lowercase and a number",
                             },
                         })}
                     // Add visibility toggle for password field ...
