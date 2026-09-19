@@ -8,7 +8,7 @@ import {
 import { useForm } from "react-hook-form";
 import AuthLayout from "../components/AuthLayout.tsx";
 import { toast } from "react-toastify";
-import { authService } from "../services/authService.ts";
+import { authService } from "../features/auth/services/authService";
 
 interface ForgotPasswordFormData {
     email: string;

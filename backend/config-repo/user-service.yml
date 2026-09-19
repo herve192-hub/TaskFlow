@@ -6,7 +6,8 @@ server:
 spring:
   application:
     name: user-service
-  
+
   data:
     mongodb:
-      database: userdb
+      uri: ${USER_MONGO_URI}
+      database: taskflow-users
