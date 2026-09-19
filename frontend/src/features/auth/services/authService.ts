@@ -32,6 +32,11 @@ export const authService = {
     return auth;
   },
 
+  async forgotPassword(email: string): Promise<void> {
+    await Promise.resolve();
+    console.log("Reset email sent to:", email);
+  },
+
   logout(): void {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
