@@ -13,7 +13,7 @@ import java.util.Set;
 @Builder
 
 public class UserResponse {
-    
+
     private String id;
     private String firstname;
     private String lastname;
@@ -23,6 +23,6 @@ public class UserResponse {
     private AuthProvider provider;
     private boolean emailVerified;
     private String profileImage;
-    private Instant createAt;
+    private Instant createdAt;
 
 }

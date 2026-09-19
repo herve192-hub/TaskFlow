@@ -39,7 +39,7 @@ logging:
 
 jwt:
   secret: ${JWT_SECRET}
-  expiration: ${JWT_EXTRATION_MS}
+  expiration: ${JWT_EXPIRATION_MS}
 
 app:
   environment: ${APP_ENV:local}

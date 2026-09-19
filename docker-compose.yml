@@ -155,6 +155,8 @@ services:
 
     networks:
       - taskflow-network
+    volumes:
+      - ./backend/config-repo:/app/config-repo:ro
 
     restart: unless-stopped
 
@@ -377,7 +379,7 @@ services:
       timeout: 10s
       retries: 10
       start_period: 60s
-  # 
+  #
   task-service:
     build:
       context: ./backend
@@ -402,7 +404,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
 
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
 
       LOGGING_LEVEL_ROOT: ${LOGGING_LEVEL_ROOT}
       LOGGING_LEVEL_COM_TASKFLOW: ${LOGGING_LEVEL_COM_TASKFLOW}
@@ -410,15 +412,19 @@ services:
     depends_on:
       discovery-server:
         condition: service_healthy
+        required: true
 
       config-server:
         condition: service_healthy
+        required: true
 
       mongodb:
         condition: service_healthy
+        required: true
 
       kafka:
         condition: service_healthy
+        required: true
 
     networks:
       - taskflow-network
