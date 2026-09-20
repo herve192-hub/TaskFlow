@@ -80,7 +80,52 @@ const loadProjects = async () => {
 };
 
   useEffect(() => {
-    void loadProjects();
+    let active = true;
+
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await projectService.getProjects();
+
+        if (!active) {
+          return;
+        }
+
+        setProjects(response.content);
+      } catch (error) {
+        if (!active) {
+          return;
+        }
+
+        console.error("LOAD PROJECTS ERROR:", error);
+
+        if (axios.isAxiosError(error)) {
+          console.error("Status:", error.response?.status);
+          console.error("Response:", error.response?.data);
+          console.error("URL:", error.config?.url);
+
+          setError(
+            error.response?.data?.message ??
+              `Unable to load projects (${error.response?.status ?? "network error"}).`
+          );
+        } else {
+          console.error("Unexpected error:", error);
+          setError("Unable to load projects.");
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void fetchProjects();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const handleCreateProject = async (
