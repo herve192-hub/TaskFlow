@@ -1,20 +1,68 @@
-# taskflow/backend/config-repo/api-gateway.yml ...
 server:
   port: 8080
 
 spring:
   application:
     name: api-gateway
+
   cloud:
     gateway:
-      
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
 
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Origin # this filter removes duplicate Access-Control-Allow-Origin headers from the response ...
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins:
+                  - http://localhost:5173
+                  - http://localhost:3000
+                  - http://127.0.0.1:5173
+                  - http://127.0.0.1:3000
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - PATCH
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders:
+                  - Authorization
+                  - Content-Type
+                  - Accept
+                  - Origin
+                  - X-Requested-With
+                allowCredentials: true
+                exposedHeaders:
+                  - Authorization
+                maxAge: 3600
+
+          routes:
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/auth/**
+
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/v1/users/**
+
+            - id: project-service
+              uri: lb://project-service
+              predicates:
+                - Path=/api/v1/projects/**
+
+            - id: task-service
+              uri: lb://task-service
+              predicates:
+                - Path=/api/v1/tasks/**
+
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
 
 management:
   endpoints:

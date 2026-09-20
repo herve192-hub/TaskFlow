@@ -1,6 +1,7 @@
 package com.taskflow.project_service.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,6 +12,7 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -76,16 +78,16 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
 
-        Map<String, String> validationErrors =
-                new LinkedHashMap<>();
+        Map<String, String> validationErrors
+                = new LinkedHashMap<>();
 
         exception.getBindingResult()
                 .getFieldErrors()
-                .forEach(error ->
-                        validationErrors.put(
-                                error.getField(),
-                                error.getDefaultMessage()
-                        )
+                .forEach(error
+                        -> validationErrors.put(
+                        error.getField(),
+                        error.getDefaultMessage()
+                )
                 );
 
         Map<String, Object> response = new LinkedHashMap<>();
@@ -108,6 +110,12 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
 
+        log.error(
+                "Unhandled exception processing {} {}",
+                request.getMethod(),
+                request.getRequestURI(),
+                exception
+        );
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "INTERNAL_SERVER_ERROR",
@@ -136,20 +144,18 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 
-
-
-        @ExceptionHandler(DownstreamServiceException.class)
-        public ResponseEntity<Map<String, Object>>
-        handleDownstreamServiceException(
-                DownstreamServiceException exception,
-                HttpServletRequest request
-        ) {
+    @ExceptionHandler(DownstreamServiceException.class)
+    public ResponseEntity<Map<String, Object>>
+            handleDownstreamServiceException(
+                    DownstreamServiceException exception,
+                    HttpServletRequest request
+            ) {
 
         return buildResponse(
                 HttpStatus.SERVICE_UNAVAILABLE,
                 "DOWNSTREAM_SERVICE_UNAVAILABLE",
                 exception.getMessage(),
                 request
-                );
-        }
+        );
+    }
 }

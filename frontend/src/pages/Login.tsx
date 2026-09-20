@@ -29,7 +29,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import MuiLink from "@mui/material/Link";
 
 import { authService } from "../features/auth/services/authService";
-import type { LoginRequest } from "../features/auth/types/auth";
+import type { LoginRequest } from "../features/auth/types/auth.types";
 
 import { useNavigate } from "react-router-dom";
 

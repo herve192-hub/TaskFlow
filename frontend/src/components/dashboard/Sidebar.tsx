@@ -10,6 +10,11 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 import { collapsedDrawerWidth, drawerWidth } from "./layoutConstants";
 
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
 type SidebarProps = {
   selected?: string;
   collapsed: boolean;
@@ -17,15 +22,38 @@ type SidebarProps = {
 };
 
 const navigationItems = [
-  { label: "Dashboard", icon: <DashboardIcon /> },
-  { label: "Tasks", icon: <TaskIcon /> },
-  { label: "Projects", icon: <FolderIcon /> },
-  { label: "Teams", icon: <GroupIcon /> },
-  { label: "Settings", icon: <SettingsIcon /> },
+  {
+    label: "Dashboard",
+    icon: <DashboardIcon />,
+    path: "/dashboard",
+  },
+  {
+    label: "Tasks",
+    icon: <TaskIcon />,
+    path: "/dashboard/tasks",
+  },
+  {
+    label: "Projects",
+    icon: <FolderIcon />,
+    path: "/dashboard/projects",
+  },
+  {
+    label: "Teams",
+    icon: <GroupIcon />,
+    path: "/dashboard/teams",
+  },
+  {
+    label: "Settings",
+    icon: <SettingsIcon />,
+    path: "/dashboard/settings",
+  },
 ];
 
-export default function Sidebar({ selected = "Dashboard", collapsed, onToggle }: SidebarProps) {
+export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const width = collapsed ? collapsedDrawerWidth : drawerWidth;
+
+  const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <Drawer
@@ -49,15 +77,18 @@ export default function Sidebar({ selected = "Dashboard", collapsed, onToggle }:
       </Box>
       <List sx={{ pt: 1 }}>
         {navigationItems.map((item) => (
-          <ListItemButton
-            key={item.label}
-            selected={selected === item.label}
-            sx={{
-              minHeight: 48,
-              justifyContent: collapsed ? "center" : "flex-start",
-              px: collapsed ? 1.5 : 2,
-            }}
-          >
+            <ListItemButton
+              key={item.label}
+              selected={location.pathname === item.path}
+              onClick={() => navigate(item.path)}
+              sx={{
+                minHeight: 48,
+                justifyContent: collapsed
+                  ? "center"
+                  : "flex-start",
+                px: collapsed ? 1.5 : 2,
+              }}
+            >
             <ListItemIcon
               sx={{
                 minWidth: collapsed ? 0 : 36,
