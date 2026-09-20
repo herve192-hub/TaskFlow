@@ -31,22 +31,6 @@ export default function Projects() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // const loadProjects = async () => {
-  //   try {
-  //     setLoading(true);
-  //     setError(null);
-
-  //     const response = await projectService.getProjects();
-
-  //     setProjects(response.content);
-  //   } catch (error) {
-  //     console.error("Unable to load projects:", error);
-
-  //     setError("Unable to load projects.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
 const loadProjects = async () => {
   try {
@@ -160,13 +144,15 @@ const loadProjects = async () => {
     <Box>
       <Stack
         direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "stretch", sm: "center" }}
         spacing={2}
-        sx={{ mb: 4 }}
+        sx={{
+          mb: 4,
+          justifyContent: "space-between",
+          alignItems: { xs: "stretch", sm: "center" },
+        }}
       >
         <Box>
-          <Typography variant="h4" fontWeight={700}>
+          <Typography variant="h4" sx={{ fontWeight: 700 }}>
             Projects
           </Typography>
 
@@ -262,12 +248,12 @@ const loadProjects = async () => {
               <CardContent>
                 <Stack
                   direction="row"
-                  justifyContent="space-between"
+                  sx={{ justifyContent: "space-between" }}
                   spacing={2}
                 >
                   <Typography
                     variant="h6"
-                    fontWeight={700}
+                    sx={{ fontWeight: 700 }}
                   >
                     {project.name}
                   </Typography>
@@ -292,7 +278,7 @@ const loadProjects = async () => {
 
                 <Stack
                   direction="row"
-                  justifyContent="space-between"
+                  sx={{ justifyContent: "space-between" }}
                 >
                   <Chip
                     size="small"

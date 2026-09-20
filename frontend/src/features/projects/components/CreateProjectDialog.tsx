@@ -9,15 +9,15 @@ import {
   FormControl,
   InputLabel,
   MenuItem,
-  Select,
+  Select,   
   Stack,
   TextField,
 } from "@mui/material";
 
 import type {
   CreateProjectRequest,
-  ProjectVisibility,
 } from "../types/project.types";
+import { ProjectVisibility } from "../types/project.types";
 
 interface CreateProjectDialogProps {
   open: boolean;
@@ -35,12 +35,12 @@ export default function CreateProjectDialog({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [visibility, setVisibility] =
-    useState<ProjectVisibility>("PRIVATE");
+    useState<ProjectVisibility>(ProjectVisibility.PRIVATE);
 
   const reset = () => {
     setName("");
     setDescription("");
-    setVisibility("PRIVATE");
+    setVisibility(ProjectVisibility.PRIVATE);
   };
 
   const handleClose = () => {
@@ -85,8 +85,8 @@ export default function CreateProjectDialog({
             onChange={(event) => setName(event.target.value)}
             required
             fullWidth
-            inputProps={{
-              maxLength: 100,
+            slotProps={{
+              htmlInput: { maxLength: 100 },
             }}
           />
 
@@ -99,8 +99,8 @@ export default function CreateProjectDialog({
             multiline
             rows={4}
             fullWidth
-            inputProps={{
-              maxLength: 500,
+            slotProps={{
+              htmlInput: { maxLength: 500 },
             }}
           />
 
@@ -109,22 +109,22 @@ export default function CreateProjectDialog({
               Visibility
             </InputLabel>
 
-            <Select
+            <Select<ProjectVisibility>
               labelId="project-visibility-label"
               label="Visibility"
               value={visibility}
               onChange={(event) =>
                 setVisibility(
-                  event.target.value as ProjectVisibility
+                  event.target.value
                 )
               }
             >
-              <MenuItem value="PRIVATE">Private</MenuItem>
-              <MenuItem value="TEAM">Team</MenuItem>
-              <MenuItem value="ORGANIZATION">
+              <MenuItem value={ProjectVisibility.PRIVATE}>Private</MenuItem>
+              <MenuItem value={ProjectVisibility.TEAM}>Team</MenuItem>
+              <MenuItem value={ProjectVisibility.ORGANIZATION}>
                 Organization
               </MenuItem>
-              <MenuItem value="PUBLIC">Public</MenuItem>
+              <MenuItem value={ProjectVisibility.PUBLIC}>Public</MenuItem>
             </Select>
           </FormControl>
         </Stack>

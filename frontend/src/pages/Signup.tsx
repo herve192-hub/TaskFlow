@@ -19,7 +19,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import axios from "axios";
 
 import { authService } from "../features/auth/services/authService";
-import type { RegisterRequest } from "../features/auth/types/auth";
+import type { RegisterRequest } from "../features/auth/types/auth.types";
 
 interface SignupFormData {
     firstName: string;
