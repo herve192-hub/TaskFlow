@@ -2,13 +2,17 @@ package com.taskflow.project_service.dto.response;
 
 import com.taskflow.project_service.domain.enums.ProjectStatus;
 import com.taskflow.project_service.domain.enums.ProjectVisibility;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.Data;
 
 import java.time.Instant;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProjectSummaryResponse {
 
     private String id;

@@ -25,6 +25,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 
 import { collapsedDrawerWidth, drawerWidth } from "./layoutConstants";
+import { authService } from "../../features/auth/services/authService";
+
 
 type TopbarProps = {
   collapsed: boolean;
@@ -49,7 +51,7 @@ export default function Topbar({ collapsed }: TopbarProps) {
   );
 
   const handleLogout = () => {
-    localStorage.clear();
+    authService.logout();
     navigate("/");
   };
 

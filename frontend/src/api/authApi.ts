@@ -4,8 +4,7 @@ import type {
   AuthResponse,
   LoginRequest,
   RegisterRequest,
-
-} from "../features/auth/types/auth";
+} from "../features/auth/types/auth.types";
 
 export const register = async (
   request: RegisterRequest

@@ -1,13 +1,17 @@
 package com.taskflow.project_service.dto.response;
 
 import com.taskflow.project_service.domain.enums.ProjectRole;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.Data;
 
 import java.time.Instant;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProjectMemberResponse {
 
     private String id;
