@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Link as RouterLink, useParams } from "react-router-dom";
-import { Alert, Box, Button, Card, CardContent, Chip, CircularProgress, Pagination, Stack, Typography } from "@mui/material";
+import { Alert, Box, Button, Card, CardContent, Chip, CircularProgress, Pagination, Stack, Typography, TextField, MenuItem } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CreateTaskDialog from "../features/tasks/components/CreateTaskDialog";
 import { taskService } from "../features/tasks/services/taskService";
 import type { CreateTaskRequest, PageResponse, TaskSummaryResponse } from "../features/tasks/types/task.types";
+
+import { TaskStatus } from "../features/tasks/types/task.types";
 
 export default function ProjectTasks() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -73,6 +75,9 @@ function ProjectTaskList({ projectId }: { projectId: string }) {
                 <Chip size="small" variant="outlined" label={task.priority} />
                 <Chip size="small" variant="outlined" label={task.type} />
               </Stack>
+              <TaskStatusControl task={task} onUpdated={(updated) => setResult((current) => current ? {
+                ...current, content: current.content.map((item) => item.id === updated.id ? updated : item),
+              } : current)} />
               {task.dueDate && <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>Due {new Date(task.dueDate).toLocaleString()}</Typography>}
             </CardContent>
           </Card>)}
@@ -81,4 +86,51 @@ function ProjectTaskList({ projectId }: { projectId: string }) {
       {dialogOpen && <CreateTaskDialog open projectId={projectId} onClose={() => setDialogOpen(false)} onCreate={handleCreate} />}
     </Box>
   );
+}
+
+const transitions: Record<TaskStatus, TaskStatus[]> = {
+  TODO: [TaskStatus.IN_PROGRESS, TaskStatus.BLOCKED, TaskStatus.CANCELLED],
+  IN_PROGRESS: [TaskStatus.TODO, TaskStatus.IN_REVIEW, TaskStatus.BLOCKED, TaskStatus.CANCELLED],
+  IN_REVIEW: [TaskStatus.IN_PROGRESS, TaskStatus.BLOCKED, TaskStatus.COMPLETED, TaskStatus.CANCELLED],
+  BLOCKED: [TaskStatus.TODO, TaskStatus.IN_PROGRESS, TaskStatus.CANCELLED],
+  COMPLETED: [TaskStatus.IN_PROGRESS],
+  CANCELLED: [TaskStatus.TODO],
+};
+
+function TaskStatusControl({ task, onUpdated }: {
+  task: TaskSummaryResponse;
+  onUpdated: (task: TaskSummaryResponse) => void;
+}) {
+  const pending = useRef(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const changeStatus = async (status: TaskStatus) => {
+    if (pending.current || status === task.status) return;
+    pending.current = true;
+    setSaving(true);
+    setError(null);
+    setSaved(false);
+    try {
+      const updated = await taskService.changeTaskStatus(task.id, status);
+      onUpdated(updated);
+      setSaved(true);
+    } catch (error) {
+      setError(axios.isAxiosError(error) && typeof error.response?.data?.message === "string"
+        ? error.response.data.message : "Unable to update status. Please try again.");
+    } finally {
+      pending.current = false;
+      setSaving(false);
+    }
+  };
+  return <Stack spacing={1} sx={{ mt: 2 }}>
+    <TextField select label="Task status" value={task.status} disabled={saving}
+      sx={{ maxWidth: 300 }} helperText={saving ? "Saving..." : "Available changes depend on your project role."}
+      onChange={(event) => { void changeStatus(event.target.value as TaskStatus); }}>
+      {[task.status, ...transitions[task.status]].map((status) =>
+        <MenuItem key={status} value={status}>{status.replaceAll("_", " ")}</MenuItem>)}
+    </TextField>
+    {error && <Alert severity="error">{error}</Alert>}
+    {saved && <Typography role="status" variant="body2" color="success.main">Status updated.</Typography>}
+  </Stack>;
 }

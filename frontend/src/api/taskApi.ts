@@ -1,6 +1,6 @@
 import api from "./axios";
 import type {
-  CreateTaskRequest, PageResponse, TaskResponse, TaskSummaryResponse,
+  CreateTaskRequest, PageResponse, TaskResponse, TaskSummaryResponse, TaskStatus,
 } from "../features/tasks/types/task.types";
 
 export const getProjectTasks = async (
@@ -17,5 +17,12 @@ export const getProjectTasks = async (
 
 export const createTask = async (request: CreateTaskRequest): Promise<TaskResponse> => {
   const response = await api.post<TaskResponse>("/api/v1/tasks", request);
+  return response.data;
+};
+
+export const changeTaskStatus = async (taskId: string, status: TaskStatus): Promise<TaskResponse> => {
+  const response = await api.patch<TaskResponse>(
+    `/api/v1/tasks/${encodeURIComponent(taskId)}/status`, { status },
+  );
   return response.data;
 };
