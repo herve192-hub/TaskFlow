@@ -19,7 +19,7 @@ public class InternalProjectController {
 
     @GetMapping("/{projectId}/exists")
     public ResponseEntity<Boolean> exists(
-            @PathVariable String projectId
+            @PathVariable("projectId") String projectId
     ) {
 
         return ResponseEntity.ok(
@@ -31,7 +31,7 @@ public class InternalProjectController {
 
     @GetMapping("/{projectId}/access")
     public ResponseEntity<ProjectAccessResponse> access(
-            @PathVariable String projectId,
+            @PathVariable("projectId") String projectId,
             Authentication authentication
     ) {
 
@@ -45,8 +45,8 @@ public class InternalProjectController {
 
     @GetMapping("/{projectId}/members/{userId}/exists")
     public ResponseEntity<Boolean> memberExists(
-            @PathVariable String projectId,
-            @PathVariable String userId
+            @PathVariable("projectId") String projectId,
+            @PathVariable("userId") String userId
     ) {
 
         return ResponseEntity.ok(

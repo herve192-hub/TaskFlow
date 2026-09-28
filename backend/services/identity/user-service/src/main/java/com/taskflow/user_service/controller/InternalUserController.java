@@ -17,7 +17,7 @@ public class InternalUserController {
 
     @GetMapping("/{authUserId}")
     public ResponseEntity<InternalUserResponse> getUser(
-            @PathVariable String authUserId
+            @PathVariable("authUserId") String authUserId
     ) {
 
         return ResponseEntity.ok(
@@ -29,7 +29,7 @@ public class InternalUserController {
 
     @GetMapping("/{authUserId}/exists")
     public ResponseEntity<Boolean> exists(
-            @PathVariable String authUserId
+            @PathVariable("authUserId") String authUserId
     ) {
 
         return ResponseEntity.ok(

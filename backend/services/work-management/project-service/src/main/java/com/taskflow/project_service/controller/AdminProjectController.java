@@ -21,7 +21,7 @@ public class AdminProjectController {
 
     @GetMapping("/{projectId}")
     public ResponseEntity<String> getProject(
-            @PathVariable String projectId) {
+            @PathVariable("projectId") String projectId) {
 
         return ResponseEntity.ok(
                 "Admin - Get Project: " + projectId
@@ -30,7 +30,7 @@ public class AdminProjectController {
 
     @DeleteMapping("/{projectId}")
     public ResponseEntity<String> deleteProject(
-            @PathVariable String projectId) {
+            @PathVariable("projectId") String projectId) {
 
         return ResponseEntity.ok(
                 "Admin - Delete Project: " + projectId

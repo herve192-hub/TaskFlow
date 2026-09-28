@@ -8,6 +8,8 @@ import Signup from "../pages/Signup";
 import Login from "../pages/Login";
 import ForgotPassword from "../pages/ForgotPassword";
 import Projects from "../pages/Projects";
+import Tasks from "../pages/Tasks";
+import ProjectTasks from "../pages/ProjectTasks";
 
 import DashboardLayout from "../components/DashboardLayout";
 import Dashboard from "../components/dashboard/Dashboard";
@@ -36,6 +38,8 @@ export default function AppRoutes() {
         >
           <Route index element={<Dashboard />} />
           <Route path="projects" element={<Projects />} />
+          <Route path="tasks" element={<Tasks />} />
+          <Route path="projects/:projectId/tasks" element={<ProjectTasks />} />
         </Route>
       </Routes>
     </BrowserRouter>

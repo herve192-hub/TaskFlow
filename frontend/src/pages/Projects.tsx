@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Link as RouterLink } from "react-router-dom";
 
 import {
   Alert,
@@ -7,6 +8,7 @@ import {
   Button,
   Card,
   CardContent,
+  CardActionArea,
   Chip,
   CircularProgress,
   Stack,
@@ -245,6 +247,12 @@ const loadProjects = async () => {
                 },
               }}
             >
+              <CardActionArea
+                component={RouterLink}
+                to={`/dashboard/projects/${encodeURIComponent(project.id)}/tasks`}
+                aria-label={`View tasks for ${project.name}`}
+                sx={{ height: "100%" }}
+              >
               <CardContent>
                 <Stack
                   direction="row"
@@ -294,7 +302,9 @@ const loadProjects = async () => {
                     {project.memberCount === 1 ? "" : "s"}
                   </Typography>
                 </Stack>
+                <Typography color="primary" variant="body2" sx={{ mt: 2 }}>View tasks →</Typography>
               </CardContent>
+              </CardActionArea>
             </Card>
           ))}
         </Box>

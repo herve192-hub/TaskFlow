@@ -110,7 +110,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUser(
-            @PathVariable String id
+            @PathVariable("id") String id
     ) {
 
         return ResponseEntity.ok(
