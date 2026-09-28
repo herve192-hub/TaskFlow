@@ -46,7 +46,7 @@ public class ProjectController {
 
     @GetMapping("/{projectId}")
     public ResponseEntity<ProjectResponse> getProject(
-            @PathVariable String projectId,
+            @PathVariable("projectId") String projectId,
             Authentication authentication
     ) {
 
@@ -76,7 +76,7 @@ public class ProjectController {
     @GetMapping("/search")
     public ResponseEntity<PageResponse<ProjectSummaryResponse>>
     searchProjects(
-            @RequestParam String q,
+            @RequestParam("q") String q,
             Pageable pageable,
             Authentication authentication
     ) {
@@ -92,7 +92,7 @@ public class ProjectController {
 
     @PutMapping("/{projectId}")
     public ResponseEntity<ProjectResponse> updateProject(
-            @PathVariable String projectId,
+            @PathVariable("projectId") String projectId,
 
             @Valid
             @RequestBody
@@ -112,7 +112,7 @@ public class ProjectController {
 
     @DeleteMapping("/{projectId}")
     public ResponseEntity<Void> deleteProject(
-            @PathVariable String projectId,
+            @PathVariable("projectId") String projectId,
             Authentication authentication
     ) {
 
@@ -127,7 +127,7 @@ public class ProjectController {
     @GetMapping("/{projectId}/members")
     public ResponseEntity<PageResponse<ProjectMemberResponse>>
     getMembers(
-            @PathVariable String projectId,
+            @PathVariable("projectId") String projectId,
             Pageable pageable,
             Authentication authentication
     ) {
@@ -143,7 +143,7 @@ public class ProjectController {
 
     @PostMapping("/{projectId}/members")
     public ResponseEntity<ProjectMemberResponse> addMember(
-            @PathVariable String projectId,
+            @PathVariable("projectId") String projectId,
 
             @Valid
             @RequestBody

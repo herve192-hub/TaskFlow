@@ -50,7 +50,7 @@ public class TaskController {
      */
     @GetMapping("/{taskId}")
     public ResponseEntity<TaskResponse> getTask(
-            @PathVariable String taskId,
+            @PathVariable("taskId") String taskId,
             Authentication authentication
     ) {
         String userId = getUserId(authentication);
@@ -64,7 +64,7 @@ public class TaskController {
      */
     @PutMapping("/{taskId}")
     public ResponseEntity<TaskResponse> updateTask(
-            @PathVariable String taskId,
+            @PathVariable("taskId") String taskId,
             @Valid @RequestBody UpdateTaskRequest request,
             Authentication authentication
     ) {
@@ -83,7 +83,7 @@ public class TaskController {
      */
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> deleteTask(
-            @PathVariable String taskId,
+            @PathVariable("taskId") String taskId,
             Authentication authentication
     ) {
         String userId = getUserId(authentication);
@@ -97,7 +97,7 @@ public class TaskController {
      */
     @GetMapping("/project/{projectId}")
     public ResponseEntity<PageResponse<TaskSummaryResponse>> getProjectTasks(
-            @PathVariable String projectId,
+            @PathVariable("projectId") String projectId,
 
             @PageableDefault(
                     size = 20,
@@ -166,8 +166,8 @@ public class TaskController {
      */
     @GetMapping("/project/{projectId}/status/{status}")
     public ResponseEntity<PageResponse<TaskSummaryResponse>> getTasksByStatus(
-            @PathVariable String projectId,
-            @PathVariable String status,
+            @PathVariable("projectId") String projectId,
+            @PathVariable("status") String status,
 
             @PageableDefault(
                     size = 20,
@@ -197,8 +197,8 @@ public class TaskController {
      */
     @PutMapping("/{taskId}/assignee/{assigneeId}")
     public ResponseEntity<TaskResponse> assignTask(
-            @PathVariable String taskId,
-            @PathVariable String assigneeId,
+            @PathVariable("taskId") String taskId,
+            @PathVariable("assigneeId") String assigneeId,
             Authentication authentication
     ) {
         String userId = getUserId(authentication);
@@ -216,7 +216,7 @@ public class TaskController {
      */
     @PutMapping("/{taskId}/archive")
     public ResponseEntity<TaskResponse> archiveTask(
-            @PathVariable String taskId,
+            @PathVariable("taskId") String taskId,
             Authentication authentication
     ) {
         String userId = getUserId(authentication);
@@ -233,7 +233,7 @@ public class TaskController {
      */
     @PutMapping("/{taskId}/unarchive")
     public ResponseEntity<TaskResponse> unarchiveTask(
-            @PathVariable String taskId,
+            @PathVariable("taskId") String taskId,
             Authentication authentication
     ) {
         String userId = getUserId(authentication);
@@ -254,7 +254,7 @@ public class TaskController {
      */
     @PostMapping("/{taskId}/comments")
     public ResponseEntity<TaskCommentResponse> addComment(
-            @PathVariable String taskId,
+            @PathVariable("taskId") String taskId,
 
             @Valid
             @RequestBody
@@ -280,7 +280,7 @@ public class TaskController {
      */
     @GetMapping("/{taskId}/comments")
     public ResponseEntity<PageResponse<TaskCommentResponse>> getComments(
-            @PathVariable String taskId,
+            @PathVariable("taskId") String taskId,
 
             @PageableDefault(
                     size = 20,
@@ -310,7 +310,7 @@ public class TaskController {
      */
     @GetMapping("/project/{projectId}/count")
     public ResponseEntity<Long> countProjectTasks(
-            @PathVariable String projectId,
+            @PathVariable("projectId") String projectId,
             Authentication authentication
     ) {
         String userId = getUserId(authentication);
@@ -328,8 +328,8 @@ public class TaskController {
      */
     @GetMapping("/project/{projectId}/count/{status}")
     public ResponseEntity<Long> countProjectTasksByStatus(
-            @PathVariable String projectId,
-            @PathVariable String status,
+            @PathVariable("projectId") String projectId,
+            @PathVariable("status") String status,
             Authentication authentication
     ) {
         String userId = getUserId(authentication);
@@ -365,7 +365,7 @@ public class TaskController {
          */
         @PatchMapping("/{taskId}/status")
         public ResponseEntity<TaskResponse> changeTaskStatus(
-                @PathVariable String taskId,
+                @PathVariable("taskId") String taskId,
 
                 @Valid
                 @RequestBody

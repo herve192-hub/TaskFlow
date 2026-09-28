@@ -1,7 +1,7 @@
 
 # taskflow/backend/config-repo/user-service.yml ...
 server:
-  port: 8084
+  port: 8082
 
 spring:
   application:
