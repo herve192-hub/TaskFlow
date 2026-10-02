@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -126,5 +127,20 @@ public class UserController {
         return ResponseEntity.ok(
                 userService.getUsers(pageable)
         );
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<UserSummaryResponse>> searchUsers(
+            @RequestParam(name = "q", defaultValue = "") String query,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(userService.searchUsers(query, pageable));
+    }
+
+    @GetMapping("/lookup")
+    public ResponseEntity<List<UserSummaryResponse>> lookupUsers(
+            @RequestParam("authUserIds") List<String> authUserIds
+    ) {
+        return ResponseEntity.ok(userService.lookupUsers(authUserIds));
     }
 }

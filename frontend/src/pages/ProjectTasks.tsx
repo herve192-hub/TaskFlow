@@ -57,7 +57,10 @@ function ProjectTaskList({ projectId }: { projectId: string }) {
           <Typography variant="h4" sx={{ fontWeight: 700 }}>Project Tasks</Typography>
           <Typography color="text.secondary">View and create tasks for this project.</Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>Create Task</Button>
+        <Stack direction="row" spacing={1}>
+          <Button component={RouterLink} to={`/dashboard/projects/${encodeURIComponent(projectId)}/members`} variant="outlined">View team</Button>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>Create Task</Button>
+        </Stack>
       </Stack>
       {loading ? <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}><CircularProgress aria-label="Loading tasks" /></Box>
         : error ? <Alert severity="error" action={<Button color="inherit" onClick={() => { setLoading(true); setRevision((value) => value + 1); }}>Retry</Button>}>{error}</Alert>

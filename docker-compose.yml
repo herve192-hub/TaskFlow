@@ -2,6 +2,34 @@
 
 services:
 
+  taskflow-web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:${API_GATEWAY_PORT:-8080}}
+
+    container_name: taskflow-web
+
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+
+    networks:
+      - taskflow-network
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost/"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
   # mongodb service is built from the official MongoDB image. It is named mongodb and exposes port 27017.
   # It is connected to the taskflow-network and has a healthcheck that checks the /actuator/health endpoint.The service uses a volume to persist data and environment variables to set the root username and password. ...
   mongodb:

@@ -9,6 +9,7 @@ import {
   Card,
   CardContent,
   CardActionArea,
+  CardActions,
   Chip,
   CircularProgress,
   Stack,
@@ -17,6 +18,7 @@ import {
 
 import AddIcon from "@mui/icons-material/Add";
 import FolderIcon from "@mui/icons-material/Folder";
+import GroupIcon from "@mui/icons-material/Group";
 
 import CreateProjectDialog from "../features/projects/components/CreateProjectDialog";
 import { projectService } from "../features/projects/services/projectService";
@@ -240,6 +242,8 @@ const loadProjects = async () => {
               variant="outlined"
               sx={{
                 height: "100%",
+                display: "flex",
+                flexDirection: "column",
                 transition: "0.2s",
                 "&:hover": {
                   boxShadow: 3,
@@ -251,7 +255,7 @@ const loadProjects = async () => {
                 component={RouterLink}
                 to={`/dashboard/projects/${encodeURIComponent(project.id)}/tasks`}
                 aria-label={`View tasks for ${project.name}`}
-                sx={{ height: "100%" }}
+                sx={{ flex: 1 }}
               >
               <CardContent>
                 <Stack
@@ -305,6 +309,11 @@ const loadProjects = async () => {
                 <Typography color="primary" variant="body2" sx={{ mt: 2 }}>View tasks →</Typography>
               </CardContent>
               </CardActionArea>
+              <CardActions sx={{ px: 2, pb: 2 }}>
+                <Button component={RouterLink} startIcon={<GroupIcon />}
+                  to={`/dashboard/projects/${encodeURIComponent(project.id)}/members`}
+                  aria-label={`View team for ${project.name}`}>View team</Button>
+              </CardActions>
             </Card>
           ))}
         </Box>

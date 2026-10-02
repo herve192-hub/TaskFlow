@@ -357,6 +357,8 @@ public class ProjectServiceImpl implements ProjectService {
                 request.getUserId()
         );
 
+        validateMemberRole(request.getRole());
+
         findProject(projectId);
         /*
          * Only OWNER / ADMIN can manage membership.
@@ -410,6 +412,8 @@ public class ProjectServiceImpl implements ProjectService {
             throw new InvalidProjectException(  "Update member request cannot be null" );
         }
 
+        validateMemberRole(request.getRole());
+        findProject(projectId);
         ensureProjectAdminAccess( projectId, userId );
         ProjectMember member = findProjectMember(memberId);
         ensureMemberBelongsToProject( member, projectId );
@@ -444,6 +448,7 @@ public class ProjectServiceImpl implements ProjectService {
         validateUserId(userId);
         validateMemberId(memberId);
 
+        findProject(projectId);
         ensureProjectAdminAccess( projectId, userId );
 
         ProjectMember member = findProjectMember(memberId);
@@ -620,6 +625,12 @@ public class ProjectServiceImpl implements ProjectService {
 
         if (memberId == null || memberId.isBlank()) {
             throw new InvalidProjectException( "Project member ID cannot be empty" );
+        }
+    }
+
+    private void validateMemberRole(ProjectRole role) {
+        if (role == null) {
+            throw new InvalidProjectException("Project role is required");
         }
     }
 }
