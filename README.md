@@ -187,8 +187,14 @@ Repeat for other services.
 ### Docker
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
+
+The frontend runs as `taskflow-web` at http://localhost:5173. Set `FRONTEND_PORT`
+in the root `.env` file to change its port. Its API URL defaults to
+`http://localhost:${API_GATEWAY_PORT}`; set `VITE_API_BASE_URL` in the root `.env`
+file to override it. Rebuild `taskflow-web` after changing the API URL because
+Vite embeds it in the frontend build.
 
 ---
 
@@ -206,6 +212,18 @@ TaskFlow uses:
 
 * USER
 * ADMIN
+
+### Project teams
+
+Each project has its own team. Creating a project automatically makes you its
+owner. Open **Teams** in the dashboard, or select **View team** on a project,
+to view members. Owners and project admins can add registered users by searching
+for their name or email, assign an Admin, Manager, Member, or Guest role, and
+remove members. The owner cannot be removed or have their role changed through
+team management. Adding a member gives them access to the project and its tasks;
+removing them revokes that access.
+Registration and sign-in create a user profile when one is missing. Existing
+accounts without a profile should sign in again before being added to a team.
 
 ---
 

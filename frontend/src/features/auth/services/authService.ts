@@ -5,9 +5,11 @@ import {
 
 import type {
   AuthResponse,
+  AuthUser,
   LoginRequest,
   RegisterRequest,
 } from "../types/auth.types";
+import { userService } from "../../users/services/userService";
 
 const saveSession = (auth: AuthResponse): void => {
   localStorage.setItem("accessToken", auth.accessToken);
@@ -15,11 +17,22 @@ const saveSession = (auth: AuthResponse): void => {
   localStorage.setItem("user", JSON.stringify(auth.user));
 };
 
+const initializeProfile = async (auth: AuthResponse): Promise<void> => {
+  if (!auth.user) return;
+  try {
+    await userService.ensureCurrentProfile(auth.user);
+  } catch {
+    // Keep sign-in available during a user-service outage; the next sign-in retries.
+    console.warn("TaskFlow profile initialization is unavailable. Team membership may require signing in again.");
+  }
+};
+
 export const authService = {
   async register(request: RegisterRequest): Promise<AuthResponse> {
     const auth = await registerApi(request);
 
     saveSession(auth);
+    await initializeProfile(auth);
 
     return auth;
   },
@@ -28,6 +41,7 @@ export const authService = {
     const auth = await loginApi(request);
 
     saveSession(auth);
+    await initializeProfile(auth);
 
     return auth;
   },
@@ -45,6 +59,17 @@ export const authService = {
 
   getAccessToken(): string | null {
     return localStorage.getItem("accessToken");
+  },
+
+  getCurrentUser(): AuthUser | null {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") ?? "null") as AuthUser | null;
+      return user && typeof user.id === "string"
+        && typeof user.firstname === "string" && typeof user.lastname === "string"
+        ? user : null;
+    } catch {
+      return null;
+    }
   },
 
   isAuthenticated(): boolean {

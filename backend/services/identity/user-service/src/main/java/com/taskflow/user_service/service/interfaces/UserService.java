@@ -10,6 +10,7 @@ import com.taskflow.user_service.dto.response.UserSummaryResponse;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import java.util.List;
 
 public interface UserService {
 
@@ -55,4 +56,8 @@ public interface UserService {
     Page<UserSummaryResponse> getUsers(
             Pageable pageable
     );
+
+    Page<UserSummaryResponse> searchUsers(String query, Pageable pageable);
+
+    List<UserSummaryResponse> lookupUsers(List<String> authUserIds);
 }

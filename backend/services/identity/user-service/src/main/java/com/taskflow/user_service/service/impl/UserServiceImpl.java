@@ -25,6 +25,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -183,6 +185,33 @@ public class UserServiceImpl implements UserService {
         return repository
                 .findAll(pageable)
                 .map(mapper::toSummary);
+    }
+
+    @Override
+    public Page<UserSummaryResponse> searchUsers(String query, Pageable pageable) {
+        String search = query == null ? "" : query.trim();
+        if (search.length() > 100) {
+            throw new InvalidUserException("Search must be 100 characters or fewer");
+        }
+
+        Page<User> users = search.isEmpty()
+                ? repository.findByStatus(UserStatus.ACTIVE, pageable)
+                : repository.searchActiveUsers(Pattern.quote(search), pageable);
+
+        return users.map(mapper::toSummary);
+    }
+
+    @Override
+    public List<UserSummaryResponse> lookupUsers(List<String> authUserIds) {
+        if (authUserIds == null || authUserIds.size() > 100) {
+            throw new InvalidUserException("Provide up to 100 user IDs");
+        }
+        authUserIds.forEach(this::validateAuthUserId);
+        if (authUserIds.isEmpty()) {
+            return List.of();
+        }
+        return repository.findByAuthUserIdIn(authUserIds.stream().distinct().toList())
+                .stream().map(mapper::toSummary).toList();
     }
 
     private User findById(String id) {

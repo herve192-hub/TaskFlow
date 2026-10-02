@@ -141,6 +141,16 @@ public class ProjectController {
         );
     }
 
+    @GetMapping("/{projectId}/access")
+    public ResponseEntity<ProjectAccessResponse> getAccess(
+            @PathVariable("projectId") String projectId,
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(
+                projectService.getProjectAccess(projectId, authentication.getName())
+        );
+    }
+
     @PostMapping("/{projectId}/members")
     public ResponseEntity<ProjectMemberResponse> addMember(
             @PathVariable("projectId") String projectId,
@@ -161,5 +171,29 @@ public class ProjectController {
                                 authentication.getName()
                         )
                 );
+    }
+
+    @PutMapping("/{projectId}/members/{memberId}")
+    public ResponseEntity<ProjectMemberResponse> updateMember(
+            @PathVariable("projectId") String projectId,
+            @PathVariable("memberId") String memberId,
+            @Valid @RequestBody UpdateProjectMemberRequest request,
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(
+                projectService.updateProjectMember(
+                        projectId, memberId, request, authentication.getName()
+                )
+        );
+    }
+
+    @DeleteMapping("/{projectId}/members/{memberId}")
+    public ResponseEntity<Void> removeMember(
+            @PathVariable("projectId") String projectId,
+            @PathVariable("memberId") String memberId,
+            Authentication authentication
+    ) {
+        projectService.removeProjectMember(projectId, memberId, authentication.getName());
+        return ResponseEntity.noContent().build();
     }
 }
