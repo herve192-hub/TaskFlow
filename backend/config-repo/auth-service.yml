@@ -6,10 +6,9 @@ spring:
   application:
     name: auth-service
 
-  data:
-    mongodb:
-      uri: ${AUTH_MONGO_URI}
-      database: taskflow-auth
+  mongodb:
+    uri: ${AUTH_MONGO_URI}
+    database: taskflow-auth
 
 eureka:
   client:

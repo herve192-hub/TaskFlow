@@ -33,7 +33,7 @@
 		<!-- Spring Cloud Gateway dependency -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-gateway</artifactId>
+			<artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
 		</dependency>
 		<!-- Eureka Client dependency -->
 		<dependency>
@@ -61,7 +61,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>3.5.3</version>
+				<version>${spring.boot.version}</version>
 				<executions>
 					<execution>
 						<goals>

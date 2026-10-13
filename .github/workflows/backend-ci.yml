@@ -2,75 +2,167 @@ name: Backend CI
 
 on:
   push:
-    branches:
-      - main
-      - develop
-      - dev/feature-workflows
+    branches: [main, develop, dev/feature-workflows]
     paths:
       - 'backend/**'
-      - '.github/workflows/backend-ci.yml'
-
+      - '.github/workflows/**'
+      - '.github/scripts/**'
+      - 'docker-compose.yml'
   pull_request:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
     paths:
       - 'backend/**'
-      - '.github/workflows/backend-ci.yml'
+      - '.github/workflows/**'
+      - '.github/scripts/**'
+      - 'docker-compose.yml'
+  schedule:
+    - cron: '23 8 * * 1'
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: backend-ci-${{ github.ref }}
+  group: backend-ci-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build-and-test:
-    name: Build and Test Backend
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    name: Backend unit and integration tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
 
     defaults:
       run:
         working-directory: backend
 
+    services:
+      mongodb:
+        image: mongo:8.0.5@sha256:7bd28e5eea1c5766a084d5818254046f3ebe3b8f20a65e3a274640189e296667
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ping: 1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      SPRING_MONGODB_URI: mongodb://127.0.0.1:27017/taskflow-ci
+      SPRING_MONGODB_HOST: 127.0.0.1
+      SPRING_MONGODB_DATABASE: taskflow-ci
+      # These fill application placeholders; the URI selects the isolated CI database.
+      MONGO_INITDB_ROOT_USERNAME: ci
+      MONGO_INITDB_ROOT_PASSWORD: ci-test-password
+
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          java-version: '21'
-          distribution: 'temurin'
+          persist-credentials: false
+
+      - name: Set up Temurin 21.0.12.1+1
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          java-version: '21.0.12+101.0.LTS' # Adoptium SemVer for Temurin 21.0.12.1+1
+          distribution: temurin
           cache: maven
-          cache-dependency-path: backend/pom.xml
+          cache-dependency-path: 'backend/**/pom.xml'
 
-      - name: Make Maven Wrapper Executable
-        run: chmod +x mvnw
+      - name: Generate a temporary test signing key
+        run: |
+          key=$(openssl rand -base64 64 | tr -d '\n')
+          echo "::add-mask::$key"
+          echo "JWT_SECRET=$key" >> "$GITHUB_ENV"
 
-      - name: Verify Java
-        run: java -version
+      # Surefire runs unit tests; Failsafe runs context and *IT tests during verify.
+      - name: Run unit tests, integration tests, and package all modules
+        run: bash ./mvnw --batch-mode --no-transfer-progress clean verify
 
-      - name: Verify Maven Wrapper
-        run: ./mvnw -version
+      - name: Ensure both test suites executed
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from xml.etree import ElementTree
 
-      # Run the complete backend test suite first.
-      # Any failing unit or Spring context test stops the workflow here.
-      - name: Run Backend Tests
-        run: ./mvnw clean test
+          for suite in ('surefire', 'failsafe'):
+              reports = list(Path('.').glob(f'**/target/{suite}-reports/TEST-*.xml'))
+              executed = sum(
+                  int(root.attrib.get('tests', 0)) - int(root.attrib.get('skipped', 0))
+                  for root in (ElementTree.parse(report).getroot() for report in reports)
+              )
+              if executed == 0:
+                  raise SystemExit(f'No {suite} tests executed')
+              print(f'{suite}: {executed} tests executed')
+          PY
 
-      # Package all backend modules only after the test suite passes.
-      # Tests are skipped here because they already ran in the previous step.
-      - name: Package Backend
-        run: ./mvnw package -DskipTests
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: backend-test-reports
+          path: |
+            backend/**/target/surefire-reports/
+            backend/**/target/failsafe-reports/
+            backend/**/target/site/jacoco/
+          retention-days: 14
+          if-no-files-found: warn
 
-      - name: Build Discovery Server Image
-        run: docker build -f infrastructure/discovery-server/Dockerfile -t taskflow/discovery-server .
+  container-security:
+    name: Build and scan ${{ matrix.service }} image
+    needs: build-and-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: discovery-server
+            module: infrastructure/discovery-server
+          - service: config-server
+            module: infrastructure/config-server
+          - service: api-gateway
+            module: infrastructure/api-gateway
+          - service: auth-service
+            module: services/identity/auth-service
+          - service: user-service
+            module: services/identity/user-service
+          - service: task-service
+            module: services/work-management/task-service
+          - service: project-service
+            module: services/work-management/project-service
 
-      - name: Build Config Server Image
-        run: docker build -f infrastructure/config-server/Dockerfile -t taskflow/config-server .
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - name: Build API Gateway Image
-        run: docker build -f infrastructure/api-gateway/Dockerfile -t taskflow/api-gateway .
+      - name: Build service image
+        env:
+          SERVICE: ${{ matrix.service }}
+          MODULE: ${{ matrix.module }}
+        run: docker build --file "backend/$MODULE/Dockerfile" --tag "taskflow/$SERVICE:$GITHUB_SHA" backend
+
+      - name: Scan OS and Java dependencies in the image
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          version: v0.75.0
+          image-ref: taskflow/${{ matrix.service }}:${{ github.sha }}
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          format: json
+          output: image-security.json
+
+      - name: Show security findings in the log and job summary
+        if: always()
+        run: python3 .github/scripts/summarize-trivy.py image-security.json
+
+      - name: Upload image scan report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: backend-image-security-${{ matrix.service }}
+          path: image-security.json
+          retention-days: 14

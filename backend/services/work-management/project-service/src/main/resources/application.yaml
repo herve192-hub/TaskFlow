@@ -8,14 +8,13 @@ spring:
   lifecycle:
     timeout-per-shutdown-phase: 30s
 
-  data:
-    mongodb:
-      host: ${MONGODB_HOST:mongodb}
-      port: ${MONGODB_PORT:27017}
-      database: ${MONGODB_DATABASE:taskflow-projects}
-      username: ${MONGO_INITDB_ROOT_USERNAME}
-      password: ${MONGO_INITDB_ROOT_PASSWORD}
-      authentication-database: admin
+  mongodb:
+    host: ${MONGODB_HOST:mongodb}
+    port: ${MONGODB_PORT:27017}
+    database: ${MONGODB_DATABASE:taskflow-projects}
+    username: ${MONGO_INITDB_ROOT_USERNAME}
+    password: ${MONGO_INITDB_ROOT_PASSWORD}
+    authentication-database: admin
 
 server:
   port: ${PROJECT_SERVICE_PORT:8083}
@@ -64,4 +63,4 @@ info:
     name: ${spring.application.name}
     version: 1.0.0
     description: Project Management Service
-    
+

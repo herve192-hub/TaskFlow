@@ -72,9 +72,9 @@ Notification Service
 ### Backend
 
 * Java 21
-* Spring Boot
+* Spring Boot 4.1.1
 * Spring Security
-* Spring Cloud Gateway
+* Spring Cloud Gateway (Spring Cloud 2025.1.3)
 * Spring Data MongoDB
 * JWT Authentication
 
@@ -91,7 +91,7 @@ Notification Service
 * Docker
 * Docker Compose
 * Kubernetes (Planned)
-* GitHub Actions (Planned)
+* GitHub Actions
 
 ---
 
@@ -155,9 +155,9 @@ This project demonstrates:
 
 ### Prerequisites
 
-* Java 21+
-* Node.js 22+
-* MongoDB
+* Eclipse Temurin 21.0.12.1+1
+* Node.js 24.21.0 (pinned in `frontend/.nvmrc`)
+* MongoDB 8.0.5 (pinned in `docker-compose.yml`)
 * Docker
 
 ### Clone Repository
@@ -169,9 +169,13 @@ cd taskflow
 
 ### Frontend
 
+With nvm installed, the checked-in version file selects Node.js 24.21.0:
+
 ```bash
 cd frontend
-npm install
+nvm install
+nvm use
+npm ci
 npm run dev
 ```
 
@@ -195,6 +199,13 @@ in the root `.env` file to change its port. Its API URL defaults to
 `http://localhost:${API_GATEWAY_PORT}`; set `VITE_API_BASE_URL` in the root `.env`
 file to override it. Rebuild `taskflow-web` after changing the API URL because
 Vite embeds it in the frontend build.
+
+---
+
+## Continuous integration
+
+GitHub Actions runs backend and frontend tests and security scans. See
+[the CI guide](.github/CI.md) for the checks, failure thresholds, and local commands.
 
 ---
 
@@ -234,7 +245,7 @@ accounts without a profile should sign in again before being added to a team.
 * File Attachments
 * Activity Logs
 * OAuth2 (Google/GitHub Login)
-* CI/CD Pipeline
+* Automated deployments
 * Kubernetes Deployment
 * Monitoring with Prometheus & Grafana
 
