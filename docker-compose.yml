@@ -3,6 +3,8 @@
 services:
 
   taskflow-web:
+    image: taskflow/frontend:0.0.0
+    pull_policy: build
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -33,7 +35,7 @@ services:
   # mongodb service is built from the official MongoDB image. It is named mongodb and exposes port 27017.
   # It is connected to the taskflow-network and has a healthcheck that checks the /actuator/health endpoint.The service uses a volume to persist data and environment variables to set the root username and password. ...
   mongodb:
-    image: mongo:8.0.5
+    image: mongo:8.0.5@sha256:7bd28e5eea1c5766a084d5818254046f3ebe3b8f20a65e3a274640189e296667
     container_name: mongodb
     restart: unless-stopped
 
@@ -67,7 +69,7 @@ services:
 # Kafka service is built from the official Apache Kafka image. It is named taskflow-kafka and exposes port 9092.
 # It is connected to the taskflow-network and has a healthcheck that checks the /actuator/health endpoint. The service uses environment variables to configure Kafka settings, including node ID, process roles, listeners, and replication factors. It also uses a volume to persist Kafka data. ...
   kafka:
-    image: apache/kafka:4.1.0
+    image: apache/kafka:4.1.0@sha256:bff074a5d0051dbc0bbbcd25b045bb1fe84833ec0d3c7c965d1797dd289ec88f
     container_name: taskflow-kafka
     restart: unless-stopped
 
@@ -124,6 +126,8 @@ services:
   # It is named discovery-server and exposes port 8761. 
   # It is connected to the taskflow-network and has a healthcheck that checks the /actuator/health endpoint. ...
   discovery-server:
+    image: taskflow/discovery-server:1.0.0
+    pull_policy: build
     build:
       context: ./backend
       dockerfile: infrastructure/discovery-server/Dockerfile
@@ -156,6 +160,8 @@ services:
   # It is named config-server and exposes port 8888. It is connected to the taskflow-network 
   # and has a healthcheck that checks the /actuator/health endpoint. ...
   config-server:
+    image: taskflow/config-server:1.0.0
+    pull_policy: build
     build:
       context: ./backend
       dockerfile: infrastructure/config-server/Dockerfile
@@ -203,6 +209,8 @@ services:
   # It is named api-gateway and exposes port 8080. It depends on the discovery-server and config-server services, is connected to the taskflow-network,
   # and has a healthcheck that checks the /actuator/health endpoint. ...
   api-gateway:
+    image: taskflow/api-gateway:1.0.0
+    pull_policy: build
     build:
       context: ./backend
       dockerfile: infrastructure/api-gateway/Dockerfile
@@ -250,6 +258,8 @@ services:
       retries: 5
       start_period: 30s
   auth-service:
+    image: taskflow/auth-service:0.0.1
+    pull_policy: build
     build:
       context: ./backend
       dockerfile: services/identity/auth-service/Dockerfile
@@ -296,6 +306,8 @@ services:
 # It is named user-service and exposes port 8082. It depends on the discovery-server, config-server, and mongodb services, is connected to the taskflow-network,
 # and has a healthcheck that checks the /actuator/health endpoint. ...
   user-service:
+    image: taskflow/user-service:0.0.1
+    pull_policy: build
     build:
       context: ./backend
       dockerfile: services/identity/user-service/Dockerfile
@@ -355,6 +367,8 @@ services:
   # It is named project-service and exposes port 8083. It depends on the discovery-server, config-server, and mongodb services, is connected to the taskflow-network,
   # and has a healthcheck that checks the /actuator/health endpoint. ...
   project-service:
+    image: taskflow/project-service:0.0.1
+    pull_policy: build
     build:
       context: ./backend
       dockerfile: services/work-management/project-service/Dockerfile
@@ -411,6 +425,8 @@ services:
       start_period: 60s
   #
   task-service:
+    image: taskflow/task-service:1.0.0
+    pull_policy: build
     build:
       context: ./backend
       dockerfile: services/work-management/task-service/Dockerfile

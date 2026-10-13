@@ -1,0 +1,197 @@
+name: Security
+
+on:
+  push:
+    branches: [main, develop, dev/feature-workflows]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '23 8 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: java-kotlin
+            build-mode: manual
+          - language: javascript-typescript
+            build-mode: none
+          - language: actions
+            build-mode: none
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Temurin 21.0.12.1+1
+        if: matrix.language == 'java-kotlin'
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          java-version: '21.0.12+101.0.LTS' # Adoptium SemVer for Temurin 21.0.12.1+1
+          distribution: temurin
+          cache: maven
+          cache-dependency-path: 'backend/**/pom.xml'
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          queries: security-extended
+
+      - name: Build Java sources for analysis
+        if: matrix.language == 'java-kotlin'
+        working-directory: backend
+        run: bash ./mvnw --batch-mode --no-transfer-progress clean package -DskipTests
+
+      - name: Analyze and upload results to code scanning
+        uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        with:
+          category: /language:${{ matrix.language }}
+          output: codeql-results
+
+      - name: Fail on high or critical source vulnerabilities
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          reports = list(Path('codeql-results').glob('*.sarif'))
+          if not reports:
+              raise SystemExit('CodeQL did not produce a SARIF report')
+          findings = []
+          for report in reports:
+              for run in json.loads(report.read_text()).get('runs', []):
+                  rules = {rule['id']: rule for rule in run['tool']['driver'].get('rules', [])}
+                  for result in run.get('results', []):
+                      rule = rules.get(result.get('ruleId'), {})
+                      severity = float(rule.get('properties', {}).get('security-severity', 0))
+                      if severity >= 7:
+                          findings.append(result.get('ruleId', 'unknown rule'))
+          if findings:
+              raise SystemExit('High/critical CodeQL findings: ' + ', '.join(findings))
+          print('No high or critical CodeQL findings')
+          PY
+
+      - name: Upload source scan reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: codeql-${{ matrix.language }}
+          path: codeql-results/
+          retention-days: 14
+
+  repository-security:
+    name: Security scan (${{ matrix.target }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: repository
+            scan-type: fs
+            scan-ref: .
+            scanners: vuln,secret,misconfig
+            include-dev-deps: 'true'
+          - target: backend-binaries
+            scan-type: rootfs
+            scan-ref: backend
+            scanners: vuln
+            include-dev-deps: 'false'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Temurin 21.0.12.1+1
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          java-version: '21.0.12+101.0.LTS' # Adoptium SemVer for Temurin 21.0.12.1+1
+          distribution: temurin
+          cache: maven
+          cache-dependency-path: 'backend/**/pom.xml'
+
+      # Install internal modules for POM resolution; rootfs scanning inspects packaged JARs.
+      - name: Package backend dependencies for scanning
+        working-directory: backend
+        run: bash ./mvnw --batch-mode --no-transfer-progress clean install -DskipTests
+
+      - name: Scan manifests, configuration, secrets, or resolved backend dependencies
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        env:
+          # Internal modules are available locally; packaged JARs contain resolved dependencies.
+          TRIVY_OFFLINE_SCAN: 'true'
+          TRIVY_INCLUDE_DEV_DEPS: ${{ matrix.include-dev-deps }}
+        with:
+          version: v0.75.0
+          scan-type: ${{ matrix.scan-type }}
+          scan-ref: ${{ matrix.scan-ref }}
+          scanners: ${{ matrix.scanners }}
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          skip-dirs: node_modules,frontend/node_modules,.git
+          format: json
+          output: security-${{ matrix.target }}.json
+
+      - name: Upload repository scan report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: security-${{ matrix.target }}
+          path: security-${{ matrix.target }}.json
+          retention-days: 14
+
+  secret-history:
+    name: Scan Git history for secrets
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout complete history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install checksum-verified Gitleaks
+        env:
+          GITLEAKS_VERSION: '8.30.1'
+        run: |
+          cd "$RUNNER_TEMP"
+          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          curl --fail --location --silent --show-error --retry 3 "$base/$archive" --output "$archive"
+          curl --fail --location --silent --show-error --retry 3 "$base/gitleaks_${GITLEAKS_VERSION}_checksums.txt" --output checksums.txt
+          awk -v archive="$archive" '$2 == archive {print}' checksums.txt | sha256sum --check --strict
+          tar --extract --gzip --file "$archive" --directory "$RUNNER_TEMP" gitleaks
+
+      - name: Fail on secrets in any fetched commit
+        run: >-
+          "$RUNNER_TEMP/gitleaks" git --redact --no-banner --log-opts="--all"
+          --report-format json --report-path "$RUNNER_TEMP/gitleaks-report.json"
+
+      - name: Upload redacted secret scan report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: secret-history-security
+          path: ${{ runner.temp }}/gitleaks-report.json
+          retention-days: 14
