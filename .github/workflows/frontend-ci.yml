@@ -6,12 +6,14 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/**'
+      - '.github/scripts/**'
       - 'docker-compose.yml'
   pull_request:
     branches: [main, develop]
     paths:
       - 'frontend/**'
       - '.github/workflows/**'
+      - '.github/scripts/**'
       - 'docker-compose.yml'
   schedule:
     - cron: '23 8 * * 1'
@@ -136,6 +138,10 @@ jobs:
           exit-code: '1'
           format: json
           output: image-security.json
+
+      - name: Show security findings in the log and job summary
+        if: always()
+        run: python3 .github/scripts/summarize-trivy.py image-security.json
 
       - name: Upload image scan report
         if: always()

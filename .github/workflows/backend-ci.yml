@@ -6,12 +6,14 @@ on:
     paths:
       - 'backend/**'
       - '.github/workflows/**'
+      - '.github/scripts/**'
       - 'docker-compose.yml'
   pull_request:
     branches: [main, develop]
     paths:
       - 'backend/**'
       - '.github/workflows/**'
+      - '.github/scripts/**'
       - 'docker-compose.yml'
   schedule:
     - cron: '23 8 * * 1'
@@ -46,9 +48,9 @@ jobs:
           --health-retries 10
 
     env:
-      SPRING_DATA_MONGODB_URI: mongodb://127.0.0.1:27017/taskflow-ci
-      SPRING_DATA_MONGODB_HOST: 127.0.0.1
-      SPRING_DATA_MONGODB_DATABASE: taskflow-ci
+      SPRING_MONGODB_URI: mongodb://127.0.0.1:27017/taskflow-ci
+      SPRING_MONGODB_HOST: 127.0.0.1
+      SPRING_MONGODB_DATABASE: taskflow-ci
       # These fill application placeholders; the URI selects the isolated CI database.
       MONGO_INITDB_ROOT_USERNAME: ci
       MONGO_INITDB_ROOT_PASSWORD: ci-test-password
@@ -152,6 +154,10 @@ jobs:
           exit-code: '1'
           format: json
           output: image-security.json
+
+      - name: Show security findings in the log and job summary
+        if: always()
+        run: python3 .github/scripts/summarize-trivy.py image-security.json
 
       - name: Upload image scan report
         if: always()

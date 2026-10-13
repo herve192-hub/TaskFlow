@@ -72,9 +72,9 @@ Notification Service
 ### Backend
 
 * Java 21
-* Spring Boot
+* Spring Boot 4.1.1
 * Spring Security
-* Spring Cloud Gateway
+* Spring Cloud Gateway (Spring Cloud 2025.1.3)
 * Spring Data MongoDB
 * JWT Authentication
 

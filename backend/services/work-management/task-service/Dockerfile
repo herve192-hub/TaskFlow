@@ -28,12 +28,18 @@ RUN ./mvnw clean package \
 
 FROM eclipse-temurin:21.0.12.1_1-jre-noble@sha256:000fd431958bc81a24abe1e8e5f0f0fd3ae365a594bd50aadb20696805f9408c
 
+RUN groupadd --gid 10001 taskflow && \
+    useradd --uid 10001 --gid taskflow --no-create-home --home-dir /app --shell /usr/sbin/nologin taskflow && \
+    mkdir -p /app && chown taskflow:taskflow /app
+
 WORKDIR /app
 
-COPY --from=builder \
+COPY --from=builder --chown=taskflow:taskflow \
     /app/services/work-management/task-service/target/task-service-*.jar \
     app.jar
 
 EXPOSE 8084
+
+USER 10001:10001
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

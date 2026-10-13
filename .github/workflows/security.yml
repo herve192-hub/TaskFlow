@@ -152,6 +152,12 @@ jobs:
           format: json
           output: security-${{ matrix.target }}.json
 
+      - name: Show security findings in the log and job summary
+        if: always()
+        env:
+          REPORT_PATH: security-${{ matrix.target }}.json
+        run: python3 .github/scripts/summarize-trivy.py "$REPORT_PATH"
+
       - name: Upload repository scan report
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

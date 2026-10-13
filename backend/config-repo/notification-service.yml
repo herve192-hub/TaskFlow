@@ -6,6 +6,5 @@ spring:
   application:
     name: notification-service
 
-  data:
-    mongodb:
-      database: notificationdb
+  mongodb:
+    database: notificationdb
