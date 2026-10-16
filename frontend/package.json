@@ -24,7 +24,7 @@
     "framer-motion": "12.43.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "react-hook-form": "7.88.0",
+    "react-hook-form": "7.89.0",
     "react-router-dom": "7.18.4",
     "react-toastify": "11.1.0"
   },
