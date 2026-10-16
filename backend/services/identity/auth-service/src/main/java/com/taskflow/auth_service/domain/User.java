@@ -5,6 +5,7 @@ package com.taskflow.auth_service.domain;
 import lombok.*;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -35,8 +36,10 @@ public class User {
 
     private String lastName;
 
+    @Indexed(unique = true)
     private String username;
 
+    @Indexed(unique = true)
     private String email;
 
     private String password;

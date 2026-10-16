@@ -1,0 +1,5 @@
+# Public deployment template; copy to the ignored .env file and edit locally.
+# Credentials belong in protected secret files, never in this template.
+TASKFLOW_WEB_ORIGIN=https://taskflow.example.com
+TASKFLOW_HTTPS_PORT=443
+TASKFLOW_SECRETS_DIR=./secrets

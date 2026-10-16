@@ -16,4 +16,7 @@ public interface UserRepository
 
     boolean existsByUsername(String username);
 
+    @org.springframework.data.mongodb.repository.Query(value = "{roles: 'ROLE_ADMIN'}", exists = true)
+    boolean hasAdministrator();
+
 }

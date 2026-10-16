@@ -16,6 +16,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.core.Authentication;
+import jakarta.servlet.http.HttpServletRequest;
+import com.taskflow.auth_service.security.jwt.JwtProperties;
+import com.taskflow.security.CookieSecurity;
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,17 +34,50 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtProperties jwtProperties;
+
+    @Value("${TASKFLOW_COOKIE_SECURE:false}")
+    private boolean secureCookie;
+
+    @Value("${TASKFLOW_PUBLIC_REGISTRATION_ENABLED:true}")
+    private boolean publicRegistration;
+
+    @GetMapping("/csrf")
+    public ResponseEntity<Void> csrf(HttpServletRequest request) {
+        ((CsrfToken) request.getAttribute(CsrfToken.class.getName())).getToken();
+        return ResponseEntity.noContent().cacheControl(CacheControl.noStore()).build();
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(Authentication authentication) {
+        com.taskflow.security.SecurityAudit.record("sign_out", authentication.getName(), "auth");
+        return ResponseEntity.noContent().cacheControl(CacheControl.noStore())
+                .header(HttpHeaders.SET_COOKIE, accessCookie("", Duration.ZERO)).build();
+    }
+
+    private String accessCookie(String token, Duration lifetime) {
+        return ResponseCookie.from(CookieSecurity.accessCookieName(secureCookie), token)
+                .httpOnly(true).secure(secureCookie).sameSite("Strict").path("/")
+                .maxAge(lifetime).build().toString();
+    }
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(
-            @Valid @RequestBody RegisterRequest request
+            @Valid @RequestBody RegisterRequest request,
+            Authentication authentication
     ) {
 
+        if (!publicRegistration && (authentication == null || authentication.getAuthorities().stream()
+                .noneMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority())))) {
+            throw new org.springframework.security.access.AccessDeniedException("Administrator approval is required");
+        }
         AuthResponse response
                 = authService.register(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
+                .cacheControl(CacheControl.noStore())
+                .header(HttpHeaders.SET_COOKIE, accessCookie(response.getAccessToken(), Duration.ofMillis(jwtProperties.getExpiration())))
                 .body(response);
     }
 
@@ -42,8 +86,9 @@ public class AuthController {
             @Valid @RequestBody LoginRequest request
     ) {
 
-        return ResponseEntity.ok(
-                authService.login(request)
-        );
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .header(HttpHeaders.SET_COOKIE, accessCookie(response.getAccessToken(), Duration.ofMillis(jwtProperties.getExpiration())))
+                .body(response);
     }
 }

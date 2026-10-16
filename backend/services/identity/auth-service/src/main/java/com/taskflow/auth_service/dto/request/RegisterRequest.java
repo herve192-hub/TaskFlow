@@ -3,7 +3,6 @@ package com.taskflow.auth_service.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -12,9 +11,11 @@ import lombok.Data;
 public class RegisterRequest {
     
     @NotBlank(message = "First name is required")
+    @Size(max = 100)
     private String firstname;
     
     @NotBlank(message = "Last name is required")
+    @Size(max = 100)
     private String lastname;
 
     @NotBlank(message = "Username is required")
@@ -23,14 +24,11 @@ public class RegisterRequest {
 
     @Email(message = "Invalid email")
     @NotBlank(message = "Email is required")
+    @Size(max = 254)
     private String email;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 8, max = 100)
-    @Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$",
-        message = "Password must contain uppercase, lowercase and a number"
-    )
+    @Size(min = 15, max = 128)
     private String password;
 
 }

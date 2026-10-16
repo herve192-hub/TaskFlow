@@ -1,4 +1,5 @@
 import { Navigate } from "react-router-dom";
+import { isAuthenticated } from '../features/auth/session'
 
 interface Props {
     children: React.ReactNode;
@@ -7,11 +8,7 @@ interface Props {
 export default function ProtectedRoute({
     children,
 }: Props) {
-    const token = localStorage.getItem(
-        "accessToken"
-    );
-
-    return token
+    return isAuthenticated()
         ? children
         : <Navigate to="/" replace/>;
 }

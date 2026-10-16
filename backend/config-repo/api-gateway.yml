@@ -11,17 +11,14 @@ spring:
         webflux:
           discovery:
             locator:
-              enabled: true
+              enabled: false
               lower-case-service-id: true
 
           globalcors:
             cors-configurations:
               '[/**]':
                 allowedOrigins:
-                  - http://localhost:5173
-                  - http://localhost:3000
-                  - http://127.0.0.1:5173
-                  - http://127.0.0.1:3000
+                  - ${TASKFLOW_WEB_ORIGIN:http://localhost:5173}
                 allowedMethods:
                   - GET
                   - POST
@@ -35,6 +32,7 @@ spring:
                   - Accept
                   - Origin
                   - X-Requested-With
+                  - X-XSRF-TOKEN
                 allowCredentials: true
                 exposedHeaders:
                   - Authorization
@@ -68,7 +66,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health
 
 logging:
   level:

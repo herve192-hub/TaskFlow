@@ -23,10 +23,9 @@ public class FeignClientConfig {
             ServletRequestAttributes requestAttributes =
                 (ServletRequestAttributes) RequestContextHolder
                     .getRequestAttributes();
-            String authorization = requestAttributes == null
-                ? null
-                : requestAttributes.getRequest()
-                    .getHeader( "Authorization" );
+            String token = requestAttributes == null ? null
+                    : com.taskflow.security.CookieSecurity.extractToken(requestAttributes.getRequest());
+            String authorization = token == null ? null : "Bearer " + token;
             if (authorization != null
                     && authorization.startsWith("Bearer ")) {
                 requestTemplate.header(

@@ -122,6 +122,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Verify scanner report redaction
+        run: python3 .github/scripts/test-summarize-trivy.py
+
       - name: Set up Temurin 21.0.12.1+1
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
@@ -153,13 +156,14 @@ jobs:
           output: security-${{ matrix.target }}.json
 
       - name: Show security findings in the log and job summary
+        id: security_summary
         if: always()
         env:
           REPORT_PATH: security-${{ matrix.target }}.json
         run: python3 .github/scripts/summarize-trivy.py "$REPORT_PATH"
 
       - name: Upload repository scan report
-        if: always()
+        if: always() && steps.security_summary.outcome == 'success'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: security-${{ matrix.target }}
@@ -189,9 +193,19 @@ jobs:
           awk -v archive="$archive" '$2 == archive {print}' checksums.txt | sha256sum --check --strict
           tar --extract --gzip --file "$archive" --directory "$RUNNER_TEMP" gitleaks
 
+      - name: Verify protections against accidental publication
+        run: python3 .github/scripts/test-verify-publishable-files.py
+        env:
+          GITLEAKS_BIN: ${{ runner.temp }}/gitleaks
+
+      - name: Block private and generated files in the published source tree
+        run: python3 .github/scripts/verify-publishable-files.py --secrets
+        env:
+          GITLEAKS_BIN: ${{ runner.temp }}/gitleaks
+
       - name: Fail on secrets in any fetched commit
         run: >-
-          "$RUNNER_TEMP/gitleaks" git --redact --no-banner --log-opts="--all"
+          "$RUNNER_TEMP/gitleaks" git --redact --no-banner --ignore-gitleaks-allow --log-opts="--all"
           --report-format json --report-path "$RUNNER_TEMP/gitleaks-report.json"
 
       - name: Upload redacted secret scan report

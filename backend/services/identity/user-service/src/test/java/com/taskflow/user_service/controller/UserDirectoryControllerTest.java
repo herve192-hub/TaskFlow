@@ -18,7 +18,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class UserDirectoryControllerTest {
     private final UserService service = mock(UserService.class);
-    private final MockMvc mvc = MockMvcBuilders.standaloneSetup(new UserController(service))
+    private final MockMvc mvc = MockMvcBuilders.standaloneSetup(new UserController(service,
+            mock(com.taskflow.user_service.security.jwt.JwtService.class)))
             .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver()).build();
 
     @Test

@@ -18,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import com.taskflow.security.CookieSecurity;
 
 @Component
 @RequiredArgsConstructor
@@ -33,8 +34,7 @@ public class JwtAuthenticationFilter
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String authorizationHeader =
-                request.getHeader("Authorization");
+        String token = CookieSecurity.extractToken(request);
 
         /*
          * No Bearer token.
@@ -43,15 +43,11 @@ public class JwtAuthenticationFilter
          * Spring Security decide whether the endpoint
          * requires authentication.
          */
-        if (authorizationHeader == null
-                || !authorizationHeader.startsWith("Bearer ")) {
+        if (token == null) {
 
             filterChain.doFilter(request, response);
             return;
         }
-
-        String token =
-                authorizationHeader.substring(7);
 
         try {
 

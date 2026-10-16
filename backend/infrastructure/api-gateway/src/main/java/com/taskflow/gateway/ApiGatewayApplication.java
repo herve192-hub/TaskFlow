@@ -2,14 +2,17 @@ package com.taskflow.gateway;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 @SpringBootApplication
+@Import({com.taskflow.security.ProductionSecurity.class, com.taskflow.security.EurekaClientAuthentication.class})
 public class ApiGatewayApplication {
 
     public static void main(String[] args) {
@@ -17,16 +20,12 @@ public class ApiGatewayApplication {
     }
 
     @Bean
-    CorsWebFilter corsWebFilter() {
+    CorsWebFilter corsWebFilter(
+            @Value("${TASKFLOW_WEB_ORIGIN:http://localhost:5173}") String webOrigin) {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-                "http://localhost:5173",
-                "http://localhost:3000",
-                "http://127.0.0.1:5173",
-                "http://127.0.0.1:3000"
-        ));
+        config.setAllowedOrigins(List.of(webOrigin));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With", "X-XSRF-TOKEN"));
         config.setAllowCredentials(true);
         config.setExposedHeaders(List.of("Authorization"));
         config.setMaxAge(3600L);

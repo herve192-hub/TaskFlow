@@ -437,6 +437,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectMapper.updateMemberEntity( member, request );
 
         ProjectMember updatedMember = projectMemberRepository.save(member);
+        com.taskflow.security.SecurityAudit.record("project_role_changed", userId, memberId);
 
         return projectMapper.toMemberResponse( updatedMember );
     }
@@ -462,6 +463,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         projectMemberRepository.delete(member);
+        com.taskflow.security.SecurityAudit.record("project_member_removed", userId, memberId);
     }
 
     @Override

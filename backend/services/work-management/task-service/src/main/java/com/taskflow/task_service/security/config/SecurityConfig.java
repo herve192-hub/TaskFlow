@@ -15,8 +15,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import jakarta.servlet.DispatcherType;
+import org.springframework.beans.factory.annotation.Value;
+import com.taskflow.security.CookieSecurity;
 
 @Configuration
+@org.springframework.context.annotation.Import({com.taskflow.security.ProductionSecurity.class, com.taskflow.security.EurekaClientAuthentication.class})
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -26,13 +30,16 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint
             jwtAuthenticationEntryPoint;
 
+    @Value("${TASKFLOW_COOKIE_SECURE:false}")
+    private boolean secureCookie;
+
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http
     ) throws Exception {
 
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> CookieSecurity.configure(csrf, secureCookie))
 
                 .cors(cors -> {})
 
@@ -50,19 +57,15 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+
                         // Health / monitoring
                         .requestMatchers(
-                                "/actuator/health",
-                                "/actuator/info",
-                                "/actuator/prometheus"
+                                "/actuator/health", "/actuator/health/**"
                         ).permitAll()
 
-                        // Swagger
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**"
-                        ).permitAll()
+                        .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**").denyAll()
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 
                         // Everything else requires JWT
                         .anyRequest()
