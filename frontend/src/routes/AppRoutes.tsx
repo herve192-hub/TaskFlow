@@ -19,6 +19,10 @@ import Dashboard from "../components/dashboard/Dashboard";
 
 import ProtectedRoute from "./protectedRoute";
 
+/**
+ * Own the browser router and nested dashboard pages. The build flag hides public signup;
+ * backend approval and authorization remain enforced independently on every request.
+ */
 export default function AppRoutes() {
   return (
     <BrowserRouter>

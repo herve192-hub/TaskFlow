@@ -12,6 +12,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+/**
+ * Bridge domain events to the optional external publisher after a Spring transaction commits.
+ * Fallback execution also handles calls without a transaction; this is not a durable outbox.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

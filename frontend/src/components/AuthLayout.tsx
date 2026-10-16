@@ -12,6 +12,7 @@ interface Props {
   children: ReactNode;
 }
 
+/** Shared authentication shell with desktop artwork and a compact logo above mobile forms. */
 export default function AuthLayout({ children }: Props) {
   return (
     <Box

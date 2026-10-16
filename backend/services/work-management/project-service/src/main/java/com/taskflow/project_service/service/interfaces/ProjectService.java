@@ -11,8 +11,10 @@ import com.taskflow.project_service.dto.response.ProjectResponse;
 import com.taskflow.project_service.dto.response.ProjectSummaryResponse;
 import org.springframework.data.domain.Pageable;
 
+/** Project and team operations; userId parameters identify the authenticated auth-service account. */
 public interface ProjectService {
 
+    /** Create the project and its creator's OWNER membership. */
     ProjectResponse createProject(
             CreateProjectRequest request,
             String userId
@@ -29,11 +31,13 @@ public interface ProjectService {
             String userId
     );
 
+    /** Delete a project and its memberships; only the recorded owner may request deletion. */
     void deleteProject(
             String projectId,
             String userId
     );
 
+    /** List projects through membership records, so owners and invited users share one access model. */
     PageResponse<ProjectSummaryResponse> getProjects(
             String userId,
             Pageable pageable
@@ -45,12 +49,14 @@ public interface ProjectService {
             Pageable pageable
     );
 
+    /** Add an existing auth identity with a non-OWNER role; OWNER/ADMIN membership is required. */
     ProjectMemberResponse addProjectMember(
             String projectId,
             AddProjectMemberRequest request,
             String userId
     );
 
+    /** Change a non-owner membership identified by its membership document ID. */
     ProjectMemberResponse updateProjectMember(
             String projectId,
             String memberId,
@@ -58,6 +64,7 @@ public interface ProjectService {
             String userId
     );
 
+    /** Remove a non-owner membership; memberId is not the member's auth-service user ID. */
     void removeProjectMember(
             String projectId,
             String memberId,
@@ -74,5 +81,6 @@ public interface ProjectService {
 
     boolean isProjectMember(String projectId, String userId);
 
+    /** Return current project permissions, including a denied response for a non-member. */
     ProjectAccessResponse getProjectAccess(String projectId, String userId);
 }

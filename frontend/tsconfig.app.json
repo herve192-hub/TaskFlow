@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    // Cache compiler metadata with dependencies so it stays outside publishable source files.
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2023",
     "useDefineForClassFields": true,
@@ -15,7 +16,7 @@
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "noEmit": true, // Vite produces the JavaScript bundle; TypeScript performs type checking.
     "jsx": "react-jsx",
     "types": ["vite/client"]
   },

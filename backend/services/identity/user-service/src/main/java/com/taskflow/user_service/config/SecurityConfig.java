@@ -1,3 +1,5 @@
+// Historical commented scaffold; the active configuration is in security/config/SecurityConfig.java.
+// This file does not define a Spring bean or a second security filter chain.
 // package com.taskflow.user_service.config;
 
 // import com.taskflow.user_service.security.jwt.JwtAuthenticationFilter;

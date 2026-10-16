@@ -6,10 +6,12 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "./dashboard/Sidebar";
 import Topbar from "./dashboard/Topbar";
 
+/** Persistent dashboard chrome; nested routes render inside Outlet below the fixed toolbar. */
 export default function DashboardLayout() {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [collapsed, setCollapsed] = useState(false);
+  // Small screens force the compact drawer while preserving the user's desktop toggle state.
   const isCollapsed = isSmallScreen || collapsed;
 
   return (

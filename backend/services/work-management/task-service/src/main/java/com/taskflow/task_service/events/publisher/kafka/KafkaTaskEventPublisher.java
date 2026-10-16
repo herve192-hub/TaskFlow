@@ -12,6 +12,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+/**
+ * Serialize task events to versioned Kafka messages using task IDs as partition keys.
+ * Asynchronous send failures are logged without rolling back the saved task.
+ */
 @Slf4j
 @Component
 public class KafkaTaskEventPublisher

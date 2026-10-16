@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 
+// These smoke checks exercise the production bundle's navigation without requiring a signed-in account.
 test('the production build renders the sign-in form', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByLabel('Email', { exact: true })).toBeVisible()

@@ -15,6 +15,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 
+// Presentation samples, separate from the backend security audit and Kafka task events.
 const activities = [
     {
         title: 'Completed "Design Login Page"',

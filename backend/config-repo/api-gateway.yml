@@ -1,3 +1,4 @@
+# Explicit public routes for the reactive gateway; /internal and infrastructure APIs stay unlisted.
 server:
   port: 8080
 
@@ -11,10 +12,12 @@ spring:
         webflux:
           discovery:
             locator:
+              # Discovery supplies addresses for allowlisted routes, not automatic public endpoints.
               enabled: false
               lower-case-service-id: true
 
           globalcors:
+            # One explicit origin is required when browser requests include authentication cookies.
             cors-configurations:
               '[/**]':
                 allowedOrigins:
@@ -39,6 +42,7 @@ spring:
                 maxAge: 3600
 
           routes:
+            # lb:// resolves each service name through Eureka while retaining the incoming API path.
             - id: auth-service
               uri: lb://auth-service
               predicates:
@@ -60,6 +64,7 @@ spring:
                 - Path=/api/v1/tasks/**
 
           default-filters:
+            # Avoid duplicate CORS response headers when both gateway and downstream service add them.
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
 
 management:

@@ -7,6 +7,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
+/** Parse PEM-encoded RSA keys without including key material in validation errors. */
 public final class JwtKeys {
     private JwtKeys() { }
 
@@ -14,6 +15,7 @@ public final class JwtKeys {
         return Base64.getDecoder().decode(pem.replaceAll("-----[^-]+-----", "").replaceAll("\\s", ""));
     }
 
+    /** Read an X.509 SubjectPublicKeyInfo public key with a modulus of at least 3072 bits. */
     public static RSAPublicKey publicKey(String pem) {
         try {
             var key = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(decode(pem)));
@@ -24,6 +26,7 @@ public final class JwtKeys {
         }
     }
 
+    /** Read an unencrypted PKCS#8 private key supplied through a protected secret mount. */
     public static RSAPrivateKey privateKey(String pem) {
         try {
             var key = (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(decode(pem)));

@@ -27,6 +27,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import com.taskflow.user_service.security.jwt.JwtService;
 import org.springframework.security.access.AccessDeniedException;
 
+/** Profile self-service and directory summaries; full profile reads require self/admin access. */
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -45,6 +46,7 @@ public class UserController {
             HttpServletRequest httpRequest
     ) {
 
+        // Bind profile ownership and email to the signed account, not an identity supplied in the body.
         String email = jwtService.extractClaims(jwtService.extractToken(httpRequest)).get("email", String.class);
         if (!email.equalsIgnoreCase(request.getEmail().trim())) {
             throw new AccessDeniedException("Profile email must match the authenticated account");
@@ -119,6 +121,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    /** This route takes the local profile document ID; /me resolves by the authenticated subject. */
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUser(
             @PathVariable("id") String id,

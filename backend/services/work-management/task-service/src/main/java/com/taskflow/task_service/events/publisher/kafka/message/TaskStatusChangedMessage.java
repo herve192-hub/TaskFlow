@@ -6,6 +6,7 @@ import com.taskflow.task_service.events.TaskStatusChangedEvent;
 import java.time.Instant;
 import java.util.UUID;
 
+/** Versioned wire envelope; eventId is generated per publication and changedBy is an auth-service ID. */
 public record TaskStatusChangedMessage(
         String eventId,
         String eventType,

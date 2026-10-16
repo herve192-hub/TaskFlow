@@ -5,6 +5,7 @@ import com.taskflow.task_service.events.TaskCompletedEvent;
 import java.time.Instant;
 import java.util.UUID;
 
+/** Completion wire envelope with task effort data and canonical account IDs, independent of JWT claims. */
 public record TaskCompletedMessage(
         String eventId,
         String eventType,

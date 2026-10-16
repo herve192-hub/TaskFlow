@@ -8,6 +8,7 @@ export interface WorkspaceData {
   tasks: TaskSummaryResponse[];
 }
 
+/** Read every zero-based server page so aggregate counts are not limited to the first result page. */
 async function allPages<T>(fetchPage: (page: number) => Promise<PageResponse<T>>): Promise<T[]> {
   const first = await fetchPage(0);
   const items = [...first.content];
@@ -17,6 +18,7 @@ async function allPages<T>(fetchPage: (page: number) => Promise<PageResponse<T>>
   return items;
 }
 
+/** Build a complete project/task snapshot; any failed request rejects the aggregate rather than hiding it. */
 export async function loadWorkspace(): Promise<WorkspaceData> {
   const projects = await allPages((page) => projectService.getProjects(page, 100));
   const tasks: TaskSummaryResponse[] = [];
@@ -26,6 +28,7 @@ export async function loadWorkspace(): Promise<WorkspaceData> {
       allPages((page) => taskService.getProjectTasks(project.id, page, 100))));
     tasks.push(...results.flat());
   }
+  // Consumers can take the first items for recent-task lists regardless of project fetch order.
   tasks.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
   return { projects, tasks };
 }

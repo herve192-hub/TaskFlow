@@ -16,6 +16,7 @@ import type {
   ProjectMemberResponse,
 } from "../types/project.types";
 
+/** Project feature boundary; HTTP serialization stays in api/projectApi.ts. */
 export const projectService = {
   getProject,
   getProjectAccess,
@@ -24,6 +25,7 @@ export const projectService = {
   updateProjectMember,
   removeProjectMember,
 
+  /** Exhaust all pages so the add-member dialog can exclude existing users beyond the first page. */
   async getAllProjectMembers(projectId: string): Promise<ProjectMemberResponse[]> {
     const first = await getProjectMembers(projectId, 0, 100);
     const members = [...first.content];

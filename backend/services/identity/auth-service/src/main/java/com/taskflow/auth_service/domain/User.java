@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.springframework.context.annotation.Configuration;
 
+/** Credential/account document; its ID becomes the canonical subject used by the other services. */
 @Document(collection = "users")
 
 @Getter
@@ -42,6 +43,7 @@ public class User {
     @Indexed(unique = true)
     private String email;
 
+    /** Encoded password verifier, never the plaintext password. */
     private String password;
 
     @Builder.Default
@@ -69,6 +71,7 @@ public class User {
 
     private String phoneNumber;
 
+    /** SHA-256 digest of the latest issued refresh token, despite the legacy field name. */
     private String refreshToken;
 
     private Instant lastLoginAt;

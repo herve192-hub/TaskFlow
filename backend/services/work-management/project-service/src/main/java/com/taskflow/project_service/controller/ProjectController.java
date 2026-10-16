@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 
 import org.springframework.web.bind.annotation.*;
 
+/** Project/team HTTP API; acting user IDs always come from the authenticated principal. */
 @RestController
 @RequestMapping("/api/v1/projects")
 @RequiredArgsConstructor
@@ -173,6 +174,7 @@ public class ProjectController {
                 );
     }
 
+    /** memberId identifies the membership document, while the project path scopes the operation. */
     @PutMapping("/{projectId}/members/{memberId}")
     public ResponseEntity<ProjectMemberResponse> updateMember(
             @PathVariable("projectId") String projectId,

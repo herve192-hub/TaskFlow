@@ -1,5 +1,4 @@
-// pnpm install framer-motion ...
-// 
+// Shared entrance/hover animation wrapper; framer-motion is installed through the committed lockfile.
 import { motion } from 'framer-motion';
 
 export default function AnimatedCard({ children,  

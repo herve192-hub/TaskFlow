@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
+// Legacy shortcut targets; this presentation widget is separate from the routed dashboard's links.
 const actions = [
     {
         title: "New Task",

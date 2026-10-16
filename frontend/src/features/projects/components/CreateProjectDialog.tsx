@@ -26,6 +26,7 @@ interface CreateProjectDialogProps {
   onCreate: (request: CreateProjectRequest) => Promise<void>;
 }
 
+/** Collect project metadata; the parent owns the server request, error display, and loading state. */
 export default function CreateProjectDialog({
   open,
   loading = false,

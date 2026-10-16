@@ -54,6 +54,7 @@ import com.taskflow.task_service.service.policy.TaskLifecyclePolicy;
 
 import org.springframework.context.ApplicationEventPublisher;
 
+/** Coordinates task persistence, project access decisions, lifecycle policy, and domain events. */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -415,6 +416,7 @@ public class TaskServiceImpl implements TaskService {
     // TASK STATUS EVENT PUBLISHING
     // =========================================================
 
+    /** A completion emits both the general transition event and a completion-specific event. */
     private void publishStatusEvents(
         Task task,
         TaskStatus previousStatus,
@@ -670,6 +672,10 @@ public class TaskServiceImpl implements TaskService {
     // =========================================================
     // DOWNSTREAM SERVICE HELPERS
     // =========================================================
+    /**
+     * Resolve the caller's current permissions using the forwarded request token.
+     * Treat missing responses and connectivity failures as errors rather than granting access.
+     */
     private ProjectAccessResponse getProjectAccess( String projectId) {
 
         validateProjectId(projectId);

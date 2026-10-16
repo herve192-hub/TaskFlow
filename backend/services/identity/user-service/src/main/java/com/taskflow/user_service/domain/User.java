@@ -20,6 +20,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
+/** Profile data stored in the user-service database; credentials belong to auth-service. */
 @Getter
 @Setter
 @Builder

@@ -3,12 +3,14 @@ import axios from "axios";
 import { loadWorkspace } from "../services/workspaceService";
 import type { WorkspaceData } from "../services/workspaceService";
 
+/** Load a fresh workspace per hook instance and expose an explicit refresh/retry trigger. */
 export function useWorkspace() {
   const [data, setData] = useState<WorkspaceData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [revision, setRevision] = useState(0);
   useEffect(() => {
+    // Ignore late results after unmount or refresh; this guard does not cancel the HTTP requests.
     let active = true;
     async function load() {
       setLoading(true);

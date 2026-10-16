@@ -9,11 +9,13 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/** Preserve the caller's authentication and translate user-service failures for project operations. */
 @Configuration
 public class FeignClientConfig {
 
     /**
-     * Forward the incoming JWT to downstream services.
+     * Convert bearer or browser-cookie authentication to a downstream Bearer header.
+     * Without an active servlet request, no caller credential is attached.
      */
     @Bean
     public RequestInterceptor authorizationRequestInterceptor() {

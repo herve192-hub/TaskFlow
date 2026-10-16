@@ -7,6 +7,7 @@ import {
 
 import WbSunnyOutlinedIcon from "@mui/icons-material/WbSunnyOutlined";
 
+/** Presentation prototype with fixed sample counts; the routed Dashboard loads live workspace data. */
 export default function DashboardSummary() {
   return (
     <Paper

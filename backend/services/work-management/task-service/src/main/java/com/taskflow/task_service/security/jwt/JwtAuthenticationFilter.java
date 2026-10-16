@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.taskflow.security.CookieSecurity;
 
+/** Establish the signed caller identity; task/project permissions are evaluated by the service layer. */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter
@@ -97,10 +98,9 @@ public class JwtAuthenticationFilter
     ) {
 
         /*
-         * Start with ROLE_USER.
-         *
-         * Once we confirm the exact role claim used by
-         * auth-service, we can extract roles from the JWT.
+         * This implementation exposes ROLE_USER for validated requests.
+         * Platform admin authorities are not propagated here; project-management
+         * permissions are resolved separately through project-service.
          */
 
         List<SimpleGrantedAuthority> authorities =

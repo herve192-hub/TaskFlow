@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
 
+/** Profile operations; authUserId is the shared account identity and id is a local profile ID. */
 public interface UserService {
 
     UserResponse createUser(
@@ -49,6 +50,7 @@ public interface UserService {
             String authUserId
     );
 
+    /** Mark the profile inactive without changing auth-service account credentials or existing tokens. */
     void deactivateCurrentUser(
             String authUserId
     );

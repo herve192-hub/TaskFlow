@@ -6,6 +6,7 @@ export const userService = {
   searchUsers,
   lookupUsers,
 
+  /** Create a missing profile after sign-in; only an actual 404 triggers provisioning. */
   async ensureCurrentProfile(user: AuthUser): Promise<void> {
     try {
       await getCurrentUser();

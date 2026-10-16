@@ -19,6 +19,7 @@ import type { UserSummary } from "../features/users/types/user.types";
 import { assignableProjectRoles, projectRoleLabels } from "../features/projects/utils/projectRoles";
 import { apiErrorMessage } from "../utils/apiError";
 
+/** Reset team view state when the selected project route changes. */
 export default function ProjectMembers() {
   const { projectId } = useParams<{ projectId: string }>();
   return projectId ? <ProjectTeam key={projectId} projectId={projectId} /> : <Alert severity="error">Project ID is required.</Alert>;
@@ -59,9 +60,11 @@ function ProjectTeam({ projectId }: { projectId: string }) {
         setAccess(permissions);
         setResult(members);
         try {
+          // Join memberships to profiles by canonical auth ID, not the profile's local document ID.
           const users = await userService.lookupUsers(members.content.map((member) => member.userId));
           if (active) setProfiles(new Map(users.map((user) => [user.authUserId, user])));
         } catch {
+          // Memberships remain usable when directory enrichment fails; expose a retryable name warning.
           if (active) { setProfiles(new Map()); setProfileWarning(true); }
         }
       } catch (error) {
@@ -107,11 +110,13 @@ function ProjectTeam({ projectId }: { projectId: string }) {
     try {
       await projectService.removeProjectMember(projectId, removing.id);
       setRemoving(null);
+      // Leaving the team removes access to this view; replace its browser-history entry.
       if (removing.userId === access?.userId) {
         navigate("/dashboard/teams", { replace: true });
         return;
       }
       setSuccess("Team member removed.");
+      // Avoid remaining on an empty trailing page after removing its final membership.
       if (result?.content.length === 1 && page > 0) setPage(page - 1);
       reload();
     } catch (error) {

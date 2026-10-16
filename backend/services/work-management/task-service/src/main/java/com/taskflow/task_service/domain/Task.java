@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Task document with soft deletion; account references use auth-service IDs rather than profile IDs. */
 @Data
 @Builder
 @NoArgsConstructor
@@ -103,5 +104,6 @@ public class Task {
     @LastModifiedDate
     private Instant updatedAt;
 
+    /** Set when entering COMPLETED and cleared when completed work is reopened. */
     private Instant completedAt;
 }

@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 
+/** Verify the shared access-token contract; extractUsername returns the canonical account ID (sub). */
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {

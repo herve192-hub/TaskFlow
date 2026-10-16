@@ -15,6 +15,7 @@ import com.taskflow.project_service.dto.response.ProjectSummaryResponse;
 
 import lombok.RequiredArgsConstructor;
 
+/** Map project/team DTOs; partial updates preserve omitted fields and do not change ownership. */
 @Component
 @RequiredArgsConstructor
 public class ProjectMapper {

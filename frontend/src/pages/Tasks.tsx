@@ -5,6 +5,7 @@ import { useWorkspace } from "../features/tasks/hooks/useWorkspace";
 import CreateTaskDialog from "../features/tasks/components/CreateTaskDialog";
 import { taskService } from "../features/tasks/services/taskService";
 
+/** Filter and paginate the fully loaded workspace locally; creation is scoped to the selected project. */
 export default function Tasks() {
   const { data, loading, error, refresh } = useWorkspace();
   const [projectId, setProjectId] = useState("");

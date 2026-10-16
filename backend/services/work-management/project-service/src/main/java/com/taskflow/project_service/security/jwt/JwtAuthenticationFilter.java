@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.List;
 import com.taskflow.security.CookieSecurity;
 
+/** Populate account identity and platform authorities; project-specific roles come from memberships. */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter
@@ -37,7 +38,7 @@ public class JwtAuthenticationFilter
         String token = CookieSecurity.extractToken(request);
 
         /*
-         * No Bearer token.
+         * Neither a bearer token nor the configured browser access cookie is present.
          *
          * Continue through the filter chain and let
          * Spring Security decide whether the endpoint

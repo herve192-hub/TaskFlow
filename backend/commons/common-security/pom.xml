@@ -13,6 +13,7 @@
 
     <packaging>jar</packaging>
 
+    <!-- Shared validation and security configuration used by infrastructure and business services. -->
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -36,6 +37,7 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
         </dependency>
+        <!-- Compile servlet helpers without forcing servlet APIs into reactive gateway deployments. -->
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>

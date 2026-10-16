@@ -21,6 +21,7 @@
     <!-- ===================== -->
     <!-- JAVA + SPRING VERSIONS -->
     <!-- ===================== -->
+    <!-- Keep framework/security versions centralized so every reactor module resolves the same stack. -->
     <properties>
         <java.version>21</java.version>
         <spring.boot.version>4.1.1</spring.boot.version>
@@ -52,7 +53,7 @@
 
         <dependencies>
 
-            <!-- JWT and some Cloud dependencies still require Jackson 2. -->
+            <!-- JWT and some Cloud dependencies still require Jackson 2 alongside Boot 4's Jackson 3. -->
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
@@ -147,6 +148,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.5.4</version>
+                    <!-- Surefire owns unit tests; the excluded context/IT patterns run under Failsafe below. -->
                     <configuration>
                         <excludes>
                             <exclude>**/*ApplicationTests.java</exclude>
@@ -190,6 +192,7 @@
                         <include>**/*IT.java</include>
                         <include>**/*ITCase.java</include>
                     </includes>
+                    <!-- Integration tests start local contexts without depending on Config Server or Eureka. -->
                     <systemPropertyVariables>
                         <spring.cloud.config.enabled>false</spring.cloud.config.enabled>
                         <eureka.client.register-with-eureka>false</eureka.client.register-with-eureka>
@@ -205,6 +208,7 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- Attach coverage instrumentation to test JVMs and generate reports during verify. -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

@@ -7,6 +7,7 @@ interface StatCardProps {
     icon: React.ReactNode;
 }
 
+/** Display a parent-computed metric and icon using the shared dashboard card styling. */
 export default function StatCard({
     title,
     value,

@@ -1,3 +1,4 @@
+# Profile-service bootstrap defaults; centralized configuration supplies the service-specific MongoDB URI.
 spring:
   application:
     name: user-service
@@ -9,6 +10,7 @@ spring:
     timeout-per-shutdown-phase: 30s
 
   mongodb:
+    # Fallback host fields support local runs; never put deployed credentials in this file.
     host: ${MONGODB_HOST:mongodb}
     port: ${MONGODB_PORT:27017}
     database: ${MONGODB_DATABASE:taskflow-users}
@@ -32,12 +34,14 @@ eureka:
     instance-id: ${spring.application.name}:${random.uuid}
 
 jwt:
+  # JWT_SECRET supports development. Production verification uses the mounted RSA public key.
   secret: ${JWT_SECRET:}
   issuer: taskflow
   expiration: ${JWT_EXPIRATION_MS:900000}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION_MS:604800000}
 
 management:
+  # Exposure and authorization are separate; SecurityConfig denies actuator routes other than health.
   endpoints:
     web:
       exposure:

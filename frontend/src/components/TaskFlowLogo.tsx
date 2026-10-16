@@ -15,6 +15,7 @@ function Artwork() {
   return <image href={logo} width="1254" height="1254" />;
 }
 
+/** Render responsive logo variants by framing the original asset in accessible SVG viewports. */
 export default function TaskFlowLogo({
   variant = "horizontal",
   width = variant === "stacked" ? 260 : variant === "mark" ? 40 : 180,

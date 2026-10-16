@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/** Directory/team display data, including email, without the full profile's phone or bio fields. */
 @Getter
 @Setter
 @Builder

@@ -30,6 +30,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+/** Stateless JWT authentication with cookie CSRF protection and one explicit browser origin. */
 @Configuration
 @org.springframework.context.annotation.Import({com.taskflow.security.ProductionSecurity.class, com.taskflow.security.EurekaClientAuthentication.class})
 @RequiredArgsConstructor
@@ -80,6 +81,7 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
+                // Preserve the original error status instead of challenging internal error dispatches.
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers(
                         "/auth/register", "/auth/login", "/auth/csrf",
@@ -105,6 +107,7 @@ public class SecurityConfig {
         CorsConfiguration configuration
                 = new CorsConfiguration();
 
+        // Credentialed browser requests require the configured origin, not a wildcard.
         configuration.setAllowedOrigins(List.of(webOrigin));
 
         configuration.setAllowedMethods(List.of(

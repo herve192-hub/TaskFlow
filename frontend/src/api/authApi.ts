@@ -6,6 +6,7 @@ import type {
   RegisterRequest,
 } from "../features/auth/types/auth.types";
 
+/** Account HTTP calls return the API payload; authService handles display metadata and profile setup. */
 export const register = async (
   request: RegisterRequest
 ): Promise<AuthResponse> => {

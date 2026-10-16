@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
+/** Map task/comment DTOs while leaving authorization, lifecycle, and auditing decisions to the service. */
 @Component
 public class TaskMapper {
 
@@ -38,6 +39,7 @@ public class TaskMapper {
                 .build();
     }
 
+    /** Apply supplied fields only; status changes use the service's dedicated lifecycle operation. */
     public void updateEntity(
             Task task,
             UpdateTaskRequest request

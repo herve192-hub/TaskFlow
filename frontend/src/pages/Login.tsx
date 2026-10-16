@@ -43,6 +43,7 @@ interface LoginFormData {
     rememberMe: boolean;
 }
 
+/** Submit credentials through the cookie/CSRF client, then navigate after session/profile initialization. */
 export default function Login() {
 // Initialize form handling with react-hook-form ...
     const {

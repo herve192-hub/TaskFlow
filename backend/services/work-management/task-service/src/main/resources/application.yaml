@@ -1,3 +1,4 @@
+# Task-service bootstrap defaults; Config Server supplies persistence and Kafka producer settings.
 spring:
   application:
     name: task-service
@@ -9,6 +10,7 @@ spring:
     timeout-per-shutdown-phase: 30s
 
   mongodb:
+    # Deployment URIs and credentials come from runtime configuration, not committed values.
     host: ${MONGODB_HOST:mongodb}
     port: ${MONGODB_PORT:27017}
     database: ${MONGODB_DATABASE:taskflow-tasks}
@@ -33,12 +35,14 @@ eureka:
     instance-id: ${spring.application.name}:${random.uuid}
 
 jwt:
+  # Shared development HMAC settings; production instead supplies an RSA verification key.
   secret: ${JWT_SECRET:}
   issuer: taskflow
   expiration: ${JWT_EXPIRATION_MS:900000}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION_MS:604800000}
 
 management:
+  # Keep health details hidden; the security chain separately denies other actuator HTTP routes.
   endpoints:
     web:
       exposure:

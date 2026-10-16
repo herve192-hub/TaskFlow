@@ -13,6 +13,7 @@ export enum ProjectVisibility {
   PRIVATE = "PRIVATE",
 }
 
+/** Roles scoped to a single project, distinct from account-level ROLE_USER/ROLE_ADMIN authorities. */
 export enum ProjectRole {
   OWNER = "OWNER",
   ADMIN = "ADMIN",
@@ -43,6 +44,7 @@ export interface UpdateProjectMemberRequest {
   role: ProjectRole;
 }
 
+/** id targets membership edits; userId is the canonical auth account used for directory lookups. */
 export interface ProjectMemberResponse {
   id: string;
   userId: string;
@@ -76,6 +78,7 @@ export interface ProjectResponse {
   updatedAt: string;
 }
 
+/** Project/task service pagination uses zero-based page; user-directory responses instead use number. */
 export interface PageResponse<T> {
   content: T[];
   page: number;
@@ -86,6 +89,7 @@ export interface PageResponse<T> {
   last: boolean;
 }
 
+/** Server-calculated permissions guide visible controls; the backend rechecks each requested operation. */
 export interface ProjectAccessResponse {
   projectId: string;
   userId: string;

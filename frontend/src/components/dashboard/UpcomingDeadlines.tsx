@@ -9,6 +9,7 @@ import {
 
 type DeadlineColor = "error" | "warning" | "success";
 
+// Static widget samples; the routed Dashboard derives actual deadlines from workspace tasks.
 const deadlines: Array<{
     project: string;
     due: string;

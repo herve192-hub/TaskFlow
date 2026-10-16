@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/** Active-task queries exclude archived documents; the inherited ID lookup also permits restore flows. */
 @Repository
 public interface TaskRepository extends MongoRepository<Task, String> {
 

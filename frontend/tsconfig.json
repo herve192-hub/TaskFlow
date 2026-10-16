@@ -1,5 +1,6 @@
 {
   "files": [],
+  // Check browser source and Node-based tooling through their separate compiler environments.
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }

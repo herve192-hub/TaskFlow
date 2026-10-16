@@ -8,7 +8,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 
-/** The same authentication contract is enforced by every business service. */
+/**
+ * Shared access-token contract for the business services: signature, issuer,
+ * audience, access purpose, identity claims, lifetime, and platform authorities.
+ * Refresh tokens cannot satisfy this contract even when signed by the same issuer.
+ */
 public final class AccessTokenValidator {
     public static final String AUDIENCE = "taskflow-api";
 
@@ -18,6 +22,10 @@ public final class AccessTokenValidator {
         return parse(token, secret, issuer, null);
     }
 
+    /**
+     * Verify RS256 when a public key is configured, otherwise HS512 for development.
+     * Restrict the accepted algorithm explicitly rather than trusting the token header.
+     */
     public static Claims parse(String token, String secret, String issuer, String publicKey) {
         boolean asymmetric = publicKey != null && !publicKey.isBlank();
         if (!asymmetric && (secret == null || secret.getBytes(StandardCharsets.UTF_8).length < 64)) {
@@ -39,6 +47,7 @@ public final class AccessTokenValidator {
         var signed = parser.build().parseSignedClaims(token);
         Claims claims = signed.getPayload();
         Date now = new Date();
+        // Platform authorities are separate from the project-specific membership roles.
         Object roles = claims.get("roles");
         if (claims.getSubject() == null || claims.getSubject().isBlank()
                 || claims.getId() == null || claims.getId().isBlank()

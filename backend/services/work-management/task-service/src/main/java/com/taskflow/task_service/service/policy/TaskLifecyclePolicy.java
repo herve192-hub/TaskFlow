@@ -10,6 +10,10 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Allowed edges in the task state machine. This policy checks state changes only;
+ * TaskServiceImpl separately checks the caller's project role and relationship to the task.
+ */
 @Component
 public class TaskLifecyclePolicy {
 
@@ -97,6 +101,7 @@ public class TaskLifecyclePolicy {
         );
     }
 
+    /** Reject missing states, no-op updates, and transitions absent from the configured graph. */
     public void validateTransition(
             TaskStatus currentStatus,
             TaskStatus newStatus

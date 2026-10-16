@@ -1,3 +1,4 @@
+# Task persistence and the Kafka producer used by status-change/completion events.
 server:
   port: 8084
 
@@ -17,12 +18,14 @@ spring:
       acks: all
 
       properties:
+        # Producer retries use idempotence; this does not make MongoDB and Kafka one atomic transaction.
         enable.idempotence: true
         max.in.flight.requests.per.connection: 5
-        spring.json.add.type.headers: false
+        spring.json.add.type.headers: false # Consumers use the versioned message schema, not Java class names.
 
 taskflow:
   kafka:
     topics:
+      # These names must match consumer subscriptions and the publisher's configured destinations.
       task-status-changed: task.status.changed.v1
       task-completed: task.completed.v1

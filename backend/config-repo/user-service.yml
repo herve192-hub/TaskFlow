@@ -1,5 +1,5 @@
 
-# taskflow/backend/config-repo/user-service.yml ...
+# Profiles live in a separate database from auth credentials, linked by canonical account IDs.
 server:
   port: 8082
 
@@ -8,5 +8,6 @@ spring:
     name: user-service
 
   mongodb:
+    # The runtime supplies this URI; production must use verified TLS and a scoped account.
     uri: ${USER_MONGO_URI}
     database: taskflow-users

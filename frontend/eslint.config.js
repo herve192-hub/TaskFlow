@@ -5,6 +5,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
+// Apply React/TypeScript checks to source and tooling while leaving generated artifacts out of linting.
 export default defineConfig([
   globalIgnores(['dist', 'coverage', 'test-results', 'playwright-report']),
   {

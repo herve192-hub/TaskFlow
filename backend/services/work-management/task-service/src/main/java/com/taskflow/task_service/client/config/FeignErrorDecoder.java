@@ -8,9 +8,7 @@ import com.taskflow.task_service.exception.UserServiceUnavailableException;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 
-// import org.springframework.stereotype.Component;
-
-// @Component
+/** Map project/user HTTP failures to task-domain errors while retaining each downstream service's identity. */
 public class FeignErrorDecoder
         implements ErrorDecoder {
 

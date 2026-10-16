@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 
+/** Verify access tokens through the shared contract and expose subject IDs and platform roles. */
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {

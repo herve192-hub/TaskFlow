@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
+/** Profile persistence; authorization and literal-query escaping are applied by the calling layers. */
 public interface UserRepository
         extends MongoRepository<User, String> {
 
@@ -38,6 +39,7 @@ public interface UserRepository
 
     List<User> findByAuthUserIdIn(List<String> authUserIds);
 
+    // Match email or the assembled full name; callers pass Pattern.quote(search) as the regex.
     @Query("""
             { 'status': 'ACTIVE', '$or': [
                 { 'email': { '$regex': ?0, '$options': 'i' } },

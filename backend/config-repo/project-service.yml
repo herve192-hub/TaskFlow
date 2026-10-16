@@ -1,4 +1,4 @@
-# project-service.yml ...
+# Project and membership storage; connection credentials are supplied at runtime.
 server:
   port: 8083
 

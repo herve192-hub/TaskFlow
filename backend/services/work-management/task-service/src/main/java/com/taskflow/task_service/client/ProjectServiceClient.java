@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.taskflow.task_service.client.dto.ProjectAccessResponse;
 
+/** Discover project-service by name; its access route derives the caller from the forwarded token. */
 @FeignClient(name = "project-service")
 public interface ProjectServiceClient {
 

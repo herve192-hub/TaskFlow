@@ -13,6 +13,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
+/** Validate the shared access-token contract; extractUsername returns the auth-service account ID. */
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
