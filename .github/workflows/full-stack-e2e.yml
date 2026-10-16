@@ -1,3 +1,5 @@
+# Exercise the real browser, NGINX, gateway, services, MongoDB, and Kafka together.
+# The Compose stack uses disposable credentials and data, with no production deployment.
 name: Full-stack E2E
 
 on:
@@ -22,12 +24,15 @@ on:
       - 'docker-compose.yml'
       - 'deploy/**'
   schedule:
+    # Monday at 08:23 UTC: periodically exercise startup and collaboration without a code change.
     - cron: '23 8 * * 1'
   workflow_dispatch:
 
+# No repository writes or deployment credentials are required by this test stack.
 permissions:
   contents: read
 
+# Stop superseded runs for the same event/ref so obsolete stacks do not keep running.
 concurrency:
   group: full-stack-e2e-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -38,10 +43,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
+      # Scope Compose commands to the test project and explicitly select its generated env file.
       COMPOSE_PROJECT_NAME: taskflow-e2e
       COMPOSE_FILE: .github/e2e/compose.yml
       COMPOSE_ENV_FILES: .github/e2e/.env.runtime
-      COMPOSE_DISABLE_ENV_FILE: '1'
+      COMPOSE_DISABLE_ENV_FILE: '1' # Prevent implicit loading of a developer's default .env.
       TASKFLOW_E2E_IMAGE_TAG: ${{ github.sha }}
 
     steps:
@@ -71,6 +77,7 @@ jobs:
         run: bash ./mvnw --batch-mode --no-transfer-progress clean package -DskipTests
 
       - name: Stage services and generate temporary credentials
+        # Stage executable JARs and generate RSA keys and credential files in ignored directories.
         run: python3 .github/scripts/prepare-full-stack-e2e.py
 
       - name: Install browser test dependencies
@@ -80,26 +87,32 @@ jobs:
           npx playwright install --with-deps --only-shell chromium
 
       - name: Build production frontend and start the isolated stack
+        # Wait up to five minutes for the configured container healthchecks before browser tests.
         run: docker compose up --build --detach --wait --wait-timeout 300
 
       - name: Run collaboration, persistence, Kafka, and authorization checks
+        # Playwright uses the Compose frontend; the full-stack config does not start Vite preview.
         working-directory: frontend
         run: npm run test:e2e:full-stack
 
       - name: Verify production HTTPS, headers, and authentication rate limits
+        # A separate temporary ingress fixture uses an explicitly trusted test certificate.
         run: python3 .github/scripts/verify-production-ingress.py
 
       - name: Validate production deployment configuration
+        # Render and validate Compose settings without starting the production deployment.
         env:
           TASKFLOW_WEB_ORIGIN: https://taskflow.example.test
           TASKFLOW_SECRETS_DIR: ./secrets
         run: docker compose --file deploy/production/compose.yml config --quiet
 
       - name: Collect container status and logs
+        # Collect before teardown; the helper redacts generated credentials and JWTs.
         if: always()
         run: python3 .github/scripts/collect-e2e-logs.py
 
       - name: Stop the isolated stack and remove its test data
+        # Attempt cleanup even after a failed build, startup, or test.
         if: always()
         run: |
           if [ -f .github/e2e/.env.runtime ]; then
@@ -111,11 +124,12 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: full-stack-e2e-reports
+          # Keep this allowlist narrow: generated keys, environment files, and JARs are excluded.
           path: |
             frontend/test-results/full-stack/
             frontend/test-results/full-stack.xml
             frontend/playwright-report/full-stack/
             .github/e2e/logs/
-          include-hidden-files: true
+          include-hidden-files: true # Allow the explicitly selected logs under .github/.
           retention-days: 14
           if-no-files-found: warn

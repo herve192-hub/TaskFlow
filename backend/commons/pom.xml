@@ -12,6 +12,7 @@
 
     <packaging>pom</packaging>
 
+    <!-- Maven compiles standard src/main/java roots. Legacy sibling scaffold folders are not runtime code. -->
     <modules>
         <module>common-models</module>
         <module>common-security</module>

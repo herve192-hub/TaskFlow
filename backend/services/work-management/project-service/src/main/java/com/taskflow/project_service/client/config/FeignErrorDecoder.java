@@ -7,6 +7,7 @@ import com.taskflow.project_service.exception.UserServiceUnavailableException;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 
+/** Preserve denied/missing-user outcomes and distinguish downstream service failures from invalid input. */
 public class FeignErrorDecoder
         implements ErrorDecoder {
 

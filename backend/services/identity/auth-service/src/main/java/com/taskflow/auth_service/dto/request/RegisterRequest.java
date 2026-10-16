@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+/** Account input with bounded names and 15-128 character passphrases; roles are assigned server-side. */
 @Data
 
 public class RegisterRequest {

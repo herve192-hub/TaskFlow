@@ -19,6 +19,7 @@ import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.annotation.Value;
 import com.taskflow.security.CookieSecurity;
 
+/** Require JWT authentication and cookie CSRF protection; service methods apply project/task permissions. */
 @Configuration
 @org.springframework.context.annotation.Import({com.taskflow.security.ProductionSecurity.class, com.taskflow.security.EurekaClientAuthentication.class})
 @EnableMethodSecurity

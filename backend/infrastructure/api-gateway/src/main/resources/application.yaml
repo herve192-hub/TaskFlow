@@ -1,31 +1,26 @@
-# api-gateway application.yaml ...
-# 
+# Gateway bootstrap settings; the Config Server repository owns the explicit public route list.
 server:
   port: 8080
 
 spring:
   application:
     name: api-gateway
-  # config server configuration for centralized configuration management ...
-  # this allows the api-gateway to fetch its configuration from the config server ...
+  # Deployed stacks supply protected Config Server client credentials during bootstrap.
   config:
     import: optional:configserver:http://config-server:8888
-# eureka client configuration for service discovery ...
-# it allows the api-gateway to register itself with the eureka server and discover other microservices registered with eureka ...
+# Eureka resolves the lb:// destinations configured in config-repo/api-gateway.yml.
 eureka:
   client:
     service-url:
       defaultZone: http://discovery-server:8761/eureka/
-# service discovery configuration for routing requests to the appropriate microservices ...
-# this allows the api-gateway to route requests to the appropriate microservices based on their service IDs ...
+# Active route settings use spring.cloud.gateway.server.webflux in Config Server's api-gateway.yml.
 cloud:
   gateway:
     discovery:
       locator:
         enabled: false
         lower-case-service-id: true
-# management endpoints configuration for monitoring and managing the api-gateway ...
-# this allows the api-gateway to expose management endpoints for monitoring and managing the application ...
+# Publish health for container checks without exposing the discovery registry or configuration APIs.
 management:
   endpoints:
     web:

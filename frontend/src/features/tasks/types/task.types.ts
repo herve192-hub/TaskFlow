@@ -1,5 +1,6 @@
 export type { PageResponse } from "../../projects/types/project.types";
 
+/** Wire values match the backend lifecycle; the enum alone does not authorize any transition. */
 export enum TaskStatus {
   TODO = "TODO",
   IN_PROGRESS = "IN_PROGRESS",
@@ -24,6 +25,7 @@ export enum TaskType {
   EPIC = "EPIC",
 }
 
+/** Account references use auth-service IDs; supplied date strings represent ISO timestamps. */
 export interface CreateTaskRequest {
   projectId: string;
   title: string;

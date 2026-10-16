@@ -30,6 +30,7 @@ interface SignupFormData {
     confirmPassword: string;
 }
 
+/** Map form names to the auth API's lowercase field names; registration policy remains server-controlled. */
 export default function Signup() {
     const navigate = useNavigate();
 

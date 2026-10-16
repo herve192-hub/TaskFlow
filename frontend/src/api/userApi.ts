@@ -1,6 +1,7 @@
 import api from "./axios";
 import type { UserSearchPage, UserSummary } from "../features/users/types/user.types";
 
+/** /me resolves the profile from the authenticated account rather than a browser-supplied user ID. */
 export const getCurrentUser = async (): Promise<UserSummary> => {
   return (await api.get<UserSummary>("/api/v1/users/me")).data;
 };
@@ -17,6 +18,7 @@ export const searchUsers = async (query: string, page = 0): Promise<UserSearchPa
   })).data;
 };
 
+/** Resolve canonical auth IDs to directory summaries; callers must respect the backend's 100-ID limit. */
 export const lookupUsers = async (authUserIds: string[]): Promise<UserSummary[]> => {
   if (!authUserIds.length) return [];
   return (await api.get<UserSummary[]>("/api/v1/users/lookup", {

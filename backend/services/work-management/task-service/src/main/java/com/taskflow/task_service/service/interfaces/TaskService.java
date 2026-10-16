@@ -12,6 +12,7 @@ import com.taskflow.task_service.dto.request.ChangeTaskStatusRequest;
 
 import org.springframework.data.domain.Pageable;
 
+/** Task operations using auth-service account IDs for callers, creators, and assignees. */
 public interface TaskService {
 
     TaskResponse createTask(
@@ -24,12 +25,14 @@ public interface TaskService {
             String userId
     );
 
+    /** Update supplied fields; assignment changes still require project-management permission. */
     TaskResponse updateTask(
             String taskId,
             UpdateTaskRequest request,
             String userId
     );
 
+    /** Soft-delete by archiving; the task document and its comments are retained. */
     void deleteTask(
             String taskId,
             String userId
@@ -58,6 +61,7 @@ public interface TaskService {
             String userId
     );
 
+    /** Assign an existing project member; the acting caller must have a management project role. */
     TaskResponse assignTask(
             String taskId,
             String assigneeId,
@@ -69,11 +73,13 @@ public interface TaskService {
             String userId
     );
 
+    /** Restore an archived task through the management-only path. */
     TaskResponse unarchiveTask(
             String taskId,
             String userId
     );
 
+    /** Validate lifecycle and caller permissions, update completion time, and publish domain events. */
     TaskResponse changeTaskStatus(
             String taskId,
             ChangeTaskStatusRequest request,

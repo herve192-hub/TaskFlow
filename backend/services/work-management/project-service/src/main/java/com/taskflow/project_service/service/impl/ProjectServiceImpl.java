@@ -37,6 +37,7 @@ import feign.RetryableException;
 import java.util.List;
 import java.util.Objects;
 
+/** Persist project/team changes and derive project permissions from current membership records. */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -65,8 +66,7 @@ public class ProjectServiceImpl implements ProjectService {
             throw new InvalidProjectException( "Project name is required" );
         }
         /*
-         * A user may not own two active projects with
-         * the same name.
+         * A user may not own two projects with the same name, compared without case.
          */
         if (projectRepository
                 .existsByNameIgnoreCaseAndOwnerId( request.getName().trim(), userId)) {
@@ -148,6 +148,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         ProjectRole role = member.getRole();
 
+        // These project roles are independent of ROLE_USER/ROLE_ADMIN platform authorities.
         boolean canEdit =
                 role == ProjectRole.OWNER
                         || role == ProjectRole.ADMIN
@@ -265,6 +266,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         validateUserId(userId);
 
+        // Scope the database query to membership IDs before pagination and summary mapping.
         List<String> projectIds =
                 projectMemberRepository
                         .findByUserId(userId)
@@ -575,6 +577,7 @@ public class ProjectServiceImpl implements ProjectService {
                 );
     }
 
+    /** Prevent a membership ID from another project being used in a nested member route. */
     private void ensureMemberBelongsToProject( ProjectMember member, String projectId ) {
 
         if (!Objects.equals( projectId, member.getProjectId() )) {

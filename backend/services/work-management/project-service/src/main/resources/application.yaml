@@ -1,3 +1,4 @@
+# Project-service bootstrap defaults; Config Server supplies project/membership storage settings.
 spring:
   application:
     name: project-service
@@ -9,6 +10,7 @@ spring:
     timeout-per-shutdown-phase: 30s
 
   mongodb:
+    # Local connection defaults are overridden by the runtime URI and protected credentials.
     host: ${MONGODB_HOST:mongodb}
     port: ${MONGODB_PORT:27017}
     database: ${MONGODB_DATABASE:taskflow-projects}
@@ -32,12 +34,14 @@ eureka:
     instance-id: ${spring.application.name}:${random.uuid}
 
 jwt:
+  # Consumers verify production tokens with the RSA public key; only auth receives the private key.
   secret: ${JWT_SECRET:}
   issuer: taskflow
   expiration: ${JWT_EXPIRATION_MS:900000}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION_MS:604800000}
 
 management:
+  # SecurityConfig restricts HTTP access to health even when other actuator endpoints are registered.
   endpoints:
     web:
       exposure:

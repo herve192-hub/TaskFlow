@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
+/** Project-scoped role assignment; this document's ID differs from its canonical userId. */
 @Data
 @Builder
 @NoArgsConstructor

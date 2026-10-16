@@ -13,12 +13,14 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/** Provision the first production administrator from protected startup secrets, never by promotion. */
 @Configuration
 @Profile("prod")
 public class AdministratorBootstrap {
     @Bean
     ApplicationRunner initialAdministrator(UserRepository users, PasswordEncoder encoder, Environment environment) {
         return ignored -> {
+            // Existing administrators make subsequent starts independent of bootstrap credentials.
             if (users.hasAdministrator()) return;
             String email = environment.getProperty("taskflow.bootstrap.admin.email", "").trim().toLowerCase(Locale.ROOT);
             String password = environment.getProperty("taskflow.bootstrap.admin.password", "");

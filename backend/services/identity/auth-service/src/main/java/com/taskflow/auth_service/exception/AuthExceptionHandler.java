@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+/** Translate account failures into bounded responses without echoing passwords or rejected values. */
 @RestControllerAdvice
 public class AuthExceptionHandler {
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)

@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 
 import org.springframework.web.bind.annotation.*;
 
+/** Service-to-service project lookups; access decisions use the forwarded caller's authenticated subject. */
 @RestController
 @RequestMapping("/internal/projects")
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class InternalProjectController {
         );
     }
 
+    /** The caller cannot nominate another identity when requesting its own project permissions. */
     @GetMapping("/{projectId}/access")
     public ResponseEntity<ProjectAccessResponse> access(
             @PathVariable("projectId") String projectId,

@@ -5,6 +5,7 @@ import ProtectedRoute from './protectedRoute'
 import { saveSession } from '../features/auth/session'
 import type { AuthUser } from '../features/auth/types/auth.types'
 
+// Test the navigation/storage boundary with a real router; backend session validation is covered by full-stack E2E.
 function renderProtectedPage() {
   render(
     <MemoryRouter initialEntries={['/dashboard']}>

@@ -11,6 +11,7 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class EurekaClientAuthentication {
     @Bean
+    // Each consumer gets its own mutable builder, avoiding shared interceptor configuration.
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     RestClient.Builder discoveryRestClientBuilder(Environment environment) {
         String username = environment.getProperty("spring.cloud.config.username",
@@ -18,6 +19,7 @@ public class EurekaClientAuthentication {
         String password = environment.getProperty("spring.cloud.config.password",
                 environment.getProperty("spring.security.user.password"));
         return RestClient.builder().requestInterceptor((request, body, execution) -> {
+            // Never attach infrastructure credentials to requests sent to another host.
             if ("discovery-server".equals(request.getURI().getHost()) && username != null && password != null) {
                 request.getHeaders().setBasicAuth(username, password);
             }

@@ -10,6 +10,7 @@ import type { CreateTaskRequest, PageResponse, TaskSummaryResponse } from "../fe
 
 import { TaskStatus } from "../features/tasks/types/task.types";
 
+/** Key the project view by its route ID so pagination and pending state reset when projects change. */
 export default function ProjectTasks() {
   const { projectId } = useParams<{ projectId: string }>();
   return projectId ? <ProjectTaskList key={projectId} projectId={projectId} /> : <Alert severity="error">Project ID is required.</Alert>;
@@ -91,6 +92,7 @@ function ProjectTaskList({ projectId }: { projectId: string }) {
   );
 }
 
+// Mirror the backend lifecycle for available choices; backend role checks still decide whether each is allowed.
 const transitions: Record<TaskStatus, TaskStatus[]> = {
   TODO: [TaskStatus.IN_PROGRESS, TaskStatus.BLOCKED, TaskStatus.CANCELLED],
   IN_PROGRESS: [TaskStatus.TODO, TaskStatus.IN_REVIEW, TaskStatus.BLOCKED, TaskStatus.CANCELLED],
@@ -100,10 +102,12 @@ const transitions: Record<TaskStatus, TaskStatus[]> = {
   CANCELLED: [TaskStatus.TODO],
 };
 
+/** Update the displayed row only after the server accepts and persists the requested status. */
 function TaskStatusControl({ task, onUpdated }: {
   task: TaskSummaryResponse;
   onUpdated: (task: TaskSummaryResponse) => void;
 }) {
+  // A ref blocks duplicate writes immediately, before React renders the disabled control.
   const pending = useRef(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);

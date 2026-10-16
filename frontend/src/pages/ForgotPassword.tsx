@@ -2,6 +2,7 @@ import { Paper, Typography, Button } from '@mui/material'
 import { Link } from 'react-router-dom'
 import AuthLayout from '../components/AuthLayout'
 
+/** Recovery guidance only; no recovery request or email-delivery operation is implemented here. */
 export default function ForgotPassword() {
   return <AuthLayout>
     <Paper elevation={0} sx={{ width: '100%', maxWidth: 450, p: 5, borderRadius: 4, border: '1px solid #E2E8F0' }}>

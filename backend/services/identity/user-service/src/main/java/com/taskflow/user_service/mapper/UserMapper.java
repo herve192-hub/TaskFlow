@@ -12,6 +12,7 @@ import com.taskflow.user_service.dto.response.UserSummaryResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+/** Build full, directory, and internal profile views using the configured strict, null-skipping mapper. */
 @Component
 public class UserMapper {
 

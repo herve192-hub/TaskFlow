@@ -1,4 +1,4 @@
-# taskflow/backend/config-repo/notification-service.yml ...
+# Reserved notification-service defaults; no notification application is currently built by the reactor.
 server:
   port: 8085
 

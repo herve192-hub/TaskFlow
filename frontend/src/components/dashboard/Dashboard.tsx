@@ -7,10 +7,12 @@ import StatCard from "./StatCard";
 import { useWorkspace } from "../../features/tasks/hooks/useWorkspace";
 import { TaskStatus } from "../../features/tasks/types/task.types";
 
+/** Derive overview counts and recent/deadline lists from the complete live workspace snapshot. */
 export default function Dashboard() {
   const { data, loading, error, refresh } = useWorkspace();
   const tasks = data?.tasks ?? [];
   const completed = tasks.filter((task) => task.status === TaskStatus.COMPLETED).length;
+  // The denominator includes all unarchived tasks, including cancelled ones; empty workspaces show 0%.
   const progress = tasks.length ? Math.round(completed / tasks.length * 100) : 0;
   const deadlines = tasks.filter((task) => task.dueDate && task.status !== TaskStatus.COMPLETED && task.status !== TaskStatus.CANCELLED)
     .sort((a, b) => Date.parse(a.dueDate!) - Date.parse(b.dueDate!)).slice(0, 5);

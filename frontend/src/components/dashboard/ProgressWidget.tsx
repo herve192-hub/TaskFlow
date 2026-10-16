@@ -5,6 +5,7 @@ import {
     Stack,
 } from "@mui/material"
 
+// Static presentation samples; these percentages are not computed from project/task APIs.
 const items = [
     {title: "Projects", value: 82 },
     {title: "Task", value: 67 },

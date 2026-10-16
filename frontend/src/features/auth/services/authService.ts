@@ -14,6 +14,7 @@ import api from '../../../api/axios'
 import { clearSession, currentUser, isAuthenticated, saveSession } from '../session'
 
 
+/** Best-effort bridge between the credential account and its separately stored user-service profile. */
 const initializeProfile = async (auth: AuthResponse): Promise<void> => {
   if (!auth.user) return;
   try {
@@ -24,6 +25,7 @@ const initializeProfile = async (auth: AuthResponse): Promise<void> => {
   }
 };
 
+/** Coordinate account API calls, tab metadata, and profile creation without storing bearer credentials. */
 export const authService = {
   async register(request: RegisterRequest): Promise<AuthResponse> {
     const auth = await registerApi(request);
@@ -43,10 +45,12 @@ export const authService = {
     return auth;
   },
 
+  // No recovery endpoint exists yet; callers must not display a simulated email-delivery success.
   async forgotPassword(): Promise<void> {
     throw new Error('Password recovery is not configured. Contact your administrator.')
   },
 
+  /** Clear tab metadata even on failure; the server call is responsible for clearing the browser cookie. */
   async logout(): Promise<void> {
     try {
       await api.post('/auth/logout')

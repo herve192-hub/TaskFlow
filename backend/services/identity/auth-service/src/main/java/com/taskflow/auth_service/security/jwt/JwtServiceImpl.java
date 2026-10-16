@@ -28,6 +28,7 @@ import java.util.UUID;
 import com.taskflow.security.AccessTokenValidator;
 import com.taskflow.security.JwtKeys;
 
+/** Issue purpose-specific tokens; API claim extraction always enforces the shared access contract. */
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
@@ -218,6 +219,7 @@ public class JwtServiceImpl implements JwtService {
                         now.getTime() + expiration
                 );
 
+        // Access and refresh tokens have distinct audiences as well as distinct token_use claims.
         var builder = Jwts.builder()
                 .claims(claims)
                 .subject(subject)
@@ -227,6 +229,7 @@ public class JwtServiceImpl implements JwtService {
                 .issuer(jwtProperties.getIssuer())
                 .issuedAt(now)
                 .expiration(expiresAt);
+        // Production startup requires RSA keys; the HMAC branch supports local development/tests.
         if (jwtProperties.getPrivateKey() != null && !jwtProperties.getPrivateKey().isBlank()) {
             builder.signWith(JwtKeys.privateKey(jwtProperties.getPrivateKey()), Jwts.SIG.RS256);
         } else {

@@ -20,6 +20,7 @@ interface Props {
   onAdd: (request: AddProjectMemberRequest) => Promise<void>;
 }
 
+/** Search active profiles and add a canonical auth account with a non-owner project role. */
 export default function AddProjectMemberDialog({ projectId, onClose, onAdd }: Props) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
@@ -36,6 +37,7 @@ export default function AddProjectMemberDialog({ projectId, onClose, onAdd }: Pr
 
   useEffect(() => {
     let active = true;
+    // Exclude users across every membership page before enabling submission.
     void projectService.getAllProjectMembers(projectId).then((members) => {
       if (active) {
         setExistingUserIds(new Set(members.map((member) => member.userId)));
@@ -49,6 +51,7 @@ export default function AddProjectMemberDialog({ projectId, onClose, onAdd }: Pr
 
   useEffect(() => {
     let active = true;
+    // Debounce input and ignore late results; cleanup clears the timer while in-flight requests continue.
     const timer = window.setTimeout(() => {
       setLoading(true);
       setError(null);

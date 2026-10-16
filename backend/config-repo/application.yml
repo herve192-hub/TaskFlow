@@ -1,9 +1,8 @@
-# taskflow/backend/config-repo/application.yml ...
+# Shared defaults served by Config Server; service-named files supply database and routing settings.
+# Keep credential values in runtime properties/secret files rather than this repository.
 
 spring:
-  # data:
-  #   mongodb:
-  #     uri: ${MONGO_URI:mongodb://admin:admin123@mongodb:27017/?authSource=admin}
+  # MongoDB URIs are configured separately for each service's database account.
 
 kafka:
   bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
@@ -17,6 +16,7 @@ eureka:
     prefer-ip-address: true
 
 management:
+  # Publish only health here; application security rules also restrict actuator access.
   endpoints:
     web:
       exposure:
@@ -39,6 +39,7 @@ logging:
     com.taskflow: INFO
 
 jwt:
+  # HMAC is for development; production supplies RSA key properties through scoped secret files.
   secret: ${JWT_SECRET:}
   expiration: ${JWT_EXPIRATION_MS:900000}
 

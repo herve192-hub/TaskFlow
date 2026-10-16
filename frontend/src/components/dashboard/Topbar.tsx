@@ -34,6 +34,7 @@ type TopbarProps = {
   collapsed: boolean;
 };
 
+/** Responsive dashboard header with account actions and local search/notification presentation state. */
 export default function Topbar({ collapsed }: TopbarProps) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -44,6 +45,7 @@ export default function Topbar({ collapsed }: TopbarProps) {
   const [notifAnchor, setNotifAnchor] = useState<null | HTMLElement>(null);
   const notifOpen = Boolean(notifAnchor);
 
+  // Notifications are seeded UI samples; there is no live notification-service subscription here.
   const [notifications, setNotifications] = useState(
     [
       { id: 1, title: "Task overdue", body: "Project A task is overdue.", unread: true },
@@ -52,6 +54,7 @@ export default function Topbar({ collapsed }: TopbarProps) {
     ] as { id: number; title: string; body: string; unread: boolean }[]
   );
 
+  // Navigate after server sign-out succeeds; a failed cookie-clearing request remains visible as an error.
   const handleLogout = async () => {
     try {
       await authService.logout();

@@ -23,6 +23,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/** Validate the access token against the current credential account before populating Spring Security. */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter

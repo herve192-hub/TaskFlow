@@ -22,6 +22,7 @@ import org.springframework.security.core.Authentication;
 
 import org.springframework.web.bind.annotation.*;
 
+/** Task HTTP API; authenticated account IDs flow into the service's project and task policy checks. */
 @RestController
 @RequestMapping("/api/v1/tasks")
 @RequiredArgsConstructor

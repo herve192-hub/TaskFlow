@@ -7,6 +7,8 @@ FROM eclipse-temurin:21.0.12.1_1-jdk-noble@sha256:b468c3fc688b14450571494f588bd9
 
 WORKDIR /app
 
+# Use backend/ as the context so Maven can resolve shared reactor modules.
+# Packaging skips tests because Backend CI runs the full verification suites.
 COPY . .
 
 # Normalize Windows line endings ...
@@ -40,6 +42,7 @@ COPY --from=builder --chown=taskflow:taskflow \
 
 EXPOSE 8084
 
+# Fixed runtime identity matches deployment file-secret ownership requirements.
 USER 10001:10001
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

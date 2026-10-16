@@ -28,6 +28,7 @@ import type {
   ProjectSummary,
 } from "../features/projects/types/project.types";
 
+/** Show the caller's default project page and refresh it after successful project creation. */
 export default function Projects() {
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,6 +69,7 @@ const loadProjects = async () => {
 };
 
   useEffect(() => {
+    // Ignore the initial request's late result when this route unmounts.
     let active = true;
 
     const fetchProjects = async () => {

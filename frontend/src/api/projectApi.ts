@@ -11,6 +11,7 @@ import type {
   UpdateProjectMemberRequest,
 } from "../features/projects/types/project.types";
 
+/** Fetch one zero-based page of the signed-in account's project memberships. */
 export const getProjects = async (
   page = 0,
   size = 20
@@ -39,6 +40,7 @@ export const createProject = async (
   return response.data;
 };
 
+// Encode identifiers as individual path segments rather than allowing them to alter route structure.
 const projectPath = (projectId: string) => `/api/v1/projects/${encodeURIComponent(projectId)}`;
 
 export const getProject = async (projectId: string): Promise<ProjectResponse> => {
@@ -63,6 +65,7 @@ export const addProjectMember = async (
   return (await api.post<ProjectMemberResponse>(`${projectPath(projectId)}/members`, request)).data;
 };
 
+/** memberId identifies the membership document, not the profile or auth account. */
 export const updateProjectMember = async (
   projectId: string, memberId: string, request: UpdateProjectMemberRequest,
 ): Promise<ProjectMemberResponse> => {

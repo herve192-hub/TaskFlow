@@ -1,4 +1,4 @@
-# taskflow/backend/config-repo/auth-service.yml ...
+# Auth owns credential accounts; its MongoDB URI is resolved from runtime configuration.
 server:
   port: 8081
 
@@ -7,6 +7,7 @@ spring:
     name: auth-service
 
   mongodb:
+    # Supply the complete connection URI through the auth service's scoped secret mount.
     uri: ${AUTH_MONGO_URI}
     database: taskflow-auth
 

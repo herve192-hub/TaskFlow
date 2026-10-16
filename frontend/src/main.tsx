@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-// import { BrowserRouter } from 'react-router-dom';
+// AppRoutes owns the router; keep theme, baseline styles, and notifications shared by all routes.
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

@@ -13,6 +13,7 @@ interface Account {
   password: string
 }
 
+// API assertion tokens live in the test runner; browser authentication still uses HttpOnly cookies.
 interface Session {
   id: string
   api: APIRequestContext
@@ -20,6 +21,7 @@ interface Session {
   profileId: string
 }
 
+/** Unique disposable identities avoid collisions when the workflow is run repeatedly. */
 function account(role: string, suffix: string): Account {
   return {
     firstname: role, lastname: 'Workflow',
@@ -28,6 +30,7 @@ function account(role: string, suffix: string): Account {
   }
 }
 
+/** Register/sign in through the UI, then create a real bearer client for direct authorization assertions. */
 async function registerAndSignIn(page: Page, user: Account): Promise<Session> {
   await page.goto('/signup')
   await page.getByLabel('First Name', { exact: true }).fill(user.firstname)
@@ -70,6 +73,7 @@ async function changeStatus(page: Page, status: string) {
   await expect(page.getByRole('combobox', { name: 'Task status' })).toHaveText(status)
 }
 
+/** Read the isolated broker with a fresh consumer group so events from this scenario remain observable. */
 async function kafkaMessages(topic: string): Promise<Record<string, unknown>[]> {
   const root = fileURLToPath(new URL('../../', import.meta.url))
   const args = [
@@ -101,6 +105,7 @@ test('a team completes a task, sees dashboard progress, and enforces project acc
   const ownerAccount = account('Owner', suffix)
   const memberAccount = account('Member', suffix)
   const outsiderAccount = account('Outsider', suffix)
+  // Separate contexts isolate each account's cookies and tab metadata during concurrent browser sessions.
   const memberContext = await browser.newContext({ baseURL: testInfo.project.use.baseURL })
   const outsiderContext = await browser.newContext({ baseURL: testInfo.project.use.baseURL })
   const memberPage = await memberContext.newPage()

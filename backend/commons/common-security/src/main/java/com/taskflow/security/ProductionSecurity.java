@@ -12,7 +12,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 
-/** Production starts only with an explicit HTTPS origin and separated signing keys. */
+/**
+ * Startup checks imported by the gateway and business services under the prod profile.
+ * Validate configured transport and authentication requirements before serving requests;
+ * these checks do not establish database privileges or verify external infrastructure.
+ */
 @Configuration
 @Profile("prod")
 public class ProductionSecurity {
@@ -31,6 +35,7 @@ public class ProductionSecurity {
             if (environment.getProperty("TASKFLOW_PUBLIC_REGISTRATION_ENABLED", Boolean.class, true)) {
                 throw new IllegalStateException("Production registration requires administrator approval");
             }
+            // The gateway routes requests; business services own JWT and database validation.
             if (!"api-gateway".equals(environment.getProperty("spring.application.name"))) {
                 var publicKey = JwtKeys.publicKey(environment.getRequiredProperty("jwt.public-key"));
                 if ("auth-service".equals(environment.getProperty("spring.application.name"))) {
@@ -51,6 +56,7 @@ public class ProductionSecurity {
                 } catch (IllegalArgumentException exception) {
                     throw new IllegalStateException("Invalid production MongoDB connection URI");
                 }
+                // Decode and normalize URI options so alternate casing cannot bypass TLS checks.
                 Map<String, String> options = new HashMap<>();
                 for (String option : (mongo.getRawQuery() == null ? "" : mongo.getRawQuery()).split("&")) {
                     if (option.isEmpty()) continue;
@@ -66,6 +72,7 @@ public class ProductionSecurity {
                         || "true".equals(options.get("tlsallowinvalidhostnames"))) {
                     throw new IllegalStateException("Production MongoDB must use verified TLS");
                 }
+                // Task-service publishes Kafka events; other business services do not need broker secrets.
                 if ("task-service".equals(environment.getProperty("spring.application.name"))
                         && (!"https".equalsIgnoreCase(environment.getProperty("spring.kafka.properties.ssl.endpoint.identification.algorithm", "https"))
                             || environment.getProperty("spring.kafka.properties.sasl.mechanism", "").isBlank()

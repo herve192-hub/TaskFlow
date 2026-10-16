@@ -7,6 +7,7 @@ import { projectService } from "../features/projects/services/projectService";
 import type { PageResponse, ProjectSummary } from "../features/projects/types/project.types";
 import { apiErrorMessage } from "../utils/apiError";
 
+/** Browse a server-paginated list of the signed-in account's project teams. */
 export default function Teams() {
   const [result, setResult] = useState<PageResponse<ProjectSummary> | null>(null);
   const [page, setPage] = useState(0);

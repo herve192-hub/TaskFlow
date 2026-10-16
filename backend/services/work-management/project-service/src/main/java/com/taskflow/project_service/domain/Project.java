@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Project metadata; team membership is stored separately in ProjectMember documents. */
 @Data
 @Builder
 @NoArgsConstructor
@@ -37,7 +38,7 @@ public class Project {
      */
     private String description;
     /**
-     * ID of the user who owns the project.
+     * Canonical auth-service account ID of the owner, matching the JWT subject.
      */
     private String ownerId;
     /**

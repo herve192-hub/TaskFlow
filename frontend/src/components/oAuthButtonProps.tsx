@@ -10,6 +10,7 @@ interface oAuthButtonProps {
   sx?: SxProps;
 }
 
+/** Provider-button presentation; actual redirects/callbacks must be implemented by its supplied handler. */
 export default function OAuthButton({ 
   text, 
   icon, 

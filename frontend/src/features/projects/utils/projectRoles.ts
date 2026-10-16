@@ -1,5 +1,6 @@
 import { ProjectRole } from "../types/project.types";
 
+// Ownership is established at project creation and cannot be assigned through generic membership edits.
 export const assignableProjectRoles = [
   ProjectRole.ADMIN, ProjectRole.MANAGER, ProjectRole.MEMBER, ProjectRole.GUEST,
 ];

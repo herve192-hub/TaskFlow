@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 
+/** Eureka registry used for internal service-name resolution, protected in production and secure CI. */
 @EnableEurekaServer
 @SpringBootApplication
 @Import({com.taskflow.security.InfrastructureSecurity.class, com.taskflow.security.DevelopmentInfrastructureSecurity.class, com.taskflow.security.EurekaClientAuthentication.class})

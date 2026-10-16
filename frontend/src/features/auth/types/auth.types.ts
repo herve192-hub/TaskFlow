@@ -14,6 +14,7 @@ export interface SignupRequest {
 
 export type RegisterRequest = SignupRequest;
 
+/** Credential-account metadata; id is the canonical JWT subject used for memberships and assignments. */
 export interface AuthUser {
     id: string;
     firstname: string;
@@ -27,6 +28,7 @@ export interface AuthUser {
     createdAt: string;
 }
 
+/** API token envelope; browser code uses HttpOnly authentication cookies and persists only user metadata. */
 export interface AuthResponse {
     accessToken: string;
     refreshToken: string;

@@ -1,6 +1,8 @@
+# Local bootstrap defaults; deployed stacks provide protected Config Server and secret-file imports.
 spring:
   data:
     mongodb:
+      # Enforce the credential account's unique email and username indexes when collections are initialized.
       auto-index-creation: true
   application:
     name: auth-service
@@ -23,12 +25,14 @@ eureka:
     prefer-ip-address: true
 
 jwt:
+  # Durations are milliseconds. Production requires RSA keys and an access lifetime of 1-15 minutes.
   secret: ${JWT_SECRET:}
   issuer: taskflow
   expiration: ${JWT_EXPIRATION_MS:900000}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION_MS:604800000}
 
 management:
+  # Exposure enables endpoint registration; SecurityConfig permits public access to health only.
   endpoints:
     web:
       exposure:

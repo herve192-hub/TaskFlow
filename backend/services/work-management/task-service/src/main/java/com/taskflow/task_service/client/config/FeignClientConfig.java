@@ -8,6 +8,7 @@ import feign.codec.ErrorDecoder;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
+/** Forward the request's access token so project/user lookups run with the same caller identity. */
 @Configuration
 @RequiredArgsConstructor
 public class FeignClientConfig {
@@ -19,6 +20,7 @@ public class FeignClientConfig {
 
         return requestTemplate -> {
 
+            // Internal HTTP clients forward a Bearer header instead of copying browser cookies.
             String token = com.taskflow.security.CookieSecurity.extractToken(httpServletRequest);
             String authorization = token == null ? null : "Bearer " + token;
 

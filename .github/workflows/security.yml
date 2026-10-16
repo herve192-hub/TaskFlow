@@ -1,3 +1,5 @@
+# Complement image scans with source analysis, repository/JAR scans, and Git history checks.
+# No path filter: changes anywhere in the repository can introduce sensitive files or secrets.
 name: Security
 
 on:
@@ -6,12 +8,15 @@ on:
   pull_request:
     branches: [main, develop]
   schedule:
+    # Monday at 08:23 UTC: discover new vulnerabilities in otherwise unchanged dependencies.
     - cron: '23 8 * * 1'
   workflow_dispatch:
 
+# Default to read-only access; only the CodeQL job needs to publish security events.
 permissions:
   contents: read
 
+# Cancel obsolete runs for the same event/ref while keeping different refs independent.
 concurrency:
   group: security-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -23,11 +28,13 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
-      security-events: write
+      security-events: write # Required to upload CodeQL results to GitHub code scanning.
     strategy:
+      # Report findings from every language even when one analysis job fails.
       fail-fast: false
       matrix:
         include:
+          # Java analysis observes the Maven build; JS/TS and Actions use source analysis.
           - language: java-kotlin
             build-mode: manual
           - language: javascript-typescript
@@ -59,6 +66,7 @@ jobs:
       - name: Build Java sources for analysis
         if: matrix.language == 'java-kotlin'
         working-directory: backend
+        # Unit/integration tests run in Backend CI; this build supplies CodeQL's Java analysis.
         run: bash ./mvnw --batch-mode --no-transfer-progress clean package -DskipTests
 
       - name: Analyze and upload results to code scanning
@@ -67,6 +75,7 @@ jobs:
           category: /language:${{ matrix.language }}
           output: codeql-results
 
+      # Uploading SARIF alone does not enforce this gate; fail on security severity >= 7.
       - name: Fail on high or critical source vulnerabilities
         run: |
           python3 - <<'PY'
@@ -106,6 +115,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Source manifests/configuration need different scanners from resolved JAR contents.
           - target: repository
             scan-type: fs
             scan-ref: .
@@ -115,7 +125,7 @@ jobs:
             scan-type: rootfs
             scan-ref: backend
             scanners: vuln
-            include-dev-deps: 'false'
+            include-dev-deps: 'false' # Packaged Java dependencies are the target of this scan.
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -123,6 +133,7 @@ jobs:
           persist-credentials: false
 
       - name: Verify scanner report redaction
+        # Check that reports remove secret values while retaining actionable finding metadata.
         run: python3 .github/scripts/test-summarize-trivy.py
 
       - name: Set up Temurin 21.0.12.1+1
@@ -142,7 +153,7 @@ jobs:
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         env:
           # Internal modules are available locally; packaged JARs contain resolved dependencies.
-          TRIVY_OFFLINE_SCAN: 'true'
+          TRIVY_OFFLINE_SCAN: 'true' # Use local dependency resolution; vulnerability DB updates still apply.
           TRIVY_INCLUDE_DEV_DEPS: ${{ matrix.include-dev-deps }}
         with:
           version: v0.75.0
@@ -155,6 +166,7 @@ jobs:
           format: json
           output: security-${{ matrix.target }}.json
 
+      # Always attempt redaction and a readable summary, even when Trivy fails its severity gate.
       - name: Show security findings in the log and job summary
         id: security_summary
         if: always()
@@ -163,6 +175,7 @@ jobs:
         run: python3 .github/scripts/summarize-trivy.py "$REPORT_PATH"
 
       - name: Upload repository scan report
+        # Upload only after the raw report has been replaced by its redacted form.
         if: always() && steps.security_summary.outcome == 'success'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -178,10 +191,11 @@ jobs:
       - name: Checkout complete history
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Include historical commits so deleted credentials can still be detected.
           persist-credentials: false
 
       - name: Install checksum-verified Gitleaks
+        # Verify the selected release archive before executing the downloaded scanner.
         env:
           GITLEAKS_VERSION: '8.30.1'
         run: |
@@ -194,21 +208,25 @@ jobs:
           tar --extract --gzip --file "$archive" --directory "$RUNNER_TEMP" gitleaks
 
       - name: Verify protections against accidental publication
+        # Exercise forced additions, staged secrets, scanner setup failures, and history checks.
         run: python3 .github/scripts/test-verify-publishable-files.py
         env:
           GITLEAKS_BIN: ${{ runner.temp }}/gitleaks
 
       - name: Block private and generated files in the published source tree
+        # Repeat the local commit/push policy in CI, including forbidden .env files.
         run: python3 .github/scripts/verify-publishable-files.py --secrets
         env:
           GITLEAKS_BIN: ${{ runner.temp }}/gitleaks
 
       - name: Fail on secrets in any fetched commit
+        # Redact output and reject inline allow comments as a way to bypass the scan.
         run: >-
           "$RUNNER_TEMP/gitleaks" git --redact --no-banner --ignore-gitleaks-allow --log-opts="--all"
           --report-format json --report-path "$RUNNER_TEMP/gitleaks-report.json"
 
       - name: Upload redacted secret scan report
+        # Gitleaks redacts its report before this upload, including when findings cause failure.
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

@@ -28,6 +28,7 @@ import com.taskflow.auth_service.security.jwt.JwtProperties;
 import com.taskflow.security.CookieSecurity;
 import java.time.Duration;
 
+/** Authentication API returning client tokens and setting the browser's HttpOnly access cookie. */
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -42,12 +43,14 @@ public class AuthController {
     @Value("${TASKFLOW_PUBLIC_REGISTRATION_ENABLED:true}")
     private boolean publicRegistration;
 
+    /** Materialize the deferred CSRF token so the browser receives its nonce cookie. */
     @GetMapping("/csrf")
     public ResponseEntity<Void> csrf(HttpServletRequest request) {
         ((CsrfToken) request.getAttribute(CsrfToken.class.getName())).getToken();
         return ResponseEntity.noContent().cacheControl(CacheControl.noStore()).build();
     }
 
+    /** Clear this browser's cookie; previously issued bearer tokens expire independently. */
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(Authentication authentication) {
         com.taskflow.security.SecurityAudit.record("sign_out", authentication.getName(), "auth");
@@ -67,6 +70,7 @@ public class AuthController {
             Authentication authentication
     ) {
 
+        // Registration is reachable anonymously for development; production requires a platform admin.
         if (!publicRegistration && (authentication == null || authentication.getAuthorities().stream()
                 .noneMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority())))) {
             throw new org.springframework.security.access.AccessDeniedException("Administrator approval is required");

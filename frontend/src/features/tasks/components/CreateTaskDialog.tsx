@@ -15,6 +15,7 @@ interface CreateTaskDialogProps {
   onCreate: (request: CreateTaskRequest) => Promise<void>;
 }
 
+/** Create within an explicit project, retaining the form and error message when the request fails. */
 export default function CreateTaskDialog({ open, projectId, onClose, onCreate }: CreateTaskDialogProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -28,10 +29,12 @@ export default function CreateTaskDialog({ open, projectId, onClose, onCreate }:
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (submitting.current || !title.trim()) return;
+    // The synchronous guard prevents duplicate submissions before loading state reaches the UI.
     submitting.current = true;
     setLoading(true);
     setError(null);
     try {
+      // datetime-local is interpreted in the browser's timezone and serialized as a UTC ISO timestamp.
       await onCreate({
         projectId, title: title.trim(), description: description.trim() || undefined,
         priority, type, dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,

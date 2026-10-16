@@ -1,5 +1,6 @@
 import { createTheme} from "@mui/material/styles";
 
+/** Application-wide design tokens consumed by the single ThemeProvider in main.tsx. */
 export const theme = createTheme({
     palette: {
         primary: {

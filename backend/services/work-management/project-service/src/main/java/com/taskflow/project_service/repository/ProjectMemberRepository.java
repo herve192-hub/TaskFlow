@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 import java.util.Optional;
 
+/** Membership lookups used to calculate current project access and scope project listings. */
 public interface ProjectMemberRepository
         extends MongoRepository<ProjectMember, String> {
 

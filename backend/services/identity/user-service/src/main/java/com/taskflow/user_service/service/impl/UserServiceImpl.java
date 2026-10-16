@@ -28,6 +28,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.regex.Pattern;
 
+/**
+ * Manage profile documents separately from auth-service credentials.
+ * Profile IDs identify local documents; authUserId identifies the JWT subject across services.
+ */
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -170,6 +174,7 @@ public class UserServiceImpl implements UserService {
         User user =
                 findByAuthUserId(authUserId);
 
+        // This changes profile status only; it does not disable the auth-service account or revoke JWTs.
         user.setStatus(
                 UserStatus.INACTIVE
         );
@@ -187,6 +192,7 @@ public class UserServiceImpl implements UserService {
                 .map(mapper::toSummary);
     }
 
+    /** Search active profiles using a bounded literal query rather than caller-supplied regex syntax. */
     @Override
     public Page<UserSummaryResponse> searchUsers(String query, Pageable pageable) {
         String search = query == null ? "" : query.trim();
@@ -201,6 +207,7 @@ public class UserServiceImpl implements UserService {
         return users.map(mapper::toSummary);
     }
 
+    /** Resolve up to 100 canonical auth IDs; return summaries only for profiles that exist. */
     @Override
     public List<UserSummaryResponse> lookupUsers(List<String> authUserIds) {
         if (authUserIds == null || authUserIds.size() > 100) {

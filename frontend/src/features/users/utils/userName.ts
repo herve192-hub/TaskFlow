@@ -6,6 +6,7 @@ interface PersonName {
   fullName?: string | null;
 }
 
+/** Normalize auth's lowercase name fields and profile-service camelCase fields into one display name. */
 export function userDisplayName(user?: PersonName | null, fallback = "Name unavailable"): string {
   const firstName = (user?.firstName ?? user?.firstname)?.trim();
   const lastName = (user?.lastName ?? user?.lastname)?.trim();

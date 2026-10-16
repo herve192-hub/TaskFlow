@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/** Owns credential validation, account creation, password migration, and token issuance. */
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -43,6 +44,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse register(RegisterRequest request) {
+        // Use the same canonical email for uniqueness checks and subsequent sign-in lookups.
         request.setEmail(request.getEmail().trim().toLowerCase(Locale.ROOT));
         request.setUsername(request.getUsername().trim());
 
@@ -67,9 +69,8 @@ public class AuthServiceImpl implements AuthService {
                 .roles(Set.of(Role.ROLE_USER))
                 .provider(AuthProvider.LOCAL)
                 /*
-                 * Your current User domain defaults enabled=false.
-                 * Without verification logic implemented yet, that would
-                 * prevent the newly registered user from logging in.
+                 * Email verification is not implemented; explicitly enable approved accounts
+                 * while retaining emailVerified=false. Production approval is enforced by the controller.
                  */
                 .enabled(true)
                 .emailVerified(false)
@@ -130,6 +131,7 @@ public class AuthServiceImpl implements AuthService {
                 = jwtService.generateRefreshToken(userDetails);
 
         user.setRefreshToken(tokenDigest(refreshToken));
+        // A successful login proves the plaintext password before a legacy hash is upgraded.
         if (passwordEncoder.upgradeEncoding(user.getPassword())) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
@@ -159,6 +161,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    /** Persist only the refresh-token digest; the raw credential belongs only in the response. */
     private String tokenDigest(String token) {
         try {
             return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")

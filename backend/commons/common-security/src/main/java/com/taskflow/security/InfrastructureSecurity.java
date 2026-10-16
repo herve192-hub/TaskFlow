@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 
+/** Basic authentication for Config Server and Eureka in production and secure CI stacks. */
 @Configuration
 @Profile({"prod", "secure-infrastructure"})
 public class InfrastructureSecurity {
@@ -22,12 +23,14 @@ public class InfrastructureSecurity {
         if (username.isBlank() || password.length() < 32) {
             throw new IllegalStateException("Infrastructure requires an explicit user and a long random password");
         }
+        // Keep an encoded verifier in memory rather than storing the supplied plaintext password.
         return new InMemoryUserDetailsManager(User.withUsername(username)
                 .password("{bcrypt}" + new BCryptPasswordEncoder(12).encode(password)).roles("INFRA").build());
     }
 
     @Bean
     SecurityFilterChain infrastructureFilterChain(HttpSecurity http) throws Exception {
+        // Eureka registration/heartbeat clients use Basic auth and do not implement browser CSRF.
         return http.csrf(csrf -> csrf.ignoringRequestMatchers("/eureka/**"))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()

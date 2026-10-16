@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/** Authenticated service lookups using canonical account IDs; these routes are absent from gateway routing. */
 @RestController
 @RequestMapping("/internal/users")
 @RequiredArgsConstructor

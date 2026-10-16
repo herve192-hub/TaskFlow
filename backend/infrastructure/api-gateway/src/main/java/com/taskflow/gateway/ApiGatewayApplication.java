@@ -11,6 +11,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
+/** Reactive public API entry point; business services validate tokens and enforce resource permissions. */
 @SpringBootApplication
 @Import({com.taskflow.security.ProductionSecurity.class, com.taskflow.security.EurekaClientAuthentication.class})
 public class ApiGatewayApplication {
@@ -19,6 +20,7 @@ public class ApiGatewayApplication {
         SpringApplication.run(ApiGatewayApplication.class, args);
     }
 
+    /** Apply the browser origin and CSRF header contract at the reactive gateway boundary. */
     @Bean
     CorsWebFilter corsWebFilter(
             @Value("${TASKFLOW_WEB_ORIGIN:http://localhost:5173}") String webOrigin) {

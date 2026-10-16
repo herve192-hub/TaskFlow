@@ -49,6 +49,7 @@ const navigationItems = [
   },
 ];
 
+/** Permanent route-navigation drawer using the same collapsed widths as the topbar offsets. */
 export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const width = collapsed ? collapsedDrawerWidth : drawerWidth;
 

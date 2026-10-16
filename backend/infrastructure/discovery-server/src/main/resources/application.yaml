@@ -1,18 +1,15 @@
-# This is the configuration file for the Discovery Server application ... 
-# It defines the server port, application name, and Eureka client settings ... 
-# The Discovery Server is responsible for service registration and discovery in a microservices architecture ...
+# Standalone Eureka registry; application clients register and discover internal service instances here.
 server:
   port: 8761
 
 spring:
   application:
     name: discovery-server
-# The 'eureka' section configures the Eureka client settings for the Discovery Server application ...
-# It specifies that the Discovery Server should not register itself with Eureka and should not fetch the registry ...
+# This registry does not register with itself or fetch another registry.
 eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
-# The 'server' section configures the Discovery Server's self-preservation mode ...
+  # Keep self-preservation enabled when heartbeat delivery is disrupted.
   server:
     enable-self-preservation: true

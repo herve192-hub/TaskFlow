@@ -1,8 +1,11 @@
+# Verify Java services against MongoDB, then scan each deployable backend image.
+# Action SHAs and image digests pin the dependencies used to execute these checks.
 name: Backend CI
 
 on:
   push:
     branches: [main, develop, dev/feature-workflows]
+    # Shared scripts and deployment changes can affect backend tests or images.
     paths:
       - 'backend/**'
       - '.github/workflows/**'
@@ -18,12 +21,15 @@ on:
       - 'docker-compose.yml'
       - 'deploy/**'
   schedule:
+    # Monday at 08:23 UTC: catch new advisories even when source has not changed.
     - cron: '23 8 * * 1'
   workflow_dispatch:
 
+# These jobs read source and upload artifacts; they do not need repository writes.
 permissions:
   contents: read
 
+# Cancel superseded runs for the same event and Git ref.
 concurrency:
   group: backend-ci-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -38,6 +44,7 @@ jobs:
       run:
         working-directory: backend
 
+    # Persistence integration tests use a disposable database on this CI runner.
     services:
       mongodb:
         image: mongo:8.0.5@sha256:7bd28e5eea1c5766a084d5818254046f3ebe3b8f20a65e3a274640189e296667
@@ -72,6 +79,7 @@ jobs:
           cache-dependency-path: 'backend/**/pom.xml'
 
       - name: Generate a temporary test signing key
+        # Mask the per-run key before making it available to subsequent steps.
         run: |
           key=$(openssl rand -base64 64 | tr -d '\n')
           echo "::add-mask::$key"
@@ -81,6 +89,7 @@ jobs:
       - name: Run unit tests, integration tests, and package all modules
         run: bash ./mvnw --batch-mode --no-transfer-progress clean verify
 
+      # A green Maven exit alone is insufficient if discovery silently skips a suite.
       - name: Ensure both test suites executed
         run: |
           python3 - <<'PY'
@@ -99,6 +108,7 @@ jobs:
           PY
 
       - name: Upload test reports
+        # Keep diagnostics when Maven fails; retention bounds artifact storage.
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -112,10 +122,12 @@ jobs:
 
   container-security:
     name: Build and scan ${{ matrix.service }} image
+    # Image scanning starts only after the backend verification job succeeds.
     needs: build-and-test
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     strategy:
+      # Finish scanning the other services when one image fails its security gate.
       fail-fast: false
       matrix:
         include:
@@ -144,11 +156,13 @@ jobs:
         env:
           SERVICE: ${{ matrix.service }}
           MODULE: ${{ matrix.module }}
+        # The shared backend context includes reactor modules; the SHA ties the image to this commit.
         run: docker build --file "backend/$MODULE/Dockerfile" --tag "taskflow/$SERVICE:$GITHUB_SHA" backend
 
       - name: Scan OS and Java dependencies in the image
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
+          # Pin the scanner independently of the action; fail on HIGH/CRITICAL findings.
           version: v0.75.0
           image-ref: taskflow/${{ matrix.service }}:${{ github.sha }}
           scanners: vuln
@@ -157,12 +171,14 @@ jobs:
           format: json
           output: image-security.json
 
+      # Summarization replaces the raw report with a redacted copy before upload.
       - name: Show security findings in the log and job summary
         id: security_summary
         if: always()
         run: python3 .github/scripts/summarize-trivy.py image-security.json
 
       - name: Upload image scan report
+        # A scan failure can still produce a useful report; redaction must succeed first.
         if: always() && steps.security_summary.outcome == 'success'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
