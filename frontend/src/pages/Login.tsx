@@ -96,7 +96,8 @@ const onSubmit = async (data: LoginRequest) => {
                     maxWidth: 450,
                     p: 5,
                     borderRadius: 4,
-                    border: "1px solid #E2E8F0",
+                    border: "1px solid",
+                    borderColor: "divider",
                 }}
             >
                 <Typography 

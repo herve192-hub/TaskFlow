@@ -6,7 +6,9 @@
 
 A cloud-native task management platform built with **React.js**, **Spring Boot Microservices**, and **MongoDB**.
 
-TaskFlow enables users to create projects, manage tasks, track progress through a Kanban workflow, and collaborate efficiently. The application is designed using modern microservice principles, including API Gateway routing, JWT authentication, event-driven communication, containerization, and independent service deployment.
+TaskFlow enables users to create projects, manage teams and tasks, and track work
+through a validated status workflow. The frontend communicates with four business
+services through NGINX and an API gateway. Kafka carries task lifecycle events.
 
 ---
 
@@ -16,11 +18,11 @@ TaskFlow enables users to create projects, manage tasks, track progress through 
 * JWT Authentication & Authorization
 * Project Management
 * Task Creation, Assignment, and Tracking
-* Kanban Board Workflow (To Do, In Progress, Done)
+* Task Status Workflow (To Do, In Progress, In Review, Completed)
 * Task Priorities and Due Dates
 * Dashboard with Task Metrics
 * RESTful APIs
-* Event-Driven Notifications
+* Kafka Task Status and Completion Events
 * Responsive User Interface
 * Dockerized Services
 
@@ -28,37 +30,63 @@ TaskFlow enables users to create projects, manage tasks, track progress through 
 
 ## 🏗 Architecture
 
-```text
-Frontend (React)
-        │
-        ▼
-API Gateway
-        │
- ┌──────┼──────────────┐
- │      │              │
- ▼      ▼              ▼
-Auth   User         Task
-Svc    Svc          Svc
- │
- ▼
-MongoDB
-
-       ▼
-Notification Service
-       │
- RabbitMQ / Kafka
+```mermaid
+flowchart TB
+    browser["Browser: React application"] -->|"Same-origin HTTP; HTTPS in production"| web["NGINX: static assets and API proxy"]
+    web --> gateway
+    subgraph applications["Backend applications"]
+        gateway["API gateway: explicit public routes"]
+        gateway --> auth["Auth: accounts and token issuance"]
+        gateway --> users["Users: profiles and directory"]
+        gateway --> projects["Projects: metadata and membership"]
+        gateway --> tasks["Tasks: lifecycle and assignments"]
+        projects -->|"Forwarded caller token"| users
+        tasks -->|"Current project access"| projects
+        tasks -->|"Assignee lookup"| users
+    end
+    subgraph infrastructure["Configuration and discovery"]
+        files["backend/config-repo"] --> config["Config Server"]
+        registry["Eureka registry"]
+    end
+    config -.->|"Configuration"| applications
+    registry -.->|"Service discovery"| applications
+    auth --> authdb[("taskflow-auth")]
+    users --> userdb[("taskflow-users")]
+    projects --> projectdb[("taskflow-projects")]
+    tasks --> taskdb[("taskflow-tasks")]
+    tasks -->|"Status and completion events"| kafka["Kafka"]
 ```
+
+The four databases are logical MongoDB databases. Development and E2E provide a
+MongoDB container; production uses separately operated MongoDB and Kafka services.
+NGINX terminates production TLS and applies rate limits. Each business service
+validates authentication and its resource permissions. Kafka consumers such as a
+notification service remain planned work.
+
+### System and subsystem diagrams
+
+| Area | Documentation |
+| --- | --- |
+| Frontend routing, features, and browser sessions | [Frontend](frontend/README.md) |
+| Backend modules and service contracts | [Backend](backend/README.md) |
+| Gateway, configuration, and discovery | [Infrastructure](backend/infrastructure/README.md) |
+| Identity, projects, and task workflows | [Business services](backend/services/README.md) |
+| Shared modules and security components | [Commons](backend/commons/README.md) |
+| Production networks, transport, and secret distribution | [Production deployment](deploy/production/README.md) |
+| Build, test, and security workflows | [CI](.github/README.md) |
+| Disposable full-stack test environment | [Full-stack E2E](.github/e2e/README.md) |
 
 ### Microservices
 
-| Service              | Responsibility                           |
-| -------------------- | ---------------------------------------- |
-| API Gateway          | Request Routing, Security, Rate Limiting |
-| Auth Service         | Registration, Login, JWT Management      |
-| User Service         | User Profiles and Preferences            |
-| Task Service         | Task CRUD Operations                     |
-| Project Service      | Project Management                       |
-| Notification Service | Email and Event Notifications            |
+| Application | Responsibility |
+| --- | --- |
+| [API Gateway](backend/infrastructure/api-gateway/README.md) | Allowlisted routing, discovery resolution, and CORS |
+| [Config Server](backend/infrastructure/config-server/README.md) | Native configuration repository |
+| [Discovery Server](backend/infrastructure/discovery-server/README.md) | Eureka registration and discovery |
+| [Auth Service](backend/services/identity/auth-service/README.md) | Credential accounts, sign-in, and token issuance |
+| [User Service](backend/services/identity/user-service/README.md) | Profiles and directory summaries |
+| [Project Service](backend/services/work-management/project-service/README.md) | Project metadata, membership, and access decisions |
+| [Task Service](backend/services/work-management/task-service/README.md) | Task state, assignments, comments, and Kafka publication |
 
 ---
 
@@ -68,7 +96,6 @@ Notification Service
 
 * React.js
 * TypeScript
-* Redux Toolkit
 * React Router
 * Material UI
 * Axios
@@ -88,7 +115,7 @@ Notification Service
 
 ### Messaging
 
-* RabbitMQ / Kafka
+* Apache Kafka
 
 ### DevOps
 
@@ -110,13 +137,15 @@ taskflow/
 │   └── package.json
 │
 ├── backend/
-│   ├── gateway-service/
-│   ├── auth-service/
-│   ├── user-service/
-│   ├── task-service/
-│   ├── project-service/
-│   └── notification-service/
+│   ├── commons/                     # Shared reactor modules
+│   ├── config-repo/                 # Config Server source files
+│   ├── infrastructure/              # Gateway, Config Server, Eureka
+│   └── services/
+│       ├── identity/                # Auth and user services
+│       └── work-management/         # Project and task services
 │
+├── deploy/production/               # Independent production Compose stack
+├── .github/                         # CI, security checks, and isolated E2E
 ├── docker-compose.yml
 └── README.md
 ```
@@ -125,17 +154,37 @@ taskflow/
 
 ## 📸 Screenshots
 
+The interface follows the TaskFlow logo's blue, cyan, teal, and navy palette. Screenshots are captured from the running Docker stack with fictional demo accounts and project data.
+
 ### Login Page
 
-> Add screenshot here
+TaskFlow branding and the email/password sign-in form.
+
+![TaskFlow login page with the application logo and sign-in form](docs/screenshots/login.png)
 
 ### Dashboard
 
-> Add screenshot here
+Live project and task totals, completion progress, recent work, and upcoming deadlines.
 
-### Kanban Board
+![TaskFlow dashboard showing three projects, twelve tasks, and 25 percent completion](docs/screenshots/dashboard.png)
 
-> Add screenshot here
+### Projects
+
+Project cards show status, visibility, member counts, and links to tasks and teams.
+
+![TaskFlow projects showing Product Launch, Platform Reliability, and Customer Portal](docs/screenshots/projects.png)
+
+### Project Tasks
+
+Tasks show their priority, type, deadline, and status controls governed by project permissions.
+
+![Customer Portal tasks in review, in progress, to do, and completed](docs/screenshots/project-tasks.png)
+
+### Project Team
+
+Project membership with an owner, admin, manager, and member, plus role management controls.
+
+![Customer Portal team with fictional members and project-specific roles](docs/screenshots/project-team.png)
 
 ---
 
@@ -167,8 +216,8 @@ This project demonstrates:
 ### Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/taskflow.git
-cd taskflow
+git clone https://github.com/herve192-hub/TaskFlow.git
+cd TaskFlow
 ```
 
 ### Frontend
@@ -186,11 +235,12 @@ npm run dev
 ### Backend Services
 
 ```bash
-cd backend/auth-service
-mvn spring-boot:run
+cd backend
+bash ./mvnw --batch-mode --no-transfer-progress clean package -DskipTests
 ```
 
-Repeat for other services.
+This packages the reactor. Use Compose to run the complete stack; see the
+[backend guide](backend/README.md) for module boundaries and test prerequisites.
 
 ### Docker
 
@@ -199,10 +249,11 @@ docker compose up --build
 ```
 
 The frontend runs as `taskflow-web` at http://localhost:5173. Set `FRONTEND_PORT`
-in the root `.env` file to change its port. Its API URL defaults to
-`http://localhost:${API_GATEWAY_PORT}`; set `VITE_API_BASE_URL` in the root `.env`
-file to override it. Rebuild `taskflow-web` after changing the API URL because
-Vite embeds it in the frontend build.
+in the ignored root `.env` file to change its port. Provide the local database,
+port, profile, and service settings referenced by `docker-compose.yml` before
+starting it. API requests default to `/` and use NGINX's same-origin proxy.
+`VITE_API_BASE_URL` is a public build setting; rebuild `taskflow-web` after
+changing it. Production uses the separate [deployment guide](deploy/production/README.md).
 
 ---
 
@@ -261,16 +312,23 @@ not remove it from old commits, forks, or clones.
 
 TaskFlow uses:
 
-* JWT Access Tokens
-* Refresh Tokens
+* Purpose- and Audience-Validated JWT Access Tokens
+* Refresh Token Issuance with Stored Token Digests
 * Spring Security
-* BCrypt Password Hashing
+* Argon2id Password Hashing with Legacy BCrypt Migration
+* HttpOnly Browser Cookies and CSRF Protection
 * Role-Based Access Control (RBAC)
 
 ### Roles
 
 * USER
 * ADMIN
+
+These platform authorities are separate from project membership roles. Production
+uses RSA signing keys, Secure cookies, and administrator-controlled registration.
+See [auth](backend/services/identity/auth-service/README.md),
+[shared security](backend/commons/common-security/README.md), and the
+[security baseline and remaining release conditions](SECURITY.md).
 
 ### Project teams
 
@@ -289,7 +347,8 @@ accounts without a profile should sign in again before being added to a team.
 ## 🔮 Future Enhancements
 
 * Real-Time Updates with WebSockets
-* Team Collaboration Features
+* Notification Event Consumers
+* Kanban Drag-and-Drop Board
 * File Attachments
 * Activity Logs
 * OAuth2 (Google/GitHub Login)

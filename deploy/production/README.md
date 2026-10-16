@@ -13,6 +13,50 @@ disabled certificate/hostname verification, and Kafka configurations without
 SASL_SSL, a SASL mechanism, and credentials. These checks do not verify the actual
 database roles, provider encryption settings, or backup policy.
 
+## Deployment topology
+
+```mermaid
+flowchart TB
+    browser["Browser"] -->|"HTTPS: published port 443 by default"| web
+    subgraph host["Trusted Docker host"]
+        subgraph edge["edge network"]
+            web["NGINX: TLS, static frontend, rate limits"]
+            gateway["API gateway: joins edge and control"]
+            web --> gateway
+        end
+        subgraph control["control network: internal"]
+            config["Config Server"]
+            registry["Eureka"]
+            auth["Auth service"]
+            users["User service"]
+            projects["Project service"]
+            tasks["Task service"]
+        end
+        gateway --> auth
+        gateway --> users
+        gateway --> projects
+        gateway --> tasks
+        config -.->|"Configuration"| gateway
+        registry -.->|"Service addresses"| gateway
+    end
+    auth -->|"Verified TLS via data-egress"| mongo[("External MongoDB: four logical databases")]
+    users --> mongo
+    projects --> mongo
+    tasks --> mongo
+    tasks -->|"SASL_SSL via data-egress"| kafka["External Kafka"]
+```
+
+| Network | Members |
+| --- | --- |
+| `edge` | Frontend NGINX and gateway |
+| `control` (`internal: true`) | Gateway, Config Server, Eureka, and all four business services |
+| `data-egress` | Auth, user, project, and task services |
+
+All four business services also fetch configuration and register/discover instances
+on `control`. Internal application HTTP relies on the trusted host/network; the
+diagram's external TLS connections do not imply internal mTLS. Only the NGINX TLS
+port is published. MongoDB and Kafka are operated outside this Compose stack.
+
 ## Configuration and secrets
 
 Set `TASKFLOW_WEB_ORIGIN` to the exact HTTPS origin, including its port when it is
@@ -39,7 +83,36 @@ Supply these protected secret files:
 | `spring.kafka.properties.sasl.mechanism` | The broker's supported SASL mechanism, such as `SCRAM-SHA-512`. |
 | `spring.kafka.properties.sasl.jaas.config` | The corresponding client login configuration and credentials. |
 
-Client credentials are loaded from the same property file that imports Config Server, so they are available during the initial authenticated fetch. Service URI files are mounted under their service-specific `AUTH_MONGO_URI`, `USER_MONGO_URI`, `PROJECT_MONGO_URI`, or `TASK_MONGO_URI` property names; the Config Server resolves the corresponding connection settings.
+Client credentials are loaded from the same property file that imports Config
+Server, so they are available during the initial authenticated fetch. Service URI
+files are mounted under their service-specific `AUTH_MONGO_URI`, `USER_MONGO_URI`,
+`PROJECT_MONGO_URI`, or `TASK_MONGO_URI` property names. Each client's Spring
+environment uses those scoped properties to resolve the connection placeholders
+returned by Config Server.
+
+### Secret distribution
+
+```mermaid
+flowchart LR
+    tls["TLS certificate and private key"] --> web["NGINX"]
+    signing["JWT signing private key"] --> auth["Auth service"]
+    publicKey["JWT verification public key"] --> auth
+    publicKey --> users["User service"]
+    publicKey --> projects["Project service"]
+    publicKey --> tasks["Task service"]
+    infra["Infrastructure Basic credentials"] --> servers["Config Server and Eureka"]
+    client["Protected client.properties"] --> callers["Gateway and business clients"]
+    authUri["Auth MongoDB URI"] --> auth
+    userUri["User MongoDB URI"] --> users
+    projectUri["Project MongoDB URI"] --> projects
+    taskUri["Task MongoDB URI"] --> tasks
+    broker["Kafka broker and SASL/TLS settings"] --> tasks
+    bootstrap["First-admin secrets: bootstrap override only"] -.-> auth
+```
+
+The [shared security subsystem](../../backend/commons/common-security/README.md)
+and [auth bootstrap](../../backend/services/identity/auth-service/README.md)
+describe how these properties are validated and consumed.
 
 Compose uses bind mounts for file secrets. Its `uid`, `gid`, and `mode` settings
 cannot change ownership of those source files. Restrict the host directory and

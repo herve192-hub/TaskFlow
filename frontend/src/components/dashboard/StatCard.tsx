@@ -5,6 +5,7 @@ interface StatCardProps {
     title: string;
     value: number;
     icon: React.ReactNode;
+    tone?: "primary" | "secondary" | "info";
 }
 
 /** Display a parent-computed metric and icon using the shared dashboard card styling. */
@@ -12,6 +13,7 @@ export default function StatCard({
     title,
     value,
     icon,
+    tone = "primary",
 }: StatCardProps) {
     return (
         <Paper
@@ -42,7 +44,8 @@ export default function StatCard({
                         width: 42,
                         height: 42,
                         borderRadius: "50%",
-                        bgcolor: "primary.light",
+                        bgcolor: `${tone}.light`,
+                        color: `${tone}.main`,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",

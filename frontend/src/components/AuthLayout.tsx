@@ -3,6 +3,7 @@ import { Box, Typography } from "@mui/material";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import TaskFlowLogo from "./TaskFlowLogo";
+import { brandWash } from "../theme/theme";
 
 {/* this interface defines the props for the AuthLayout component, 
  which expects a single prop called "children" of type ReactNode. 
@@ -19,15 +20,14 @@ export default function AuthLayout({ children }: Props) {
       sx={{
         minHeight: "100vh",
         display: "flex",
-        bgcolor: "#F8FAFC",
+        bgcolor: "background.default",
       }}
     >
       {/* Left Side */}
       <Box
         sx={{
           flex: 1,
-          background:
-            "linear-gradient(135deg, #EFF6FF 0%, #ECFEFF 55%, #F0FDFA 100%)",
+          background: brandWash,
           color: "text.primary",
           display: { xs: "none", md: "flex" },
           flexDirection: "column",
