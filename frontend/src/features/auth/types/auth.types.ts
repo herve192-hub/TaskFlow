@@ -34,30 +34,3 @@ export interface AuthResponse {
     email?: string;
     user?: AuthUser;
 }
-
-export const authStorage = {
-    saveTokens(accessToken: string, refreshToken: string) {
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
-    },
-
-    clearToken() {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-    },
-
-    getAccessToken() {
-        return localStorage.getItem("accessToken");
-    },
-
-    isAuthenticated() {
-        return !!localStorage.getItem("accessToken");
-    },
-};
-
-export const isAuthenticated = () => !!localStorage.getItem("accessToken");
-
-export const logout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-};

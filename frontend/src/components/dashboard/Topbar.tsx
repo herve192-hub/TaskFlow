@@ -20,12 +20,14 @@ import {
   ListItemButton,
 } from "@mui/material";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
+import { Link, useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 
 import { collapsedDrawerWidth, drawerWidth } from "./layoutConstants";
 import { authService } from "../../features/auth/services/authService";
+import TaskFlowLogo from "../TaskFlowLogo";
 
 
 type TopbarProps = {
@@ -50,9 +52,13 @@ export default function Topbar({ collapsed }: TopbarProps) {
     ] as { id: number; title: string; body: string; unread: boolean }[]
   );
 
-  const handleLogout = () => {
-    authService.logout();
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      navigate("/");
+    } catch {
+      toast.error("Sign-out could not reach the server. Please retry.");
+    }
   };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -78,32 +84,18 @@ export default function Topbar({ collapsed }: TopbarProps) {
       }}
     >
       <Toolbar sx={{ justifyContent: "space-between", minHeight: { xs: 64, sm: 72 } }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          <Box
-            sx={{
-              width: 36,
-              height: 36,
-              borderRadius: "10px",
-              bgcolor: "primary.main",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-              fontWeight: 700,
-            }}
-          >
-            T
+        <Box
+          component={Link}
+          to="/dashboard"
+          aria-label="TaskFlow dashboard"
+          sx={{ display: "flex", alignItems: "center", flexShrink: 0, borderRadius: 2 }}
+        >
+          <Box sx={{ display: { xs: "block", sm: "none" } }}>
+            <TaskFlowLogo variant="mark" />
           </Box>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              letterSpacing: 0.3,
-              display: { xs: "none", sm: "block" },
-            }}
-          >
-            TaskFlow
-          </Typography>
+          <Box sx={{ display: { xs: "none", sm: "block" }, width: { sm: 150, md: 180 } }}>
+            <TaskFlowLogo />
+          </Box>
         </Box>
 
         {/* Centered search area */}
@@ -122,7 +114,7 @@ export default function Topbar({ collapsed }: TopbarProps) {
               <SearchIcon />
             </IconButton>
 
-            <Box sx={{ display: { xs: "none", sm: "block" }, ml: 1, width: 320 }}>
+            <Box sx={{ display: { xs: "none", sm: "block" }, ml: 1, width: { sm: 240, md: 320 } }}>
               <Paper
                 component="form"
                 onSubmit={(e) => e.preventDefault()}

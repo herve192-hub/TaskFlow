@@ -1,4 +1,7 @@
 spring:
+  data:
+    mongodb:
+      auto-index-creation: true
   application:
     name: auth-service
 
@@ -20,9 +23,9 @@ eureka:
     prefer-ip-address: true
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET:}
   issuer: taskflow
-  expiration: ${JWT_EXPIRATION_MS:3600000}
+  expiration: ${JWT_EXPIRATION_MS:900000}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION_MS:604800000}
 
 management:
@@ -33,7 +36,8 @@ management:
 
   endpoint:
     health:
-      show-details: always
+      show-details: never
+      show-components: never
 
 logging:
   level:

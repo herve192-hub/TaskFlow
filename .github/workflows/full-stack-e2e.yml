@@ -1,0 +1,121 @@
+name: Full-stack E2E
+
+on:
+  push:
+    branches: [main, develop, dev/feature-workflows]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/**'
+      - '.github/scripts/**'
+      - '.github/e2e/**'
+      - 'docker-compose.yml'
+      - 'deploy/**'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/**'
+      - '.github/scripts/**'
+      - '.github/e2e/**'
+      - 'docker-compose.yml'
+      - 'deploy/**'
+  schedule:
+    - cron: '23 8 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: full-stack-e2e-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  collaboration:
+    name: Full-stack collaboration and access controls
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      COMPOSE_PROJECT_NAME: taskflow-e2e
+      COMPOSE_FILE: .github/e2e/compose.yml
+      COMPOSE_ENV_FILES: .github/e2e/.env.runtime
+      COMPOSE_DISABLE_ENV_FILE: '1'
+      TASKFLOW_E2E_IMAGE_TAG: ${{ github.sha }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Temurin 21.0.12.1+1
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          java-version: '21.0.12+101.0.LTS'
+          distribution: temurin
+          cache: maven
+          cache-dependency-path: 'backend/**/pom.xml'
+
+      - name: Set up pinned Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # Unit/integration suites run in Backend CI; package the entire real stack once.
+      - name: Package all backend services
+        working-directory: backend
+        run: bash ./mvnw --batch-mode --no-transfer-progress clean package -DskipTests
+
+      - name: Stage services and generate temporary credentials
+        run: python3 .github/scripts/prepare-full-stack-e2e.py
+
+      - name: Install browser test dependencies
+        working-directory: frontend
+        run: |
+          npm ci
+          npx playwright install --with-deps --only-shell chromium
+
+      - name: Build production frontend and start the isolated stack
+        run: docker compose up --build --detach --wait --wait-timeout 300
+
+      - name: Run collaboration, persistence, Kafka, and authorization checks
+        working-directory: frontend
+        run: npm run test:e2e:full-stack
+
+      - name: Verify production HTTPS, headers, and authentication rate limits
+        run: python3 .github/scripts/verify-production-ingress.py
+
+      - name: Validate production deployment configuration
+        env:
+          TASKFLOW_WEB_ORIGIN: https://taskflow.example.test
+          TASKFLOW_SECRETS_DIR: ./secrets
+        run: docker compose --file deploy/production/compose.yml config --quiet
+
+      - name: Collect container status and logs
+        if: always()
+        run: python3 .github/scripts/collect-e2e-logs.py
+
+      - name: Stop the isolated stack and remove its test data
+        if: always()
+        run: |
+          if [ -f .github/e2e/.env.runtime ]; then
+            docker compose down --volumes --remove-orphans
+          fi
+
+      - name: Upload browser reports, failure traces, and container logs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: full-stack-e2e-reports
+          path: |
+            frontend/test-results/full-stack/
+            frontend/test-results/full-stack.xml
+            frontend/playwright-report/full-stack/
+            .github/e2e/logs/
+          include-hidden-files: true
+          retention-days: 14
+          if-no-files-found: warn

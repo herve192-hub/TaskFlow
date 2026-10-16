@@ -23,6 +23,9 @@ import org.springframework.security.core.Authentication;
 
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import jakarta.servlet.http.HttpServletRequest;
+import com.taskflow.user_service.security.jwt.JwtService;
+import org.springframework.security.access.AccessDeniedException;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -30,6 +33,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final JwtService jwtService;
 
     @PostMapping("/me")
     public ResponseEntity<UserResponse> createProfile(
@@ -37,9 +41,15 @@ public class UserController {
             @RequestBody
             CreateUserRequest request,
 
-            Authentication authentication
+            Authentication authentication,
+            HttpServletRequest httpRequest
     ) {
 
+        String email = jwtService.extractClaims(jwtService.extractToken(httpRequest)).get("email", String.class);
+        if (!email.equalsIgnoreCase(request.getEmail().trim())) {
+            throw new AccessDeniedException("Profile email must match the authenticated account");
+        }
+        request.setEmail(email);
         UserResponse response =
                 userService.createUser(
                         request,
@@ -111,12 +121,17 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUser(
-            @PathVariable("id") String id
+            @PathVariable("id") String id,
+            Authentication authentication
     ) {
 
-        return ResponseEntity.ok(
-                userService.getUserById(id)
-        );
+        UserResponse profile = userService.getUserById(id);
+        boolean admin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
+        if (!admin && !authentication.getName().equals(profile.getAuthUserId())) {
+            throw new AccessDeniedException("You cannot view another user's private profile");
+        }
+        return ResponseEntity.ok(profile);
     }
 
     @GetMapping

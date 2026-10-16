@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.UUID;
+import com.taskflow.security.AccessTokenValidator;
+import com.taskflow.security.JwtKeys;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +51,7 @@ public class JwtServiceImpl implements JwtService {
 
         Map<String, Object> claims =
                 buildClaims(customUser);
+        claims.put("token_use", "access");
 
         return createToken(
                 claims,
@@ -63,6 +67,7 @@ public class JwtServiceImpl implements JwtService {
                 requireCustomUserDetails(user);
 
         Map<String, Object> claims = new HashMap<>();
+        claims.put("token_use", "refresh");
 
         claims.put(
                 "email",
@@ -134,6 +139,7 @@ public class JwtServiceImpl implements JwtService {
                     extractClaims(token).getIssuer();
 
             return customUser.getId().equals(userId)
+                    && customUser.isEnabled() && customUser.isAccountNonLocked()
                     && customUser.getEmail().equals(email)
                     && jwtProperties
                             .getIssuer()
@@ -165,11 +171,7 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public Claims extractClaims(String token) {
 
-        return Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        return AccessTokenValidator.parse(token, jwtProperties.getSecret(), jwtProperties.getIssuer(), jwtProperties.getPublicKey());
     }
 
     @Override
@@ -177,16 +179,7 @@ public class JwtServiceImpl implements JwtService {
             HttpServletRequest request
     ) {
 
-        String header =
-                request.getHeader("Authorization");
-
-        if (header != null
-                && header.startsWith("Bearer ")) {
-
-            return header.substring(7);
-        }
-
-        return null;
+        return com.taskflow.security.CookieSecurity.extractToken(request);
     }
 
     private Map<String, Object> buildClaims(
@@ -225,14 +218,21 @@ public class JwtServiceImpl implements JwtService {
                         now.getTime() + expiration
                 );
 
-        return Jwts.builder()
+        var builder = Jwts.builder()
                 .claims(claims)
                 .subject(subject)
+                .id(UUID.randomUUID().toString())
+                .audience().add("access".equals(claims.get("token_use"))
+                        ? AccessTokenValidator.AUDIENCE : "taskflow-auth").and()
                 .issuer(jwtProperties.getIssuer())
                 .issuedAt(now)
-                .expiration(expiresAt)
-                .signWith(getSigningKey())
-                .compact();
+                .expiration(expiresAt);
+        if (jwtProperties.getPrivateKey() != null && !jwtProperties.getPrivateKey().isBlank()) {
+            builder.signWith(JwtKeys.privateKey(jwtProperties.getPrivateKey()), Jwts.SIG.RS256);
+        } else {
+            builder.signWith(getSigningKey(), Jwts.SIG.HS512);
+        }
+        return builder.compact();
     }
 
     private <T> T extractClaim(

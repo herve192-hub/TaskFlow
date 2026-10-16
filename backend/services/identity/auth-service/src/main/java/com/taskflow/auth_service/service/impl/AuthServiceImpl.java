@@ -25,6 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Set;
+import java.util.Locale;
+import java.util.HexFormat;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +43,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse register(RegisterRequest request) {
+        request.setEmail(request.getEmail().trim().toLowerCase(Locale.ROOT));
+        request.setUsername(request.getUsername().trim());
 
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException(
@@ -82,8 +89,9 @@ public class AuthServiceImpl implements AuthService {
         String refreshToken
                 = jwtService.generateRefreshToken(userDetails);
 
-        savedUser.setRefreshToken(refreshToken);
+        savedUser.setRefreshToken(tokenDigest(refreshToken));
         userRepository.save(savedUser);
+        com.taskflow.security.SecurityAudit.record("account_registered", savedUser.getId(), savedUser.getId());
 
         return buildAuthResponse(
                 savedUser,
@@ -95,6 +103,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
+        request.setEmail(request.getEmail().trim().toLowerCase(Locale.ROOT));
 
         Authentication authentication
                 = authenticationManager.authenticate(
@@ -120,11 +129,15 @@ public class AuthServiceImpl implements AuthService {
         String refreshToken
                 = jwtService.generateRefreshToken(userDetails);
 
-        user.setRefreshToken(refreshToken);
+        user.setRefreshToken(tokenDigest(refreshToken));
+        if (passwordEncoder.upgradeEncoding(user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
         user.setLastLoginAt(Instant.now());
 
         User savedUser
                 = userRepository.save(user);
+        com.taskflow.security.SecurityAudit.record("sign_in", savedUser.getId(), savedUser.getId());
 
         return buildAuthResponse(
                 savedUser,
@@ -144,6 +157,15 @@ public class AuthServiceImpl implements AuthService {
                 .roles(user.getRoles())
                 .enabled(user.isEnabled())
                 .build();
+    }
+
+    private String tokenDigest(String token) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(token.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 is unavailable", exception);
+        }
     }
 
     private AuthResponse buildAuthResponse(

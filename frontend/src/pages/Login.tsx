@@ -220,8 +220,10 @@ const onSubmit = async (data: LoginRequest) => {
                     }}
                 >
                     <Typography>
-                        Don't have an account?{" "}
-                        <Link to="/signup">Create one</Link>
+                        {import.meta.env.VITE_PUBLIC_REGISTRATION_ENABLED === 'false'
+                          ? 'Contact your administrator for access.' : <>
+                            Don't have an account?{" "}<Link to="/signup">Create one</Link>
+                          </>}
                     </Typography>
                 </Box>
             </Paper>

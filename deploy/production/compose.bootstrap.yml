@@ -1,0 +1,14 @@
+# Use only for initial provisioning, then remove these secret mounts on the next start.
+services:
+  auth-service:
+    secrets:
+      - source: bootstrap-admin-email
+        target: taskflow.bootstrap.admin.email
+      - source: bootstrap-admin-password
+        target: taskflow.bootstrap.admin.password
+
+secrets:
+  bootstrap-admin-email:
+    file: ${TASKFLOW_SECRETS_DIR}/taskflow.bootstrap.admin.email
+  bootstrap-admin-password:
+    file: ${TASKFLOW_SECRETS_DIR}/taskflow.bootstrap.admin.password

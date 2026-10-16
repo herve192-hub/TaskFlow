@@ -1,0 +1,210 @@
+# A separate project, network, and volumes; never loads the developer's .env.
+# Maven packages the actual services once, then mounts their JARs read-only.
+x-runtime: &runtime
+  image: eclipse-temurin:21.0.12.1_1-jre-noble@sha256:000fd431958bc81a24abe1e8e5f0f0fd3ae365a594bd50aadb20696805f9408c
+  user: "10001:10001"
+  working_dir: /app
+  entrypoint: ["java", "-jar", "/app/app.jar"]
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,size=64m
+  environment: &runtime-env
+    JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:MaxMetaspaceSize=192m -XX:ActiveProcessorCount=2"
+    LOGGING_LEVEL_COM_TASKFLOW: INFO
+  healthcheck: &health
+    test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/actuator/health"]
+    interval: 5s
+    timeout: 5s
+    retries: 30
+    start_period: 30s
+
+x-application: &application
+  <<: *runtime
+  environment: &application-env
+    <<: *runtime-env
+    SPRING_CONFIG_IMPORT: optional:configtree:/run/secrets/,file:/run/secrets/client.properties
+    TASKFLOW_WEB_ORIGIN: http://127.0.0.1:${TASKFLOW_E2E_WEB_PORT:-15173}
+    CONFIG_SERVER_URL: http://config-server:8888
+    EUREKA_URL: http://discovery-server:8761/eureka/
+    EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL_SECONDS: "5"
+    EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: "5"
+    JWT_EXPIRATION_MS: "900000"
+    MONGODB_HOST: mongodb
+    MONGODB_PORT: "27017"
+    MONGO_INITDB_ROOT_USERNAME: e2e
+    MONGO_INITDB_ROOT_PASSWORD: ${TASKFLOW_E2E_MONGO_PASSWORD:?Run prepare-full-stack-e2e.py first}
+    KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+  depends_on:
+    discovery-server:
+      condition: service_healthy
+    config-server:
+      condition: service_healthy
+    mongodb:
+      condition: service_healthy
+
+services:
+  mongodb:
+    image: mongo:8.0.5@sha256:7bd28e5eea1c5766a084d5818254046f3ebe3b8f20a65e3a274640189e296667
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: e2e
+      MONGO_INITDB_ROOT_PASSWORD: ${TASKFLOW_E2E_MONGO_PASSWORD}
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --username e2e --password \"$${MONGO_INITDB_ROOT_PASSWORD}\" --authenticationDatabase admin --eval 'db.adminCommand({ping: 1}).ok' | grep 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  kafka:
+    image: apache/kafka:4.1.0@sha256:bff074a5d0051dbc0bbbcd25b045bb1fe84833ec0d3c7c965d1797dd289ec88f
+    environment:
+      KAFKA_NODE_ID: "1"
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_LISTENERS: INTERNAL://:29092,CONTROLLER://:29093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
+      KAFKA_HEAP_OPTS: "-Xms128m -Xmx256m"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:29092 --list >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+      start_period: 20s
+
+  discovery-server:
+    <<: *runtime
+    volumes:
+      - ./jars/discovery-server.jar:/app/app.jar:ro
+    environment:
+      <<: *runtime-env
+      SPRING_PROFILES_ACTIVE: secure-infrastructure
+      SPRING_SECURITY_USER_NAME: taskflow-infra
+      SPRING_SECURITY_USER_PASSWORD: ${TASKFLOW_E2E_INFRA_PASSWORD}
+      EUREKA_SERVER_ENABLE_SELF_PRESERVATION: "false"
+      EUREKA_SERVER_RESPONSE_CACHE_UPDATE_INTERVAL_MS: "5000"
+    healthcheck:
+      <<: *health
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8761/actuator/health"]
+
+  config-server:
+    <<: *runtime
+    volumes:
+      - ./jars/config-server.jar:/app/app.jar:ro
+      - ../../backend/config-repo:/app/config-repo:ro
+    environment:
+      <<: *runtime-env
+      SPRING_PROFILES_ACTIVE: native,secure-infrastructure
+      SPRING_SECURITY_USER_NAME: taskflow-infra
+      SPRING_SECURITY_USER_PASSWORD: ${TASKFLOW_E2E_INFRA_PASSWORD}
+      EUREKA_URL: http://discovery-server:8761/eureka/
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+    healthcheck:
+      <<: *health
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8888/actuator/health"]
+
+  api-gateway:
+    <<: *application
+    volumes:
+      - ./jars/api-gateway.jar:/app/app.jar:ro
+      - ./secrets/client.properties:/run/secrets/client.properties:ro
+    environment:
+      <<: *application-env
+      TASKFLOW_WEB_ORIGIN: http://127.0.0.1:${TASKFLOW_E2E_WEB_PORT:-15173}
+    ports:
+      - "127.0.0.1:${TASKFLOW_E2E_GATEWAY_PORT:-18080}:8080"
+
+  auth-service:
+    <<: *application
+    volumes:
+      - ./jars/auth-service.jar:/app/app.jar:ro
+      - ./secrets/auth.mongodb.uri:/run/secrets/AUTH_MONGO_URI:ro
+      - ./secrets/client.properties:/run/secrets/client.properties:ro
+      - ./secrets/jwt.public-key:/run/secrets/jwt.public-key:ro
+      - ./secrets/jwt.private-key:/run/secrets/jwt.private-key:ro
+    healthcheck:
+      <<: *health
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8081/actuator/health"]
+
+  user-service:
+    <<: *application
+    volumes:
+      - ./jars/user-service.jar:/app/app.jar:ro
+      - ./secrets/user.mongodb.uri:/run/secrets/USER_MONGO_URI:ro
+      - ./secrets/client.properties:/run/secrets/client.properties:ro
+      - ./secrets/jwt.public-key:/run/secrets/jwt.public-key:ro
+    healthcheck:
+      <<: *health
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8082/actuator/health"]
+
+  project-service:
+    <<: *application
+    volumes:
+      - ./jars/project-service.jar:/app/app.jar:ro
+      - ./secrets/project.mongodb.uri:/run/secrets/PROJECT_MONGO_URI:ro
+      - ./secrets/client.properties:/run/secrets/client.properties:ro
+      - ./secrets/jwt.public-key:/run/secrets/jwt.public-key:ro
+    healthcheck:
+      <<: *health
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8083/actuator/health"]
+
+  task-service:
+    <<: *application
+    volumes:
+      - ./jars/task-service.jar:/app/app.jar:ro
+      - ./secrets/task.mongodb.uri:/run/secrets/TASK_MONGO_URI:ro
+      - ./secrets/client.properties:/run/secrets/client.properties:ro
+      - ./secrets/jwt.public-key:/run/secrets/jwt.public-key:ro
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      <<: *health
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8084/actuator/health"]
+
+  taskflow-web:
+    image: taskflow/frontend-e2e:${TASKFLOW_E2E_IMAGE_TAG:-0.0.0}
+    build:
+      context: ../../frontend
+      args:
+        VITE_API_BASE_URL: /
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+      - /var/cache/nginx:rw,noexec,nosuid,size=32m,uid=101,gid=101,mode=0700
+    ports:
+      - "127.0.0.1:${TASKFLOW_E2E_WEB_PORT:-15173}:8080"
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:8080/"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  mongodb-data:
+  kafka-data:

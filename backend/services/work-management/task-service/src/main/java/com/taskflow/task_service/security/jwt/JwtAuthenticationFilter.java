@@ -22,6 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import com.taskflow.security.CookieSecurity;
 
 @Component
 @RequiredArgsConstructor
@@ -37,18 +38,13 @@ public class JwtAuthenticationFilter
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String authHeader =
-                request.getHeader("Authorization");
+        String token = CookieSecurity.extractToken(request);
 
-        if (authHeader == null ||
-                !authHeader.startsWith("Bearer ")) {
+        if (token == null) {
 
             filterChain.doFilter(request, response);
             return;
         }
-
-        String token =
-                authHeader.substring(7);
 
         try {
 

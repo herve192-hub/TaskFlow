@@ -10,6 +10,10 @@ The Security workflow runs on those pushes and pull requests without path
 filters, every Monday at 08:23 UTC, and manually. The schedule analyzes the default
 branch so newly published dependency advisories are checked without a code change.
 
+Full-stack E2E runs on the same branches, pull requests, weekly schedule, and manual
+trigger. Its path filters cover both backend and frontend code, workflows, CI
+scripts, the isolated stack configuration, and the root Compose file.
+
 ## Checks
 
 | Check | What runs |
@@ -19,6 +23,7 @@ branch so newly published dependency advisories are checked without a code chang
 | Frontend unit tests | Vitest tests API error handling and user display names. |
 | Frontend integration tests | React Testing Library tests protected routes together with React Router and browser storage. |
 | Browser smoke tests | Playwright Chromium checks the production build's sign-in form, registration navigation, and redirects for unauthenticated protected pages. These tests do not submit authentication requests or exercise the complete backend stack. |
+| Full-stack end-to-end test | A separate workflow runs real registration/login, profile creation, private project creation, member addition, task creation/assignment/completion, dashboard progress, Kafka event delivery, and access restrictions against NGINX, the gateway, Config Server, Eureka, all four business services, MongoDB, and Kafka. |
 | Lint and build | Frontend ESLint, TypeScript checking, Vite production build, and backend Maven packaging. |
 | Coverage | JaCoCo reports for backend modules, and separate Vitest V8 reports for frontend unit and integration suites. Reports establish the current baseline; no minimum coverage percentage is imposed. |
 | Static security analysis | CodeQL's `security-extended` queries analyze Java, JavaScript/TypeScript, and GitHub Actions workflows. Results are uploaded to GitHub code scanning and retained as SARIF artifacts. |
@@ -35,7 +40,9 @@ CodeQL findings below the threshold remain available in GitHub code scanning.
 Trivy findings are also printed in the job log and GitHub job summary, including
 affected files, package versions, and fixed versions. Repeated dependency findings
 are grouped. Secret summaries show only the rule and location, never the match.
-The full JSON scan report remains available in the uploaded artifact.
+The JSON report remains available in the uploaded artifact after secret matches
+and source snippets are removed. Report artifacts upload only after successful
+redaction; vulnerability and configuration metadata and secret locations remain.
 
 The backend asserts that both test suites actually executed. Frontend unit and
 integration suites run separately so an empty suite fails. Reports are uploaded
@@ -143,6 +150,84 @@ Scans continue to use fresh advisory databases, so future findings can fail CI.
 The first GitHub Actions run of the updated workflows is still needed to verify
 hosted CodeQL execution and artifact uploads.
 
+## Full-stack collaboration test
+
+`.github/workflows/full-stack-e2e.yml` packages all seven Java applications once
+with the pinned Maven wrapper and JDK. `.github/scripts/prepare-full-stack-e2e.py`
+stages their executable JARs, generates fresh database/infrastructure credentials in an
+ignored file with mode 0600, and creates an isolated RSA key pair. Secret files live
+in an ignored host directory with mode 0700; auth alone receives the private key.
+Client credentials are read from a protected property file before Config Server
+is imported, and service-specific connection URI files supply each client. `.github/e2e/compose.yml` mounts those JARs read-only
+into the same pinned Temurin runtime used by production, running as UID/GID 10001.
+It builds the frontend through its production Dockerfile and serves it with NGINX.
+
+The `taskflow-e2e` Compose project has its own network and database volumes, no
+fixed container names, and no developer `.env` dependency. Only the frontend and
+gateway expose ports, bound to loopback at 15173 and 18080. JVM and Kafka heap
+limits keep the stack suitable for an Ubuntu GitHub runner. `TASKFLOW_WEB_ORIGIN`
+configures the additional browser origin in both gateway CORS configurations.
+
+The browser uses three fresh accounts with separate sessions. It registers and
+signs them in through the UI, confirms their real directory profiles, creates a
+private project, adds a member, and creates a task. Assignment uses the existing
+authenticated gateway API because the frontend has no assignment control yet.
+The assignee moves the task through IN_PROGRESS, IN_REVIEW, and COMPLETED in the
+UI. Reloading confirms persistence; both dashboards must show 1 of 1 tasks
+completed and 100% progress. Kafka records must include the three transitions and
+the completion event with the correct task, project, and acting user.
+
+The test also requires HTTP 403 for outsider project/task access, a member's
+attempt to promote their own role, unauthorized assignment, management-only
+cancellation, and a member's attempt to update an unassigned task. Anonymous task
+requests must return 401. Removing the member through the UI must revoke their
+project/task access and clear their dashboard while retaining owner access.
+No API requests are mocked and no tokens or database fixtures bypass sign-in.
+Browser requests use HttpOnly cookies and CSRF headers through NGINX; only the
+API assertions use the bearer token returned by real sign-in. The suite rejects
+refresh tokens, missing CSRF tokens, private profile access, and infrastructure
+URLs, and confirms credentials never persist in browser storage.
+
+Compose waits for container health, and Playwright additionally waits for the
+actual gateway routes to become available through Eureka. The full-stack suite
+has one worker and no retries, so failures remain visible. The existing smoke
+suite excludes `*.full-stack.spec.ts`; `npm run test:e2e:full-stack` selects it
+explicitly. Failures block the E2E job. The production NGINX fixture also verifies trusted HTTPS, certificate/hostname
+rejection, response headers, and authentication rate limiting. Reports, failure screenshots/videos/traces,
+Kafka event attachments, and container logs are retained for 14 days. CI always
+stops the isolated stack and removes its test volumes after execution.
+
+Run the same test locally from the repository root with Docker, the pinned JDK,
+and Node.js installed. Keep the stack stopped when regenerating credentials:
+
+```bash
+export COMPOSE_PROJECT_NAME=taskflow-e2e
+export COMPOSE_FILE=.github/e2e/compose.yml
+export COMPOSE_ENV_FILES=.github/e2e/.env.runtime
+export COMPOSE_DISABLE_ENV_FILE=1
+
+(cd backend && bash ./mvnw --batch-mode --no-transfer-progress clean package -DskipTests)
+python3 .github/scripts/prepare-full-stack-e2e.py
+(cd frontend && npm ci && npx playwright install --with-deps --only-shell chromium)
+
+trap 'docker compose down --volumes --remove-orphans' EXIT
+docker compose up --build --detach --wait --wait-timeout 300
+(cd frontend && npm run test:e2e:full-stack)
+```
+
+To use different ports, export `TASKFLOW_E2E_WEB_PORT` and
+`TASKFLOW_E2E_GATEWAY_PORT` before building the frontend, and set matching
+`TASKFLOW_E2E_BASE_URL` and `TASKFLOW_E2E_API_URL` for Playwright. If running the
+commands interactively, run `docker compose down --volumes --remove-orphans` when
+finished instead of waiting for the shell's exit trap.
+
+Local validation on 2026-10-13 passed the complete workflow against all ten real
+containers, including a run with `CI=true`. The existing 3 browser smoke tests,
+14 frontend unit tests, 3 frontend integration tests, all 3 gateway integration
+tests (including allowed/rejected origin checks), frontend lint/type-check/build,
+Maven packaging, workflow linting, and isolated Compose validation also passed.
+The GitHub-hosted run and artifact uploads remain to be verified after pushing.
+
 ## Initial validation, 2026-10-09
 
 Local validation passed 70 backend unit tests, 10 backend integration tests,
@@ -207,3 +292,21 @@ npm audit --audit-level=high --include=dev --include=optional --include=peer
 
 `npm run test:unit` and `npm run test:integration` run the individual frontend
 suites. Playwright starts and stops the local Vite preview server automatically.
+
+## Production security baseline, 2026-10-13
+
+See [SECURITY.md](../SECURITY.md) for implemented controls and outstanding ASVS
+release conditions, and [the production deployment guide](../deploy/production/README.md)
+for the separate HTTPS-only Compose configuration and scoped secret files. The
+development and disposable CI environments must not receive production data.
+
+Local validation passed the full backend suite (103 unit tests and 12 integration
+tests), followed by 4 additional production-onboarding boundary tests, frontend lint/type-check/build, 17 frontend unit/integration tests, 3 browser
+smoke tests, and the complete collaboration workflow with its runtime security
+assertions. The production NGINX fixture verified HTTPS without disabling trust
+checks, rejected an untrusted certificate and a wrong hostname, and passed header
+and rate-limit checks. Packaged backend dependencies and the rebuilt frontend
+image returned no HIGH/CRITICAL vulnerability findings. Workflow and Compose
+configuration checks and scanner-artifact redaction tests passed. Hosted CI, the
+organization's real certificates/data services, and complete ASVS verification
+remain outside this local validation.

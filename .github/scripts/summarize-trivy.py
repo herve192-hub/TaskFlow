@@ -5,7 +5,31 @@ from collections import Counter
 import html
 import json
 import os
+import tempfile
 from pathlib import Path
+
+
+def redact(report):
+    """Keep findings and locations while removing credential values from artifacts."""
+    matches = set()
+    for result in report.get("Results", []) or []:
+        for finding in result.get("Secrets", []) or []:
+            match = finding.pop("Match", None)
+            if isinstance(match, str) and match:
+                matches.add(match)
+            finding.pop("Code", None)
+
+    def clean(value):
+        if isinstance(value, dict):
+            return {key: clean(item) for key, item in value.items()}
+        if isinstance(value, list):
+            return [clean(item) for item in value]
+        if isinstance(value, str):
+            for match in sorted(matches, key=len, reverse=True):
+                value = value.replace(match, "[REDACTED]")
+        return value
+
+    return clean(report)
 
 
 def summarize(report):
@@ -67,7 +91,13 @@ def main():
     arguments = parser.parse_args()
     if not arguments.report.is_file():
         parser.exit(1, "Trivy did not produce a report; check the scanner log for an execution error.\n")
-    output = summarize(json.loads(arguments.report.read_text()))
+    report = redact(json.loads(arguments.report.read_text()))
+    # Replace the raw report before either summarizing or uploading it.
+    with tempfile.NamedTemporaryFile(mode="w", dir=arguments.report.parent, delete=False, encoding="utf-8") as handle:
+        json.dump(report, handle)
+        temporary = Path(handle.name)
+    temporary.replace(arguments.report)
+    output = summarize(report)
     print(output)
     if summary := os.environ.get("GITHUB_STEP_SUMMARY"):
         with Path(summary).open("a", encoding="utf-8") as handle:

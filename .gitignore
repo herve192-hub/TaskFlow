@@ -1,51 +1,96 @@
-# ======================
-# React / Vite
-# ======================
-frontend/node_modules/
-frontend/dist/
+# Dependencies and generated build/test output
 node_modules/
+dist/
+dist-ssr/
+target/
+build/
+out/
+coverage/
+test-results/
+playwright-report/
+blob-report/
+__pycache__/
+*.py[cod]
+*.class
+*.jar
+*.war
+*.tsbuildinfo
 
-# ======================
-# Environment Variables
-# ======================
-.env
-.env.*
-!.env.example
+# Local environment files are never published, including .env templates
+.env*
+*.env
+*.env.*
 
-# ======================
-# Spring Boot
-# ======================
-backend/**/target/
+# Credentials, key material, local data, and backups
+secrets/
+.secrets/
+credentials/
+*.pem
+*.key
+*.private-key
+*.password
+client.properties
+.htpasswd
+.credentials
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa*
+id_ed25519*
+.aws/
+.azure/
+.kube/
+.ssh/
+.gnupg/
+.netrc
+.git-credentials
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+*.sql
+*.bson
+*.rdb
+*.aof
+*.har
+*.hprof
+*.heapdump
+*.bak
+*.backup
+backups/
+data/
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+
+# Maven wrapper configuration is required to build the backend
 backend/**/.mvn/
 !backend/.mvn/
 !backend/.mvn/wrapper/
 !backend/.mvn/wrapper/maven-wrapper.properties
 
-# ======================
-# Logs
-# ======================
+# Logs and raw security reports can contain private information
 *.log
 logs/
+*.sarif
+security-*.json
+trivy*.json
+gitleaks*-report.json
+codeql-results/
 
-# ======================
-# IDE
-# ======================
+# Local tooling and editor state
 .vscode/
 .idea/
+.codex/
+.agents/
+.history/
 
-# ======================
-# OS Files
-# ======================
+# OS and temporary files
 .DS_Store
 Thumbs.db
-
-# ======================
-# Coverage
-# ======================
-coverage/
-
-# ======================
-# Temporary Files
-# ======================
 *.tmp
 *.swp
+*.swo
+*~

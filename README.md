@@ -1,5 +1,9 @@
 # 🚀 TaskFlow
 
+<p align="center">
+  <img src="frontend/src/assets/TaskFlow%20Gradient%20Flow%20Logo.png" alt="TaskFlow logo" width="180" />
+</p>
+
 A cloud-native task management platform built with **React.js**, **Spring Boot Microservices**, and **MongoDB**.
 
 TaskFlow enables users to create projects, manage tasks, track progress through a Kanban workflow, and collaborate efficiently. The application is designed using modern microservice principles, including API Gateway routing, JWT authentication, event-driven communication, containerization, and independent service deployment.
@@ -206,6 +210,50 @@ Vite embeds it in the frontend build.
 
 GitHub Actions runs backend and frontend tests and security scans. See
 [the CI guide](.github/CI.md) for the checks, failure thresholds, and local commands.
+
+### Files safe to publish
+
+This repository's source code is public. Commit application source, tests, reviewed
+configuration templates, lockfiles, build definitions, CI scripts, documentation,
+and the TaskFlow logo. Keep real user/customer data and production configuration
+outside the source tree. No `.env` files, including `.env.example` templates,
+belong in Git. The reviewed production template is `environment.example`; copy
+it to an ignored `.env` file for local deployment configuration.
+
+The ignore rules exclude environment files, credentials, keys, local databases,
+backups, dependencies, compiled output, logs, browser recordings, scanner reports,
+and local editor/agent state. Docker build contexts exclude these private files
+as well. Ignoring a file does not remove an already tracked file or Git history.
+Frontend `VITE_*` variables are embedded in the public browser bundle; use them
+only for public settings, never for passwords, keys, or private endpoints.
+
+Install **Gitleaks 8.30.1** with the setup command below. It downloads the
+[official release](https://github.com/gitleaks/gitleaks/releases/tag/v8.30.1),
+verifies its published checksum and version, and installs it under Git's persistent
+local metadata directory. The binary is never committed or pushed. The setup also
+replaces stale scanner paths left in local Git configuration. Hooks perform no
+downloads; rerun setup if the scanner is missing. Then enable the versioned hooks
+and review all pending publishable files:
+
+```bash
+python3 .github/scripts/install-gitleaks.py
+git config --local core.hooksPath .githooks
+python3 .github/scripts/verify-publishable-files.py --include-untracked --secrets --history
+git diff --cached --stat
+```
+
+For a manual installation, put the checksum-verified version on `PATH` or set
+`git config --local taskflow.gitleaksPath /absolute/path/to/gitleaks` to a persistent
+location. `GITLEAKS_BIN` explicitly overrides scanner selection, including in CI.
+
+The pre-commit hook scans the actual index. The pre-push hook checks each outgoing
+tree and all locally available history. Both require the pinned scanner and fail
+when a forbidden file or detected secret is found; CI repeats these checks.
+Hooks are local and can be bypassed, and secret scanners cannot identify every kind
+of sensitive data. Review staged changes before committing and enable GitHub secret
+scanning/push protection and required security checks in repository settings.
+Rotate any exposed credential immediately; removing it from the next commit does
+not remove it from old commits, forks, or clones.
 
 ---
 

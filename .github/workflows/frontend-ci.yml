@@ -8,6 +8,7 @@ on:
       - '.github/workflows/**'
       - '.github/scripts/**'
       - 'docker-compose.yml'
+      - 'deploy/**'
   pull_request:
     branches: [main, develop]
     paths:
@@ -15,6 +16,7 @@ on:
       - '.github/workflows/**'
       - '.github/scripts/**'
       - 'docker-compose.yml'
+      - 'deploy/**'
   schedule:
     - cron: '23 8 * * 1'
   workflow_dispatch:
@@ -140,11 +142,12 @@ jobs:
           output: image-security.json
 
       - name: Show security findings in the log and job summary
+        id: security_summary
         if: always()
         run: python3 .github/scripts/summarize-trivy.py image-security.json
 
       - name: Upload image scan report
-        if: always()
+        if: always() && steps.security_summary.outcome == 'success'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: frontend-image-security

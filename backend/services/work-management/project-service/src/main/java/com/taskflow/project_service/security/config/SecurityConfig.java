@@ -11,12 +11,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import jakarta.servlet.DispatcherType;
+import org.springframework.beans.factory.annotation.Value;
+import com.taskflow.security.CookieSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@org.springframework.context.annotation.Import({com.taskflow.security.ProductionSecurity.class, com.taskflow.security.EurekaClientAuthentication.class})
+@EnableMethodSecurity
 @RequiredArgsConstructor
 @EnableConfigurationProperties(
         com.taskflow.project_service.security.jwt.JwtProperties.class
@@ -28,6 +34,9 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint
             jwtAuthenticationEntryPoint;
 
+    @Value("${TASKFLOW_COOKIE_SECURE:false}")
+    private boolean secureCookie;
+
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http
@@ -38,7 +47,7 @@ public class SecurityConfig {
                 /*
                  * REST API.
                  */
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> CookieSecurity.configure(csrf, secureCookie))
 
                 /*
                  * JWT authentication is stateless.
@@ -63,13 +72,14 @@ public class SecurityConfig {
                  */
                 .authorizeHttpRequests(auth -> auth
 
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+
                         .requestMatchers(
-                                "/actuator/health",
-                                "/actuator/info",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/actuator/health", "/actuator/health/**"
                         )
                         .permitAll()
+                        .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**").denyAll()
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 
                         /*
                          * Everything else requires JWT.

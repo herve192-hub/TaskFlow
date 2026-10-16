@@ -12,6 +12,7 @@
     "test:integration": "vitest run --project integration",
     "test:ci": "npm run test:unit -- --coverage --coverage.reportsDirectory=coverage/unit --outputFile.junit=test-results/unit.xml && npm run test:integration -- --coverage --coverage.reportsDirectory=coverage/integration --outputFile.junit=test-results/integration.xml",
     "test:e2e": "playwright test",
+    "test:e2e:full-stack": "playwright test --config playwright.full-stack.config.ts",
     "preview": "vite preview"
   },
   "dependencies": {

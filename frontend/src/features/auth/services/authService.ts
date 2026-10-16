@@ -10,12 +10,9 @@ import type {
   RegisterRequest,
 } from "../types/auth.types";
 import { userService } from "../../users/services/userService";
+import api from '../../../api/axios'
+import { clearSession, currentUser, isAuthenticated, saveSession } from '../session'
 
-const saveSession = (auth: AuthResponse): void => {
-  localStorage.setItem("accessToken", auth.accessToken);
-  localStorage.setItem("refreshToken", auth.refreshToken);
-  localStorage.setItem("user", JSON.stringify(auth.user));
-};
 
 const initializeProfile = async (auth: AuthResponse): Promise<void> => {
   if (!auth.user) return;
@@ -31,7 +28,7 @@ export const authService = {
   async register(request: RegisterRequest): Promise<AuthResponse> {
     const auth = await registerApi(request);
 
-    saveSession(auth);
+    saveSession(auth.user);
     await initializeProfile(auth);
 
     return auth;
@@ -40,39 +37,29 @@ export const authService = {
   async login(request: LoginRequest): Promise<AuthResponse> {
     const auth = await loginApi(request);
 
-    saveSession(auth);
+    saveSession(auth.user);
     await initializeProfile(auth);
 
     return auth;
   },
 
-  async forgotPassword(email: string): Promise<void> {
-    await Promise.resolve();
-    console.log("Reset email sent to:", email);
+  async forgotPassword(): Promise<void> {
+    throw new Error('Password recovery is not configured. Contact your administrator.')
   },
 
-  logout(): void {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
-  },
-
-  getAccessToken(): string | null {
-    return localStorage.getItem("accessToken");
-  },
-
-  getCurrentUser(): AuthUser | null {
+  async logout(): Promise<void> {
     try {
-      const user = JSON.parse(localStorage.getItem("user") ?? "null") as AuthUser | null;
-      return user && typeof user.id === "string"
-        && typeof user.firstname === "string" && typeof user.lastname === "string"
-        ? user : null;
-    } catch {
-      return null;
+      await api.post('/auth/logout')
+    } finally {
+      clearSession()
     }
   },
 
+  getCurrentUser(): AuthUser | null {
+    return currentUser()
+  },
+
   isAuthenticated(): boolean {
-    return Boolean(localStorage.getItem("accessToken"));
+    return isAuthenticated()
   },
 };

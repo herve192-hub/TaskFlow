@@ -21,6 +21,15 @@
     <description> Service Discovery using Netflix Eureka for TaskFlow. </description>
 
     <dependencies>
+        <dependency>
+            <groupId>com.taskflow</groupId>
+            <artifactId>common-security</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
         <!-- Spring Boot Actuator dependency -->
         <dependency>
 			<groupId>org.springframework.boot</groupId>

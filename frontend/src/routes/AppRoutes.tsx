@@ -2,6 +2,7 @@ import {
   BrowserRouter,
   Route,
   Routes,
+  Navigate,
 } from "react-router-dom";
 
 import Signup from "../pages/Signup";
@@ -24,7 +25,8 @@ export default function AppRoutes() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/signup" element={import.meta.env.VITE_PUBLIC_REGISTRATION_ENABLED === 'false'
+          ? <Navigate to="/login" replace /> : <Signup />} />
         <Route
           path="/forgot-password"
           element={<ForgotPassword />}

@@ -22,7 +22,7 @@ cloud:
   gateway:
     discovery:
       locator:
-        enabled: true
+        enabled: false
         lower-case-service-id: true
 # management endpoints configuration for monitoring and managing the api-gateway ...
 # this allows the api-gateway to expose management endpoints for monitoring and managing the application ...
@@ -30,4 +30,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: health

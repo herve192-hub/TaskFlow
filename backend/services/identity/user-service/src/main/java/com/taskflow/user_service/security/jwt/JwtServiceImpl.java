@@ -2,7 +2,7 @@
 package com.taskflow.user_service.security.jwt;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import com.taskflow.security.AccessTokenValidator;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -102,16 +102,7 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public String extractToken(HttpServletRequest request) {
 
-        String authorizationHeader =
-                request.getHeader("Authorization");
-
-        if (authorizationHeader != null
-                && authorizationHeader.startsWith("Bearer ")) {
-
-            return authorizationHeader.substring(7);
-        }
-
-        return null;
+        return com.taskflow.security.CookieSecurity.extractToken(request);
     }
 
     private <T> T extractClaim(
@@ -125,10 +116,6 @@ public class JwtServiceImpl implements JwtService {
 
     private Claims extractAllClaims(String token) {
 
-        return Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        return AccessTokenValidator.parse(token, jwtProperties.getSecret(), jwtProperties.getIssuer(), jwtProperties.getPublicKey());
     }
 }

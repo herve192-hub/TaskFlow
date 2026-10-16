@@ -1,7 +1,7 @@
 package com.taskflow.task_service.security.jwt;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import com.taskflow.security.AccessTokenValidator;
 import io.jsonwebtoken.security.Keys;
 
 import lombok.RequiredArgsConstructor;
@@ -91,12 +91,7 @@ public class JwtServiceImpl implements JwtService {
             Function<Claims, T> resolver
     ) {
 
-        Claims claims = Jwts
-                .parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        Claims claims = AccessTokenValidator.parse(token, jwtProperties.getSecret(), jwtProperties.getIssuer(), jwtProperties.getPublicKey());
 
         return resolver.apply(claims);
     }

@@ -19,7 +19,8 @@ public class FeignClientConfig {
 
         return requestTemplate -> {
 
-            String authorization = httpServletRequest.getHeader( "Authorization" );
+            String token = com.taskflow.security.CookieSecurity.extractToken(httpServletRequest);
+            String authorization = token == null ? null : "Bearer " + token;
 
             if (authorization != null
                     && authorization.startsWith( "Bearer " )) {

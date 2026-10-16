@@ -7,6 +7,10 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+import com.taskflow.auth_service.security.jwt.JwtAuthenticationEntryPoint;
+import jakarta.servlet.DispatcherType;
+import com.taskflow.security.CookieSecurity;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -27,12 +31,20 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
+@org.springframework.context.annotation.Import({com.taskflow.security.ProductionSecurity.class, com.taskflow.security.EurekaClientAuthentication.class})
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
     private final PasswordEncoder passwordEncoder;
     private final CustomUserDetailsService userDetailsService;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @Value("${TASKFLOW_WEB_ORIGIN:http://localhost:5173}")
+    private String webOrigin;
+
+    @Value("${TASKFLOW_COOKIE_SECURE:false}")
+    private boolean secureCookie;
 
     @Bean
     DaoAuthenticationProvider authenticationProvider() {
@@ -57,7 +69,7 @@ public class SecurityConfig {
             throws Exception {
 
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> CookieSecurity.configure(csrf, secureCookie))
                 .cors(cors -> cors.configurationSource(
                 corsConfigurationSource()
         ))
@@ -66,14 +78,15 @@ public class SecurityConfig {
                         SessionCreationPolicy.STATELESS
                 )
                 )
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
+                .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers(
-                        "/auth/**",
-                        "/swagger-ui/**",
-                        "/v3/api-docs/**",
-                        "/actuator/**"
+                        "/auth/register", "/auth/login", "/auth/csrf",
+                        "/actuator/health", "/actuator/health/**"
                 )
                 .permitAll()
+                .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**").denyAll()
                 .anyRequest()
                 .authenticated()
                 )
@@ -92,12 +105,7 @@ public class SecurityConfig {
         CorsConfiguration configuration
                 = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
-                "http://127.0.0.1:*",
-                "http://0.0.0.0:*",
-                "http://[::1]:*"
-        ));
+        configuration.setAllowedOrigins(List.of(webOrigin));
 
         configuration.setAllowedMethods(List.of(
                 "GET",
@@ -114,6 +122,7 @@ public class SecurityConfig {
                 "X-Requested-With",
                 "Accept",
                 "Origin"
+                , "X-XSRF-TOKEN"
         ));
 
         configuration.setAllowCredentials(true);
