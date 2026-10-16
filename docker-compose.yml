@@ -69,7 +69,7 @@ services:
 # Kafka service is built from the official Apache Kafka image. It is named taskflow-kafka and exposes port 9092.
 # It is connected to the taskflow-network and has a healthcheck that checks the /actuator/health endpoint. The service uses environment variables to configure Kafka settings, including node ID, process roles, listeners, and replication factors. It also uses a volume to persist Kafka data. ...
   kafka:
-    image: apache/kafka:4.1.0@sha256:bff074a5d0051dbc0bbbcd25b045bb1fe84833ec0d3c7c965d1797dd289ec88f
+    image: apache/kafka:4.3.1@sha256:77e3df9054047a88b520d0cc46e16696d3b22022e1d580aeccd2632df6532837
     container_name: taskflow-kafka
     restart: unless-stopped
 
