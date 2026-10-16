@@ -28,6 +28,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import { collapsedDrawerWidth, drawerWidth } from "./layoutConstants";
 import { authService } from "../../features/auth/services/authService";
 import TaskFlowLogo from "../TaskFlowLogo";
+import { brandGradient, brandWash } from "../../theme/theme";
 
 
 type TopbarProps = {
@@ -231,6 +232,8 @@ export default function Topbar({ collapsed }: TopbarProps) {
             onClick={handleClick}
             sx={{
               bgcolor: "primary.main",
+              backgroundImage: brandGradient,
+              color: "primary.contrastText",
               cursor: "pointer",
               width: { xs: 34, sm: 40 },
               height: { xs: 34, sm: 40 },
@@ -268,7 +271,7 @@ export default function Topbar({ collapsed }: TopbarProps) {
                 display: "flex",
                 alignItems: "center",
                 gap: 1.2,
-                bgcolor: "linear-gradient(135deg, rgba(25,118,210,0.08), rgba(25,118,210,0.02))",
+                background: brandWash,
               }}
             >
               <Avatar
@@ -276,6 +279,8 @@ export default function Topbar({ collapsed }: TopbarProps) {
                   width: 36,
                   height: 36,
                   bgcolor: "primary.main",
+                  backgroundImage: brandGradient,
+                  color: "primary.contrastText",
                   fontWeight: 700,
                 }}
               >
@@ -302,7 +307,7 @@ export default function Topbar({ collapsed }: TopbarProps) {
                 mt: 0.5,
                 fontWeight: 600,
                 color: "text.primary",
-                "&:hover": { bgcolor: "primary.50", color: "primary.main" },
+                "&:hover": { bgcolor: "primary.light", color: "primary.main" },
               }}
             >
               Profile
@@ -316,7 +321,7 @@ export default function Topbar({ collapsed }: TopbarProps) {
                 mx: 1,
                 fontWeight: 600,
                 color: "text.primary",
-                "&:hover": { bgcolor: "primary.50", color: "primary.main" },
+                "&:hover": { bgcolor: "primary.light", color: "primary.main" },
               }}
             >
               Settings
@@ -334,7 +339,7 @@ export default function Topbar({ collapsed }: TopbarProps) {
                 mb: 0.5,
                 fontWeight: 600,
                 color: "error.main",
-                "&:hover": { bgcolor: "error.50", color: "error.dark" },
+                "&:hover": { bgcolor: "action.hover", color: "error.dark" },
               }}
             >
               Logout

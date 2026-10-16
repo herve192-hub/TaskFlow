@@ -31,8 +31,8 @@ export default function Dashboard() {
       : <Stack spacing={3}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}><StatCard title="Total Tasks" value={tasks.length} icon={<TaskAltIcon color="primary" />} /></Grid>
-          <Grid size={{ xs: 12, md: 4 }}><StatCard title="Completed" value={completed} icon={<CheckCircleIcon color="primary" />} /></Grid>
-          <Grid size={{ xs: 12, md: 4 }}><StatCard title="Projects" value={data?.projects.length ?? 0} icon={<FolderOpenIcon color="primary" />} /></Grid>
+          <Grid size={{ xs: 12, md: 4 }}><StatCard title="Completed" value={completed} tone="secondary" icon={<CheckCircleIcon color="secondary" />} /></Grid>
+          <Grid size={{ xs: 12, md: 4 }}><StatCard title="Projects" value={data?.projects.length ?? 0} tone="info" icon={<FolderOpenIcon color="info" />} /></Grid>
         </Grid>
         <Paper variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
           <Typography variant="h6">Task completion</Typography>

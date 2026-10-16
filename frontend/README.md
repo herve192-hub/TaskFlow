@@ -1,73 +1,122 @@
-# React + TypeScript + Vite
+# TaskFlow frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React and TypeScript application built with Vite, React Router, Material UI,
+Axios, and React Hook Form. [System overview](../README.md) ·
+[Backend](../backend/README.md) · [Production ingress](../deploy/production/README.md).
 
-Currently, two official plugins are available:
+## Application and feature boundaries
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```mermaid
+flowchart TB
+    main["main.tsx: theme and toast providers"] --> routes["AppRoutes: BrowserRouter"]
+    routes --> auth["Auth feature: login, signup, recovery guidance"]
+    routes --> dashboard["Dashboard layout and protected routes"]
+    dashboard --> projects["Project feature: projects, teams, membership"]
+    dashboard --> tasks["Task feature: workspace, project tasks, status controls"]
+    auth --> users["User feature: profile initialization and directory"]
+    projects --> users
+    tasks --> workspace["useWorkspace and loadWorkspace"]
+    workspace --> projectService["projectService"]
+    workspace --> taskService["taskService"]
+    auth --> api["Typed API modules and shared Axios client"]
+    users --> api
+    projects --> projectService
+    projectService --> api
+    tasks --> taskService
+    taskService --> api
+    api --> proxy["Vite development proxy or container NGINX"]
+    proxy --> gateway["Backend API gateway"]
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+`src/api/` owns HTTP paths and response types. Feature services coordinate those
+calls, and pages own loading/error state and user actions. `loadWorkspace`
+exhausts project/task pages, fetching tasks for at most four projects concurrently.
+The live dashboard derives counts, completion percentage, and deadlines from that
+snapshot. Separate dashboard widgets and the topbar's notifications/search still
+contain presentation samples.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Routes and navigation
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```mermaid
+flowchart LR
+    router["AppRoutes"] --> publicPages["Public pages"]
+    publicPages --> login["/ and /login"]
+    publicPages --> signup["/signup: build-flag controlled"]
+    publicPages --> recovery["/forgot-password: administrator guidance"]
+    router --> guard["ProtectedRoute: tab metadata check"]
+    guard --> layout["/dashboard: DashboardLayout"]
+    layout --> overview["Index: live dashboard"]
+    layout --> projects["projects"]
+    layout --> tasks["tasks"]
+    layout --> teams["teams"]
+    layout --> projectTasks["projects/:projectId/tasks"]
+    layout --> members["projects/:projectId/members"]
 ```
+
+The navigation guard reads display metadata from `sessionStorage`; backend cookie
+validation is the authentication boundary. Account IDs from auth, profile document
+IDs, and project membership document IDs are different identifiers. Membership
+and assignment references use the canonical auth account ID.
+
+## Browser authentication and request protection
+
+```mermaid
+sequenceDiagram
+    participant Page as Auth UI and authService
+    participant Client as Shared Axios client
+    participant Edge as Same-origin proxy
+    participant Auth as Auth service
+    participant Tab as sessionStorage
+    Page->>Client: Submit login credentials
+    opt CSRF nonce cookie is absent
+        Client->>Edge: GET /auth/csrf
+        Edge->>Auth: Forward request
+        Auth-->>Edge: Nonce cookie
+        Edge-->>Client: Browser stores nonce
+    end
+    Client->>Edge: POST /auth/login with nonce header
+    Edge->>Auth: Forward credentials and nonce
+    Auth-->>Edge: JSON response and HttpOnly access cookie
+    Edge-->>Client: Browser stores access cookie
+    Client-->>Page: Account response
+    Page->>Tab: Save user display metadata
+    Page->>Client: Ensure current user-service profile
+    Note over Client,Auth: Later writes send cookies and X-XSRF-TOKEN
+```
+
+The client shares an in-flight CSRF initialization request across concurrent writes.
+HTTP 401 clears tab metadata and redirects protected pages to sign-in. Access and
+refresh tokens are never persisted by the session helper. Sign-out asks the server
+to clear its cookie and clears tab metadata even if that request fails. Password
+recovery and provider OAuth flows are not implemented.
+
+## Local development and checks
+
+From this directory:
+
+```bash
+nvm install
+nvm use
+npm ci
+npm run dev
+```
+
+Vite proxies `/auth` and `/api` to `127.0.0.1:8080`. Start the backend stack
+separately. `VITE_*` values are embedded in the public bundle; keep credentials in
+backend secret files and never commit `.env` files. The shared logo component frames
+the original artwork for full, stacked, and compact branding.
+
+| Command | Purpose |
+| --- | --- |
+| `npm run lint` | ESLint checks |
+| `npm run build` | TypeScript checks and Vite production bundle |
+| `npm run test:unit` | Vitest utility tests |
+| `npm run test:integration` | Router/storage integration tests |
+| `npm run test:ci` | Both suites with separate coverage and JUnit reports |
+| `npm run test:e2e` | Chromium smoke tests against the built frontend through Vite preview |
+| `npm run test:e2e:full-stack` | Real-services collaboration and security scenario |
+
+Build the frontend and install the matching browser with
+`npx playwright install --with-deps --only-shell chromium` before smoke tests.
+The full-stack command requires the [isolated Compose environment](../.github/e2e/README.md).
+See the [CI overview](../.github/README.md) for workflow relationships and reporting.
