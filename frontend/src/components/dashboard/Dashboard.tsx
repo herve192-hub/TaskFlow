@@ -6,9 +6,15 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import StatCard from "./StatCard";
 import { useWorkspace } from "../../features/tasks/hooks/useWorkspace";
 import { TaskStatus } from "../../features/tasks/types/task.types";
+import { useCurrentUser } from "../../features/auth/hooks/useCurrentUser";
+import { userDisplayName } from "../../features/users/utils/userName";
+import { useDateFormatter } from "../../features/users/hooks/useDateFormatter";
 
 /** Derive overview counts and recent/deadline lists from the complete live workspace snapshot. */
 export default function Dashboard() {
+  const formatDate = useDateFormatter();
+  const user = useCurrentUser();
+  const welcomeName = user?.firstname.trim() || userDisplayName(user, user?.username?.trim() || "");
   const { data, loading, error, refresh } = useWorkspace();
   const tasks = data?.tasks ?? [];
   const completed = tasks.filter((task) => task.status === TaskStatus.COMPLETED).length;
@@ -18,7 +24,9 @@ export default function Dashboard() {
     .sort((a, b) => Date.parse(a.dueDate!) - Date.parse(b.dueDate!)).slice(0, 5);
   return <Box sx={{ p: { xs: 0, md: 4 } }}>
     <Stack direction="row" sx={{ justifyContent: "space-between", mb: 3 }}>
-      <Box><Typography variant="h4" sx={{ fontWeight: 700 }}>Welcome Back</Typography>
+      <Box><Typography variant="h4" sx={{ fontWeight: 700, overflowWrap: "anywhere" }}>
+          Welcome back{welcomeName ? `, ${welcomeName}` : ""}!
+        </Typography>
         <Typography color="text.secondary">An overview of your projects and their unarchived tasks.</Typography></Box>
       <Button onClick={refresh} disabled={loading}>Refresh</Button>
     </Stack>
@@ -53,7 +61,7 @@ export default function Dashboard() {
             {!deadlines.length && <Typography color="text.secondary">No open tasks with deadlines.</Typography>}
             {deadlines.map((task) => <Box key={task.id} sx={{ mb: 2 }}>
               <Button component={RouterLink} to={`/dashboard/projects/${encodeURIComponent(task.projectId)}/tasks`} sx={{ textAlign: "left", overflowWrap: "anywhere" }}>{task.title}</Button>
-              <Typography variant="body2" color="text.secondary">Due {new Date(task.dueDate!).toLocaleString()}</Typography>
+              <Typography variant="body2" color="text.secondary">Due {formatDate(task.dueDate!, true)}</Typography>
             </Box>)}
           </Paper></Grid>
         </Grid>

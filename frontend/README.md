@@ -13,7 +13,8 @@ flowchart TB
     routes --> dashboard["Dashboard layout and protected routes"]
     dashboard --> projects["Project feature: projects, teams, membership"]
     dashboard --> tasks["Task feature: workspace, project tasks, status controls"]
-    auth --> users["User feature: profile initialization and directory"]
+    auth --> users["User feature: profiles, photos, preferences, directory"]
+    dashboard --> users
     projects --> users
     tasks --> workspace["useWorkspace and loadWorkspace"]
     workspace --> projectService["projectService"]
@@ -49,6 +50,8 @@ flowchart LR
     layout --> projects["projects"]
     layout --> tasks["tasks"]
     layout --> teams["teams"]
+    layout --> profile["profile: personal details and photo"]
+    layout --> settings["settings: account preferences"]
     layout --> projectTasks["projects/:projectId/tasks"]
     layout --> members["projects/:projectId/members"]
 ```
@@ -57,6 +60,18 @@ The navigation guard reads display metadata from `sessionStorage`; backend cooki
 validation is the authentication boundary. Account IDs from auth, profile document
 IDs, and project membership document IDs are different identifiers. Membership
 and assignment references use the canonical auth account ID.
+
+Profile edits use `/api/v1/users/me`; the server determines ownership from the
+authenticated account. Uploaded PNG/JPEG photos are cropped to 256 pixels square,
+and the backend validates their type, dimensions, and size. Phone numbers and bios
+stay out of directory summaries. Saved names/photos update the header and greeting,
+and are restored from the profile service on reload and sign-in.
+
+Settings persist time zone, date format, 24-hour time, and the page opened after
+sign-in at `/api/v1/users/me/preferences`. Dashboard deadlines, task lists, and team
+join dates use those preferences. Task creation labels its date input with the
+device time zone. Display metadata is reactive within the tab; private phone/bio
+fields are fetched for the profile page rather than cached in browser storage.
 
 ## Browser authentication and request protection
 
@@ -114,7 +129,7 @@ the original artwork for full, stacked, and compact branding.
 | `npm run test:integration` | Router/storage integration tests |
 | `npm run test:ci` | Both suites with separate coverage and JUnit reports |
 | `npm run test:e2e` | Chromium smoke tests against the built frontend through Vite preview |
-| `npm run test:e2e:full-stack` | Real-services collaboration and security scenario |
+| `npm run test:e2e:full-stack` | Real-services collaboration, profiles, preferences, and security scenarios |
 
 Build the frontend and install the matching browser with
 `npx playwright install --with-deps --only-shell chromium` before smoke tests.

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
+import { useDateFormatter } from "../features/users/hooks/useDateFormatter";
 import { Alert, Box, Button, Card, CardContent, Chip, CircularProgress, MenuItem, Pagination, Stack, TextField, Typography } from "@mui/material";
 import { useWorkspace } from "../features/tasks/hooks/useWorkspace";
 import CreateTaskDialog from "../features/tasks/components/CreateTaskDialog";
@@ -7,6 +8,7 @@ import { taskService } from "../features/tasks/services/taskService";
 
 /** Filter and paginate the fully loaded workspace locally; creation is scoped to the selected project. */
 export default function Tasks() {
+  const formatDate = useDateFormatter();
   const { data, loading, error, refresh } = useWorkspace();
   const [projectId, setProjectId] = useState("");
   const [page, setPage] = useState(1);
@@ -42,7 +44,7 @@ export default function Tasks() {
             <Chip size="small" variant="outlined" label={task.priority} />
             <Chip size="small" variant="outlined" label={task.type} />
           </Stack>
-          {task.dueDate && <Typography variant="body2" sx={{ mt: 2 }}>Due {new Date(task.dueDate).toLocaleString()}</Typography>}
+          {task.dueDate && <Typography variant="body2" sx={{ mt: 2 }}>Due {formatDate(task.dueDate, true)}</Typography>}
         </CardContent></Card>)}
         {pageCount > 1 && <Pagination count={pageCount} page={currentPage} onChange={(_, value) => setPage(value)} />}
       </Stack>}

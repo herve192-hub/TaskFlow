@@ -109,6 +109,15 @@ public class UserController {
         );
     }
 
+    /** Preferences are owned by the signed subject; the request cannot target another account. */
+    @PutMapping("/me/preferences")
+    public ResponseEntity<UserResponse> updatePreferences(
+            @Valid @RequestBody com.taskflow.user_service.domain.UserPreferences preferences,
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(userService.updatePreferences(authentication.getName(), preferences));
+    }
+
     @DeleteMapping("/me")
     public ResponseEntity<Void> deactivateProfile(
             Authentication authentication

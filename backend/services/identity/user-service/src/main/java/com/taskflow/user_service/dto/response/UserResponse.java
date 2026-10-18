@@ -1,6 +1,7 @@
 package com.taskflow.user_service.dto.response;
 
 import com.taskflow.user_service.domain.enums.UserStatus;
+import com.taskflow.user_service.domain.UserPreferences;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,6 +35,8 @@ public class UserResponse {
     private String avatarUrl;
 
     private String bio;
+
+    private UserPreferences preferences;
 
     private UserStatus status;
 

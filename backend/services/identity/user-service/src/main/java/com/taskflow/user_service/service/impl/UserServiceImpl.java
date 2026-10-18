@@ -142,13 +142,21 @@ public class UserServiceImpl implements UserService {
         User user =
                 findByAuthUserId(authUserId);
 
-        user.setAvatarUrl(
-                request.getAvatarUrl()
-        );
+        user.setAvatarUrl(com.taskflow.user_service.util.AvatarImages.validate(request.getAvatarUrl()));
 
         return mapper.toResponse(
                 repository.save(user)
         );
+    }
+
+    @Override
+    public UserResponse updatePreferences(String authUserId, com.taskflow.user_service.domain.UserPreferences preferences) {
+        if (preferences == null || !java.time.ZoneId.getAvailableZoneIds().contains(preferences.getTimeZone())) {
+            throw new InvalidUserException("Choose a valid time zone");
+        }
+        User user = findByAuthUserId(authUserId);
+        user.setPreferences(preferences);
+        return mapper.toResponse(repository.save(user));
     }
 
     @Override

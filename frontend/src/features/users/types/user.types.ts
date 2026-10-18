@@ -18,3 +18,25 @@ export interface UserSearchPage {
   totalElements: number;
   totalPages: number;
 }
+
+export interface UserPreferences {
+  timeZone: string;
+  dateFormat: "MONTH_DAY_YEAR" | "DAY_MONTH_YEAR" | "YEAR_MONTH_DAY";
+  startPage: "DASHBOARD" | "PROJECTS" | "TASKS" | "TEAMS";
+  use24HourTime: boolean;
+}
+
+export interface UserProfile extends UserSummary {
+  phone: string | null;
+  bio: string | null;
+  createdAt: string;
+  updatedAt: string;
+  preferences: UserPreferences;
+}
+
+export interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  bio: string;
+}

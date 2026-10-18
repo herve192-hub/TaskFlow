@@ -27,6 +27,8 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 
 import { collapsedDrawerWidth, drawerWidth } from "./layoutConstants";
 import { authService } from "../../features/auth/services/authService";
+import { useCurrentUser } from "../../features/auth/hooks/useCurrentUser";
+import { userDisplayName } from "../../features/users/utils/userName";
 import TaskFlowLogo from "../TaskFlowLogo";
 import { brandGradient, brandWash } from "../../theme/theme";
 
@@ -38,6 +40,11 @@ type TopbarProps = {
 /** Responsive dashboard header with account actions and local search/notification presentation state. */
 export default function Topbar({ collapsed }: TopbarProps) {
   const navigate = useNavigate();
+  const user = useCurrentUser();
+  const displayName = userDisplayName(user, user?.username?.trim() || "Your account");
+  const nameParts = displayName.split(/\s+/);
+  const initials = user ? [nameParts[0], ...(nameParts.length > 1 ? nameParts.slice(-1) : [])]
+    .map((part) => Array.from(part)[0]).join("").toLocaleUpperCase() : "?";
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const [searchQuery, setSearchQuery] = useState("");
@@ -135,7 +142,7 @@ export default function Topbar({ collapsed }: TopbarProps) {
               {searchQuery && (
                 <Paper sx={{ mt: 0.5, maxHeight: 240, overflow: "auto" }}>
                   <List dense>
-                    {["Create task", "Project A", "Haris"].
+                    {["Create task", "Project A", displayName].
                       filter((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
                       .map((s, i) => (
                         <ListItem key={i} disablePadding>
@@ -168,7 +175,7 @@ export default function Topbar({ collapsed }: TopbarProps) {
                   </Paper>
                   {searchQuery && (
                     <List dense sx={{ mt: 1, maxHeight: 200, overflow: "auto" }}>
-                      {["Create task", "Project A", "Haris"].
+                      {["Create task", "Project A", displayName].
                         filter((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
                         .map((s, i) => (
                           <ListItem key={i} disablePadding>
@@ -228,27 +235,39 @@ export default function Topbar({ collapsed }: TopbarProps) {
             </MenuItem>
           </Menu>
 
-          <Avatar
+          <IconButton
+            id="account-menu-button"
+            aria-label={`Open account menu for ${displayName}`}
+            aria-controls={open ? "account-menu" : undefined}
+            aria-haspopup="menu"
+            aria-expanded={open ? "true" : undefined}
             onClick={handleClick}
-            sx={{
-              bgcolor: "primary.main",
-              backgroundImage: brandGradient,
-              color: "primary.contrastText",
-              cursor: "pointer",
-              width: { xs: 34, sm: 40 },
-              height: { xs: 34, sm: 40 },
-              border: "2px solid",
-              borderColor: "primary.light",
-            }}
+            sx={{ p: 0.25 }}
           >
-            H
-          </Avatar>
+            <Avatar
+              src={user?.profileImage || undefined}
+              alt={displayName}
+              sx={{
+                bgcolor: "primary.main",
+                backgroundImage: brandGradient,
+                color: "primary.contrastText",
+                width: { xs: 34, sm: 40 },
+                height: { xs: 34, sm: 40 },
+                border: "2px solid",
+                borderColor: "primary.light",
+              }}
+            >
+              {initials}
+            </Avatar>
+          </IconButton>
 
           <Menu
+            id="account-menu"
             anchorEl={anchorEl}
             open={open}
             onClose={handleClose}
             slotProps={{
+              list: { "aria-labelledby": "account-menu-button" },
               paper: {
                 sx: {
                   mt: 1.6,
@@ -275,6 +294,8 @@ export default function Topbar({ collapsed }: TopbarProps) {
               }}
             >
               <Avatar
+                src={user?.profileImage || undefined}
+                alt={displayName}
                 sx={{
                   width: 36,
                   height: 36,
@@ -284,21 +305,24 @@ export default function Topbar({ collapsed }: TopbarProps) {
                   fontWeight: 700,
                 }}
               >
-                H
+                {initials}
               </Avatar>
-              <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                  Haris
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700, overflowWrap: "anywhere" }}>
+                  {displayName}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  haris@email.com
-                </Typography>
+                {user?.email && <Typography variant="caption" color="text.secondary" sx={{ overflowWrap: "anywhere" }}>
+                  {user.email}
+                </Typography>}
               </Box>
             </Box>
 
             <Box sx={{ borderTop: "1px solid", borderColor: "divider", my: 0.8, mx: 1 }} />
 
             <MenuItem
+              component={Link}
+              to="/dashboard/profile"
+              onClick={handleClose}
               sx={{
                 py: 1.3,
                 px: 1.8,
@@ -314,6 +338,9 @@ export default function Topbar({ collapsed }: TopbarProps) {
             </MenuItem>
 
             <MenuItem
+              component={Link}
+              to="/dashboard/settings"
+              onClick={handleClose}
               sx={{
                 py: 1.3,
                 px: 1.8,

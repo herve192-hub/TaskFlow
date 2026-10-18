@@ -15,6 +15,8 @@ services through NGINX and an API gateway. Kafka carries task lifecycle events.
 ## ✨ Features
 
 * User Registration and Login
+* Editable Profiles and Profile Photos
+* Saved Time Zone, Date Format, and Sign-in Page Preferences
 * JWT Authentication & Authorization
 * Project Management
 * Task Creation, Assignment, and Tracking
@@ -164,7 +166,7 @@ TaskFlow branding and the email/password sign-in form.
 
 ### Dashboard
 
-Live project and task totals, completion progress, recent work, and upcoming deadlines.
+A personalized welcome, live project and task totals, completion progress, recent work, and upcoming deadlines.
 
 ![TaskFlow dashboard showing three projects, twelve tasks, and 25 percent completion](docs/screenshots/dashboard.png)
 
@@ -185,6 +187,18 @@ Tasks show their priority, type, deadline, and status controls governed by proje
 Project membership with an owner, admin, manager, and member, plus role management controls.
 
 ![Customer Portal team with fictional members and project-specific roles](docs/screenshots/project-team.png)
+
+### My Profile
+
+Edit personal details and upload or remove a profile photo. Saved names and photos appear in the account menu and workspace.
+
+![TaskFlow profile page with fictional personal details and profile photo controls](docs/screenshots/profile.png)
+
+### Settings
+
+Save the time zone, date format, clock style, and page opened after sign-in for your account.
+
+![TaskFlow settings showing saved workspace preferences and account actions](docs/screenshots/settings.png)
 
 ---
 

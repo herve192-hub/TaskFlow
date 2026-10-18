@@ -58,6 +58,9 @@ public class User {
     private String bio;
 
     @Builder.Default
+    private UserPreferences preferences = new UserPreferences();
+
+    @Builder.Default
     private UserStatus status = UserStatus.ACTIVE;
 
     @CreatedDate
