@@ -10,7 +10,8 @@ import AddProjectMemberDialog from "../features/projects/components/AddProjectMe
 import { projectService } from "../features/projects/services/projectService";
 import { userService } from "../features/users/services/userService";
 import { userDisplayName } from "../features/users/utils/userName";
-import { authService } from "../features/auth/services/authService";
+import { useCurrentUser } from "../features/auth/hooks/useCurrentUser";
+import { useDateFormatter } from "../features/users/hooks/useDateFormatter";
 import { ProjectRole } from "../features/projects/types/project.types";
 import type {
   AddProjectMemberRequest, PageResponse, ProjectAccessResponse, ProjectMemberResponse, ProjectResponse,
@@ -31,7 +32,8 @@ function ProjectTeam({ projectId }: { projectId: string }) {
   const [access, setAccess] = useState<ProjectAccessResponse | null>(null);
   const [result, setResult] = useState<PageResponse<ProjectMemberResponse> | null>(null);
   const [profiles, setProfiles] = useState<Map<string, UserSummary>>(new Map());
-  const [sessionUser] = useState(() => authService.getCurrentUser());
+  const sessionUser = useCurrentUser();
+  const formatDate = useDateFormatter();
   const [page, setPage] = useState(0);
   const [revision, setRevision] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -167,7 +169,7 @@ function ProjectTeam({ projectId }: { projectId: string }) {
                   <Box sx={{ minWidth: 0 }}>
                     <Typography sx={{ fontWeight: 600, overflowWrap: "anywhere" }}>{nameFor(member)}{member.userId === access?.userId ? " (you)" : ""}</Typography>
                     {profile?.email && <Typography variant="body2" color="text.secondary" sx={{ overflowWrap: "anywhere" }}>{profile.email}</Typography>}
-                    {member.joinedAt && <Typography variant="caption" color="text.secondary">Joined {new Date(member.joinedAt).toLocaleDateString()}</Typography>}
+                    {member.joinedAt && <Typography variant="caption" color="text.secondary">Joined {formatDate(member.joinedAt)}</Typography>}
                   </Box>
                 </Stack>
                 {access?.canManageMembers && !owner ? <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>

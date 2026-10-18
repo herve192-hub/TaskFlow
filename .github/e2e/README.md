@@ -56,6 +56,12 @@ exclusion, persisted task completion, dashboard progress, Kafka events, and memb
 removal. A separate fixture trusts a temporary test certificate and checks HTTPS,
 hostname/CA rejection, headers, and rate limits with the production NGINX config.
 
+A second browser scenario edits and reloads private profile details, rejects SVG
+and external photo URLs, uploads/removes a real PNG, saves time-zone/date/start-page
+preferences, and verifies that a later sign-in restores them. It also checks that
+private profile fields stay out of directory responses and that actual task
+deadlines use the selected time zone.
+
 Run the [documented local procedure](../CI.md#full-stack-collaboration-test) from
 the repository root. Test setup uses one worker with no scenario retries. CI
 uploads selected browser reports and redacted container logs with 14-day retention;

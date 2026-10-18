@@ -43,6 +43,9 @@ are grouped. Secret summaries show only the rule and location, never the match.
 The JSON report remains available in the uploaded artifact after secret matches
 and source snippets are removed. Report artifacts upload only after successful
 redaction; vulnerability and configuration metadata and secret locations remain.
+If an earlier build or setup step fails and Trivy is skipped, its summary and
+report upload are skipped too. A scan that runs and fails still triggers the
+summary; a missing or invalid report from an attempted scan remains an error.
 
 The backend asserts that both test suites actually executed. Frontend unit and
 integration suites run separately so an empty suite fails. Reports are uploaded
@@ -128,7 +131,11 @@ and JAR. NGINX runs as its existing unprivileged account, uses a writable PID/ca
 location, and listens on container port 8080. Compose still exposes the frontend
 on the same host port, 5173 by default. The pinned frontend base image needed
 three additional Alpine fixes: `pcre2=10.49-r0`, `tiff=4.7.2-r0`, and
-`libexpat=2.8.5-r0`.
+`libexpat=2.9.0-r0`. The earlier `libexpat=2.8.5-r0` pin was unavailable
+in the Alpine 3.24 repositories and prevented clean frontend image builds. The
+replacement is an available fixed release; the high/critical scan gate remains
+enabled. Validate package pin changes with an uncached image build and runtime
+image scan, since a cached package-install layer can hide repository changes.
 
 Local validation passed all 70 backend unit tests and 10 integration tests against
 an isolated MongoDB 8.0.5 container. Both repository scanning and packaged-JAR

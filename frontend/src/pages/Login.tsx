@@ -29,6 +29,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import MuiLink from "@mui/material/Link";
 
 import { authService } from "../features/auth/services/authService";
+import { startPagePath } from "../features/users/utils/preferences";
 import type { LoginRequest } from "../features/auth/types/auth.types";
 
 import { useNavigate } from "react-router-dom";
@@ -68,7 +69,7 @@ const onSubmit = async (data: LoginRequest) => {
 
         toast.success("Login successful");
 
-        navigate("/dashboard");
+        navigate(startPagePath(authService.getCurrentUser()?.preferences));
     } catch (error) {
         if (axios.isAxiosError(error)) {
         const message =

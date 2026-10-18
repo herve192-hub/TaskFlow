@@ -1,3 +1,5 @@
+import type { UserPreferences } from "../../users/types/user.types";
+
 export interface LoginRequest {
     email: string;
     password: string;
@@ -25,6 +27,7 @@ export interface AuthUser {
     provider: string;
     emailVerified: boolean;
     profileImage?: string | null;
+    preferences?: UserPreferences;
     createdAt: string;
 }
 

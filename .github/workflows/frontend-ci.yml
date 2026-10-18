@@ -146,6 +146,7 @@ jobs:
         run: docker build --tag "taskflow/frontend:$GITHUB_SHA" frontend
 
       - name: Scan runtime image dependencies
+        id: trivy_scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           # Inspect the final NGINX image; npm dependency auditing is handled above.
@@ -157,10 +158,10 @@ jobs:
           format: json
           output: image-security.json
 
-      # Replace the raw scan report with a redacted copy, including when the scan fails.
+      # Redact successful or failed scans; a skipped scan has no report to summarize.
       - name: Show security findings in the log and job summary
         id: security_summary
-        if: always()
+        if: always() && (steps.trivy_scan.outcome == 'success' || steps.trivy_scan.outcome == 'failure')
         run: python3 .github/scripts/summarize-trivy.py image-security.json
 
       - name: Upload image scan report

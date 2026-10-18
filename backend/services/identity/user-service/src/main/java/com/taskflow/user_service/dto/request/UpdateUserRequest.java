@@ -1,6 +1,7 @@
 package com.taskflow.user_service.dto.request;
 
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,9 +17,11 @@ import lombok.Setter;
 public class UpdateUserRequest {
 
     @Size(max = 100)
+    @Pattern(regexp = "(?s).*\\S.*", message = "First name cannot be blank")
     private String firstName;
 
     @Size(max = 100)
+    @Pattern(regexp = "(?s).*\\S.*", message = "Last name cannot be blank")
     private String lastName;
 
     @Size(max = 30)

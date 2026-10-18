@@ -32,6 +32,9 @@ public class UserMapper {
                 mapper.map(user, UserResponse.class);
 
         response.setFullName(buildFullName(user));
+        if (response.getPreferences() == null) {
+            response.setPreferences(new com.taskflow.user_service.domain.UserPreferences());
+        }
 
         return response;
     }

@@ -150,6 +150,7 @@ jobs:
         run: bash ./mvnw --batch-mode --no-transfer-progress clean install -DskipTests
 
       - name: Scan manifests, configuration, secrets, or resolved backend dependencies
+        id: trivy_scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         env:
           # Internal modules are available locally; packaged JARs contain resolved dependencies.
@@ -166,10 +167,10 @@ jobs:
           format: json
           output: security-${{ matrix.target }}.json
 
-      # Always attempt redaction and a readable summary, even when Trivy fails its severity gate.
+      # Redact successful or failed scans; a skipped scan has no report to summarize.
       - name: Show security findings in the log and job summary
         id: security_summary
-        if: always()
+        if: always() && (steps.trivy_scan.outcome == 'success' || steps.trivy_scan.outcome == 'failure')
         env:
           REPORT_PATH: security-${{ matrix.target }}.json
         run: python3 .github/scripts/summarize-trivy.py "$REPORT_PATH"

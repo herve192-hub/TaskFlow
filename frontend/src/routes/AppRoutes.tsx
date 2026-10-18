@@ -13,6 +13,8 @@ import Tasks from "../pages/Tasks";
 import ProjectTasks from "../pages/ProjectTasks";
 import ProjectMembers from "../pages/ProjectMembers";
 import Teams from "../pages/Teams";
+import Profile from "../pages/Profile";
+import Settings from "../pages/Settings";
 
 import DashboardLayout from "../components/DashboardLayout";
 import Dashboard from "../components/dashboard/Dashboard";
@@ -48,6 +50,8 @@ export default function AppRoutes() {
           <Route path="projects" element={<Projects />} />
           <Route path="tasks" element={<Tasks />} />
           <Route path="teams" element={<Teams />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="settings" element={<Settings />} />
           <Route path="projects/:projectId/tasks" element={<ProjectTasks />} />
           <Route path="projects/:projectId/members" element={<ProjectMembers />} />
         </Route>

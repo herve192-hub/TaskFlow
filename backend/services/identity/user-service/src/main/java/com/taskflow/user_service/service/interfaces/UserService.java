@@ -46,6 +46,8 @@ public interface UserService {
             UpdateAvatarRequest request
     );
 
+    UserResponse updatePreferences(String authUserId, com.taskflow.user_service.domain.UserPreferences preferences);
+
     boolean existsByAuthUserId(
             String authUserId
     );

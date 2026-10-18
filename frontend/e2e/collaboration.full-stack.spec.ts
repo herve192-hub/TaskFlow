@@ -57,6 +57,15 @@ async function registerAndSignIn(page: Page, user: Account): Promise<Session> {
   expect(auth.user.id).toEqual(expect.any(String))
   await expect(page).toHaveURL(/\/dashboard$/)
   await expect(page.getByRole('progressbar', { name: 'Loading dashboard' })).toBeHidden()
+  await expect(page.getByRole('heading', { name: `Welcome back, ${user.firstname}!`, exact: true })).toBeVisible()
+  const accountButton = page.getByRole('button', { name: `Open account menu for ${user.firstname} ${user.lastname}`, exact: true })
+  await expect(accountButton).toHaveText(`${user.firstname[0]}${user.lastname[0]}`.toUpperCase())
+  await accountButton.click()
+  const accountMenu = page.getByRole('menu')
+  await expect(accountMenu.getByText(`${user.firstname} ${user.lastname}`, { exact: true })).toBeVisible()
+  await expect(accountMenu.getByText(user.email, { exact: true })).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(accountMenu).toBeHidden()
   const api = await request.newContext({
     baseURL: gatewayURL, extraHTTPHeaders: { Authorization: `Bearer ${auth.accessToken}` },
   })

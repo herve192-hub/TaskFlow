@@ -9,6 +9,7 @@ import { taskService } from "../features/tasks/services/taskService";
 import type { CreateTaskRequest, PageResponse, TaskSummaryResponse } from "../features/tasks/types/task.types";
 
 import { TaskStatus } from "../features/tasks/types/task.types";
+import { useDateFormatter } from "../features/users/hooks/useDateFormatter";
 
 /** Key the project view by its route ID so pagination and pending state reset when projects change. */
 export default function ProjectTasks() {
@@ -17,6 +18,7 @@ export default function ProjectTasks() {
 }
 
 function ProjectTaskList({ projectId }: { projectId: string }) {
+  const formatDate = useDateFormatter();
   const [result, setResult] = useState<PageResponse<TaskSummaryResponse> | null>(null);
   const [page, setPage] = useState(0);
   const [revision, setRevision] = useState(0);
@@ -82,7 +84,7 @@ function ProjectTaskList({ projectId }: { projectId: string }) {
               <TaskStatusControl task={task} onUpdated={(updated) => setResult((current) => current ? {
                 ...current, content: current.content.map((item) => item.id === updated.id ? updated : item),
               } : current)} />
-              {task.dueDate && <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>Due {new Date(task.dueDate).toLocaleString()}</Typography>}
+              {task.dueDate && <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>Due {formatDate(task.dueDate, true)}</Typography>}
             </CardContent>
           </Card>)}
           {result.totalPages > 1 && <Pagination count={result.totalPages} page={page + 1} onChange={(_, value) => { setLoading(true); setPage(value - 1); }} aria-label="Task pages" />}

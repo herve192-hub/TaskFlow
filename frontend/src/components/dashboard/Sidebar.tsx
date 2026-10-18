@@ -5,6 +5,7 @@ import TaskIcon from "@mui/icons-material/Task";
 import FolderIcon from "@mui/icons-material/Folder";
 import GroupIcon from "@mui/icons-material/Group";
 import SettingsIcon from "@mui/icons-material/Settings";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutlineOutlined";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
@@ -41,6 +42,11 @@ const navigationItems = [
     label: "Teams",
     icon: <GroupIcon />,
     path: "/dashboard/teams",
+  },
+  {
+    label: "My profile",
+    icon: <PersonOutlineIcon />,
+    path: "/dashboard/profile",
   },
   {
     label: "Settings",

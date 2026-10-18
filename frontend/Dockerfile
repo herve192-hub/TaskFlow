@@ -18,8 +18,9 @@ RUN npm run build
 
 FROM nginx:1.30.5-alpine3.24@sha256:0985e772fb9f729e6fa0980da05fca5d9c468e870eed43071545afa9d2e27d94
 
-# Fixed releases for CVEs still present in the pinned base image.
-RUN apk add --no-cache pcre2=10.49-r0 tiff=4.7.2-r0 libexpat=2.8.5-r0 && \
+# Fixed releases available in the base image's Alpine 3.24 repositories.
+# Keep exact pins in sync with the repository; unavailable versions fail clean CI builds.
+RUN apk add --no-cache pcre2=10.49-r0 tiff=4.7.2-r0 libexpat=2.9.0-r0 && \
     mkdir -p /var/cache/nginx && \
     chown -R nginx:nginx /var/cache/nginx && \
     sed -i '/^user /d; s@^pid[[:space:]].*;@pid /tmp/nginx.pid;@' /etc/nginx/nginx.conf

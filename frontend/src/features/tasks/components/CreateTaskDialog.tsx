@@ -68,7 +68,7 @@ export default function CreateTaskDialog({ open, projectId, onClose, onCreate }:
               onChange={(event) => setType(event.target.value as TaskType)}>
               {Object.values(TaskType).map((value) => <MenuItem key={value} value={value}>{value}</MenuItem>)}
             </TextField>
-            <TextField label="Due date" type="datetime-local" value={dueDate} disabled={loading}
+            <TextField label="Due date" helperText={`Enter time in your device's time zone (${Intl.DateTimeFormat().resolvedOptions().timeZone}).`} type="datetime-local" value={dueDate} disabled={loading}
               onChange={(event) => setDueDate(event.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
           </Stack>
         </DialogContent>

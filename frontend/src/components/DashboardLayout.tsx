@@ -1,6 +1,7 @@
 // DashboardLayout.tsx ...
 import { Box, Toolbar, useMediaQuery, useTheme } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { userService } from "../features/users/services/userService";
 import { Outlet } from "react-router-dom";
 
 import Sidebar from "./dashboard/Sidebar";
@@ -8,6 +9,10 @@ import Topbar from "./dashboard/Topbar";
 
 /** Persistent dashboard chrome; nested routes render inside Outlet below the fixed toolbar. */
 export default function DashboardLayout() {
+  useEffect(() => {
+    // Refresh profile display/preferences on a full reload; workspace access survives directory outages.
+    void userService.getCurrentProfile().catch(() => {});
+  }, []);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [collapsed, setCollapsed] = useState(false);
