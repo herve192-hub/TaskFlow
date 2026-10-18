@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import { apiErrorMessage } from "../utils/apiError";
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { Alert, Box, Button, Card, CardContent, CircularProgress, Pagination, Stack, Typography, TextField, MenuItem } from "@mui/material";
 import WorkBadge from "../components/WorkBadge";
@@ -36,8 +36,7 @@ function ProjectTaskList({ projectId }: { projectId: string }) {
         const response = await taskService.getProjectTasks(projectId, page);
         if (active) setResult(response);
       } catch (error) {
-        if (active) setError(axios.isAxiosError(error) && typeof error.response?.data?.message === "string"
-          ? error.response.data.message : "Unable to load tasks. Please try again.");
+        if (active) setError(apiErrorMessage(error, "Unable to load tasks. Please try again."));
       } finally {
         if (active) setLoading(false);
       }
@@ -126,8 +125,7 @@ function TaskStatusControl({ task, onUpdated }: {
       onUpdated(updated);
       setSaved(true);
     } catch (error) {
-      setError(axios.isAxiosError(error) && typeof error.response?.data?.message === "string"
-        ? error.response.data.message : "Unable to update status. Please try again.");
+      setError(apiErrorMessage(error, "Unable to update status. Please try again."));
     } finally {
       pending.current = false;
       setSaving(false);

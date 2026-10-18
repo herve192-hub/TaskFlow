@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import type { FormEvent } from "react";
-import axios from "axios";
+import { apiErrorMessage } from "../../../utils/apiError";
 import {
   Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle,
   MenuItem, Stack, TextField,
@@ -42,8 +42,7 @@ export default function CreateTaskDialog({ open, projectId, onClose, onCreate }:
       });
       onClose();
     } catch (error) {
-      setError(axios.isAxiosError(error) && typeof error.response?.data?.message === "string"
-        ? error.response.data.message : "Unable to create task. Please try again.");
+      setError(apiErrorMessage(error, "Unable to create task. Please try again."));
     } finally {
       submitting.current = false;
       setLoading(false);

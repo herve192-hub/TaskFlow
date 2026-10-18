@@ -45,11 +45,6 @@ export const authService = {
     return auth;
   },
 
-  // No recovery endpoint exists yet; callers must not display a simulated email-delivery success.
-  async forgotPassword(): Promise<void> {
-    throw new Error('Password recovery is not configured. Contact your administrator.')
-  },
-
   /** Clear tab metadata even on failure; the server call is responsible for clearing the browser cookie. */
   async logout(): Promise<void> {
     try {

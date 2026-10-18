@@ -53,7 +53,9 @@ public class AuthController {
     /** Clear this browser's cookie; previously issued bearer tokens expire independently. */
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(Authentication authentication) {
-        com.taskflow.security.SecurityAudit.record("sign_out", authentication.getName(), "auth");
+        String actor = authentication.getPrincipal() instanceof
+                com.taskflow.auth_service.security.model.CustomUserDetails user ? user.getId() : null;
+        com.taskflow.security.SecurityAudit.record("sign_out", actor, "auth");
         return ResponseEntity.noContent().cacheControl(CacheControl.noStore())
                 .header(HttpHeaders.SET_COOKIE, accessCookie("", Duration.ZERO)).build();
     }
@@ -78,11 +80,15 @@ public class AuthController {
         AuthResponse response
                 = authService.register(request);
 
-        return ResponseEntity
+        var result = ResponseEntity
                 .status(HttpStatus.CREATED)
-                .cacheControl(CacheControl.noStore())
-                .header(HttpHeaders.SET_COOKIE, accessCookie(response.getAccessToken(), Duration.ofMillis(jwtProperties.getExpiration())))
-                .body(response);
+                .cacheControl(CacheControl.noStore());
+        // Approved account provisioning must preserve the administrator's existing browser identity.
+        if (publicRegistration) {
+            result.header(HttpHeaders.SET_COOKIE,
+                    accessCookie(response.getAccessToken(), Duration.ofMillis(jwtProperties.getExpiration())));
+        }
+        return result.body(response);
     }
 
     @PostMapping("/login")

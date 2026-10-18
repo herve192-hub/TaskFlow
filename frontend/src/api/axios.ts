@@ -8,6 +8,7 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
   withCredentials: true,
+  timeout: 15_000, // Bound stalled requests so forms and loading views can recover.
 });
 
 // Share one nonce-initialization request when several writes start before the CSRF cookie exists.

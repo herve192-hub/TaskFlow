@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { apiErrorMessage } from "../utils/apiError";
 import { Link as RouterLink } from "react-router-dom";
 
 import {
@@ -32,41 +32,10 @@ import type {
 export default function Projects() {
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
+  const [revision, setRevision] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-
-const loadProjects = async () => {
-  try {
-    setLoading(true);
-    setError(null);
-
-    const response = await projectService.getProjects();
-
-    console.log("PROJECTS RESPONSE:", response);
-
-    setProjects(response.content);
-  } catch (error) {
-    console.error("LOAD PROJECTS ERROR:", error);
-
-    if (axios.isAxiosError(error)) {
-      console.error("Status:", error.response?.status);
-      console.error("Response:", error.response?.data);
-      console.error("URL:", error.config?.url);
-
-      setError(
-        error.response?.data?.message ??
-          `Unable to load projects (${error.response?.status ?? "network error"}).`
-      );
-    } else {
-      console.error("Unexpected error:", error);
-      setError("Unable to load projects.");
-    }
-  } finally {
-    setLoading(false);
-  }
-};
 
   useEffect(() => {
     // Ignore the initial request's late result when this route unmounts.
@@ -89,21 +58,7 @@ const loadProjects = async () => {
           return;
         }
 
-        console.error("LOAD PROJECTS ERROR:", error);
-
-        if (axios.isAxiosError(error)) {
-          console.error("Status:", error.response?.status);
-          console.error("Response:", error.response?.data);
-          console.error("URL:", error.config?.url);
-
-          setError(
-            error.response?.data?.message ??
-              `Unable to load projects (${error.response?.status ?? "network error"}).`
-          );
-        } else {
-          console.error("Unexpected error:", error);
-          setError("Unable to load projects.");
-        }
+        setError(apiErrorMessage(error, "Unable to load projects. Please try again."));
       } finally {
         if (active) {
           setLoading(false);
@@ -116,34 +71,12 @@ const loadProjects = async () => {
     return () => {
       active = false;
     };
-  }, []);
+  }, [revision]);
 
-  const handleCreateProject = async (
-    request: CreateProjectRequest
-  ) => {
-    try {
-      setCreating(true);
-      setError(null);
-
-      await projectService.createProject(request);
-
-      setDialogOpen(false);
-
-      await loadProjects();
-    } catch (error) {
-      console.error("Unable to create project:", error);
-
-      if (axios.isAxiosError(error)) {
-        setError(
-          error.response?.data?.message ??
-            "Unable to create project."
-        );
-      } else {
-        setError("Unable to create project.");
-      }
-    } finally {
-      setCreating(false);
-    }
+  const handleCreateProject = async (request: CreateProjectRequest) => {
+    await projectService.createProject(request);
+    setLoading(true);
+    setRevision(value => value + 1);
   };
 
   return (
@@ -314,12 +247,11 @@ const loadProjects = async () => {
         </Box>
       )}
 
-      <CreateProjectDialog
-        open={dialogOpen}
-        loading={creating}
+      {dialogOpen && <CreateProjectDialog
+        open
         onClose={() => setDialogOpen(false)}
         onCreate={handleCreateProject}
-      />
+      />}
     </Box>
   );
 }

@@ -2,7 +2,14 @@
 # Keep credential values in runtime properties/secret files rather than this repository.
 
 spring:
-  # MongoDB URIs are configured separately for each service's database account.
+  # Bound internal waits; writes are not automatically retried without an idempotency contract.
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 2000
+            readTimeout: 5000
 
 kafka:
   bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}

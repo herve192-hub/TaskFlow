@@ -52,6 +52,14 @@ flowchart TB
 | `control` (`internal: true`) | Gateway, Config Server, Eureka, and all four business services |
 | `data-egress` | Auth, user, project, and task services |
 
+Every application service has an explicit non-root UID, a read-only filesystem,
+bounded memory/process counts, and rotating local logs. Backend containers get
+45 seconds to stop, exceeding Spring's 30-second graceful shutdown phase; NGINX
+gets 30 seconds. Internal Feign requests have 2-second connection and 5-second
+read timeouts; gateway responses are bounded at 10 seconds, and browser requests
+at 15 seconds. These are initial operational limits, not a load-tested capacity
+or availability guarantee.
+
 All four business services also fetch configuration and register/discover instances
 on `control`. Internal application HTTP relies on the trusted host/network; the
 diagram's external TLS connections do not imply internal mTLS. Only the NGINX TLS
@@ -138,6 +146,7 @@ accounts through authenticated `POST /auth/register`; the request uses the same
 CSRF protection as other cookie-authenticated writes. No public endpoint grants
 administrator roles. Account recovery is currently unavailable in the application;
 establish a verified administrator recovery process before deployment.
+Provisioning a new account preserves the administrator's existing browser cookie.
 
 From this directory, use the pinned application image builds or independently
 verified release images, then wait for every service to become healthy:
@@ -159,16 +168,31 @@ tests RSA authentication and scoped secret files, infrastructure authentication,
 the collaboration workflow, CSRF and authorization failures. A separate fixture
 uses this exact NGINX configuration to verify HTTPS, certificate/hostname checks,
 security headers, and rate limits with a temporary certificate explicitly trusted
-by the test client. It never disables certificate verification.
+by the test client. It uses a separate frontend image built with public registration
+disabled and never disables certificate verification.
+
+From the repository root, run the production policy gate before deploying:
+
+```bash
+python3 .github/scripts/test-verify-production-compose.py
+python3 .github/scripts/verify-production-compose.py
+```
+
+The gate renders both deployment variants using synthetic public settings and
+rejects exposed backend ports, root users, disabled isolation or healthchecks,
+missing resource/log limits, unsafe onboarding, and signing-key distribution
+regressions. CI runs the same checks. It does not inspect actual production
+secrets, certificates, database privileges, backups, or host state.
 
 ## Migration and release conditions
 
 Deploy the frontend and all backend services together. Existing tokens lack the
 new issuer/audience/purpose contract and users must sign in again. The browser
 uses cookies rather than bearer tokens in localStorage. API clients should fetch
-`GET /auth/csrf`, retain its cookie, and send the nonce as `X-XSRF-TOKEN` for initial
-sign-in; subsequent bearer-authenticated API requests do not need the cookie CSRF
-header. Do not stage this rollout against the old frontend without testing it.
+`GET /auth/csrf`, retain its cookie, and send the nonce as `X-XSRF-TOKEN` for
+`POST /auth/login` and `POST /auth/register`, including requests with an Authorization
+header. Other bearer-authenticated API requests do not need the cookie CSRF header.
+Do not stage this rollout against the old frontend without testing it.
 
 Use the [security review](../../SECURITY.md) for the remaining release conditions.
 This configuration still uses HTTP between services on a trusted, isolated Docker
