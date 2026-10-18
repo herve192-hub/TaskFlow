@@ -164,7 +164,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.4</version>
+                    <version>3.6.0</version>
                     <!-- Surefire owns unit tests; the excluded context/IT patterns run under Failsafe below. -->
                     <configuration>
                         <excludes>
