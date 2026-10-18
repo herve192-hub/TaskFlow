@@ -5,6 +5,7 @@ import com.taskflow.user_service.domain.UserPreferences;
 import com.taskflow.user_service.dto.request.UpdateAvatarRequest;
 import com.taskflow.user_service.dto.request.UpdateUserRequest;
 import com.taskflow.user_service.exception.InvalidUserException;
+import com.taskflow.user_service.exception.UserNotFoundException;
 import com.taskflow.user_service.mapper.UserMapper;
 import com.taskflow.user_service.repository.UserRepository;
 import com.taskflow.user_service.service.impl.UserServiceImpl;
@@ -58,9 +59,35 @@ class UserProfileTest {
         assertThat(service.updatePreferences("signed-account", preferences).getPreferences().isUse24HourTime()).isTrue();
         assertThat(mapper.toSummary(user)).hasNoNullFieldsOrPropertiesExcept("id", "avatarUrl");
     }
-    @Test void invalidTimeZonesCannotBePersisted() {
-        assertThatThrownBy(() -> service.updatePreferences("signed-account", UserPreferences.builder().timeZone("not/a-time-zone").build()))
-                .isInstanceOf(InvalidUserException.class);
+    @Test void invalidPreferencesCannotSkipAccountLookupOrBePersisted() {
+        User user = profile();
+        UserPreferences original = user.getPreferences();
+        UserPreferences[] invalid = {null,
+                UserPreferences.builder().timeZone("not/a-time-zone").build(),
+                UserPreferences.builder().timeZone(null).build(),
+                UserPreferences.builder().timeZone("").build()};
+        for (UserPreferences preferences : invalid) {
+            assertThatThrownBy(() -> service.updatePreferences("signed-account", preferences))
+                    .isInstanceOf(InvalidUserException.class)
+                    .hasMessage("Choose a valid time zone");
+        }
+        verify(repository, times(invalid.length)).findByAuthUserId("signed-account");
+        verify(repository, never()).save(any());
+        assertThat(user.getPreferences()).isSameAs(original);
+    }
+    @Test void missingAccountsAreRejectedBeforePreferencesAreValidated() {
+        when(repository.findByAuthUserId("missing-account")).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> service.updatePreferences("missing-account", null))
+                .isInstanceOf(UserNotFoundException.class);
+        verify(repository).findByAuthUserId("missing-account");
+        verify(repository, never()).save(any());
+    }
+    @Test void missingAuthenticatedSubjectsAreRejectedBeforePreferencesAreValidated() {
+        for (String authUserId : new String[]{null, "", " "}) {
+            assertThatThrownBy(() -> service.updatePreferences(authUserId, null))
+                    .isInstanceOf(InvalidUserException.class)
+                    .hasMessage("Authenticated user ID is required");
+        }
         verifyNoInteractions(repository);
     }
     @Test void acceptsRealSmallPngsAndAllowsPhotoRemoval() throws Exception {

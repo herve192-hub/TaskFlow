@@ -1,6 +1,7 @@
 package com.taskflow.user_service.service.impl;
 
 import com.taskflow.user_service.domain.User;
+import com.taskflow.user_service.domain.UserPreferences;
 import com.taskflow.user_service.domain.enums.UserStatus;
 
 import com.taskflow.user_service.dto.request.CreateUserRequest;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -150,11 +152,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse updatePreferences(String authUserId, com.taskflow.user_service.domain.UserPreferences preferences) {
-        if (preferences == null || !java.time.ZoneId.getAvailableZoneIds().contains(preferences.getTimeZone())) {
+    public UserResponse updatePreferences(String authUserId, UserPreferences preferences) {
+        // Resolve the signed-in account before branching on request-controlled preferences.
+        User user = findByAuthUserId(authUserId);
+        if (preferences == null || !ZoneId.getAvailableZoneIds().contains(preferences.getTimeZone())) {
             throw new InvalidUserException("Choose a valid time zone");
         }
-        User user = findByAuthUserId(authUserId);
         user.setPreferences(preferences);
         return mapper.toResponse(repository.save(user));
     }
