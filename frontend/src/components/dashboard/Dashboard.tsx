@@ -9,6 +9,7 @@ import { TaskStatus } from "../../features/tasks/types/task.types";
 import { useCurrentUser } from "../../features/auth/hooks/useCurrentUser";
 import { userDisplayName } from "../../features/users/utils/userName";
 import { useDateFormatter } from "../../features/users/hooks/useDateFormatter";
+import WorkBadge from "../WorkBadge";
 
 /** Derive overview counts and recent/deadline lists from the complete live workspace snapshot. */
 export default function Dashboard() {
@@ -53,7 +54,7 @@ export default function Dashboard() {
             {!tasks.length && <Typography color="text.secondary">No tasks yet. Open a project to create one.</Typography>}
             {tasks.slice(0, 5).map((task) => <Box key={task.id} sx={{ mb: 2 }}>
               <Button component={RouterLink} to={`/dashboard/projects/${encodeURIComponent(task.projectId)}/tasks`} sx={{ textAlign: "left", overflowWrap: "anywhere" }}>{task.title}</Button>
-              <Typography variant="body2" color="text.secondary">{task.status.replaceAll("_", " ")}</Typography>
+              <Box sx={{ mt: 0.5 }}><WorkBadge kind="status" value={task.status} /></Box>
             </Box>)}
           </Paper></Grid>
           <Grid size={{ xs: 12, md: 6 }}><Paper variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
@@ -62,6 +63,7 @@ export default function Dashboard() {
             {deadlines.map((task) => <Box key={task.id} sx={{ mb: 2 }}>
               <Button component={RouterLink} to={`/dashboard/projects/${encodeURIComponent(task.projectId)}/tasks`} sx={{ textAlign: "left", overflowWrap: "anywhere" }}>{task.title}</Button>
               <Typography variant="body2" color="text.secondary">Due {formatDate(task.dueDate!, true)}</Typography>
+              <Box sx={{ mt: 1 }}><WorkBadge kind="priority" value={task.priority} /></Box>
             </Box>)}
           </Paper></Grid>
         </Grid>

@@ -10,7 +10,6 @@ import {
   CardContent,
   CardActionArea,
   CardActions,
-  Chip,
   CircularProgress,
   Stack,
   Typography,
@@ -19,6 +18,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import FolderIcon from "@mui/icons-material/Folder";
 import GroupIcon from "@mui/icons-material/Group";
+import WorkBadge from "../components/WorkBadge";
 
 import CreateProjectDialog from "../features/projects/components/CreateProjectDialog";
 import { projectService } from "../features/projects/services/projectService";
@@ -272,10 +272,7 @@ const loadProjects = async () => {
                     {project.name}
                   </Typography>
 
-                  <Chip
-                    size="small"
-                    label={project.status}
-                  />
+                  <WorkBadge kind="projectStatus" value={project.status} />
                 </Stack>
 
                 <Typography
@@ -294,11 +291,7 @@ const loadProjects = async () => {
                   direction="row"
                   sx={{ justifyContent: "space-between" }}
                 >
-                  <Chip
-                    size="small"
-                    variant="outlined"
-                    label={project.visibility}
-                  />
+                  <WorkBadge kind="visibility" value={project.visibility} />
 
                   <Typography
                     variant="body2"

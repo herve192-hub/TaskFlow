@@ -7,6 +7,7 @@ import {
 } from "@mui/material";
 import { TaskPriority, TaskType } from "../types/task.types";
 import type { CreateTaskRequest } from "../types/task.types";
+import WorkBadge from "../../../components/WorkBadge";
 
 interface CreateTaskDialogProps {
   open: boolean;
@@ -62,11 +63,11 @@ export default function CreateTaskDialog({ open, projectId, onClose, onCreate }:
               onChange={(event) => setDescription(event.target.value)} slotProps={{ htmlInput: { maxLength: 5000 } }} />
             <TextField select label="Priority" value={priority} disabled={loading}
               onChange={(event) => setPriority(event.target.value as TaskPriority)}>
-              {Object.values(TaskPriority).map((value) => <MenuItem key={value} value={value}>{value}</MenuItem>)}
+              {Object.values(TaskPriority).map((value) => <MenuItem key={value} value={value}><WorkBadge kind="priority" value={value} /></MenuItem>)}
             </TextField>
             <TextField select label="Type" value={type} disabled={loading}
               onChange={(event) => setType(event.target.value as TaskType)}>
-              {Object.values(TaskType).map((value) => <MenuItem key={value} value={value}>{value}</MenuItem>)}
+              {Object.values(TaskType).map((value) => <MenuItem key={value} value={value}><WorkBadge kind="type" value={value} /></MenuItem>)}
             </TextField>
             <TextField label="Due date" helperText={`Enter time in your device's time zone (${Intl.DateTimeFormat().resolvedOptions().timeZone}).`} type="datetime-local" value={dueDate} disabled={loading}
               onChange={(event) => setDueDate(event.target.value)} slotProps={{ inputLabel: { shrink: true } }} />

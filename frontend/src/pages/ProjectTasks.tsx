@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Link as RouterLink, useParams } from "react-router-dom";
-import { Alert, Box, Button, Card, CardContent, Chip, CircularProgress, Pagination, Stack, Typography, TextField, MenuItem } from "@mui/material";
+import { Alert, Box, Button, Card, CardContent, CircularProgress, Pagination, Stack, Typography, TextField, MenuItem } from "@mui/material";
+import WorkBadge from "../components/WorkBadge";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CreateTaskDialog from "../features/tasks/components/CreateTaskDialog";
@@ -77,9 +78,9 @@ function ProjectTaskList({ projectId }: { projectId: string }) {
             <CardContent>
               <Typography variant="h6" sx={{ overflowWrap: "anywhere" }}>{task.title}</Typography>
               <Stack direction="row" spacing={1} useFlexGap sx={{ mt: 1, flexWrap: "wrap" }}>
-                <Chip size="small" label={task.status.replaceAll("_", " ")} />
-                <Chip size="small" variant="outlined" label={task.priority} />
-                <Chip size="small" variant="outlined" label={task.type} />
+                <WorkBadge kind="status" value={task.status} />
+                <WorkBadge kind="priority" value={task.priority} />
+                <WorkBadge kind="type" value={task.type} />
               </Stack>
               <TaskStatusControl task={task} onUpdated={(updated) => setResult((current) => current ? {
                 ...current, content: current.content.map((item) => item.id === updated.id ? updated : item),
@@ -137,7 +138,7 @@ function TaskStatusControl({ task, onUpdated }: {
       sx={{ maxWidth: 300 }} helperText={saving ? "Saving..." : "Available changes depend on your project role."}
       onChange={(event) => { void changeStatus(event.target.value as TaskStatus); }}>
       {[task.status, ...transitions[task.status]].map((status) =>
-        <MenuItem key={status} value={status}>{status.replaceAll("_", " ")}</MenuItem>)}
+        <MenuItem key={status} value={status}><WorkBadge kind="status" value={status} /></MenuItem>)}
     </TextField>
     {error && <Alert severity="error">{error}</Alert>}
     {saved && <Typography role="status" variant="body2" color="success.main">Status updated.</Typography>}
