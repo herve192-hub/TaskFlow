@@ -156,7 +156,7 @@ taskflow/
 
 ## 📸 Screenshots
 
-The interface follows the TaskFlow logo's blue, cyan, teal, and navy palette. Screenshots are captured from the running Docker stack with fictional demo accounts and project data.
+The interface follows the TaskFlow logo's blue, cyan, teal, and navy palette. Status, priority, and task-type badges combine distinct colors with icons and text for easy scanning. Screenshots are captured from the running Docker stack with fictional demo accounts and project data.
 
 ### Login Page
 
@@ -180,7 +180,13 @@ Project cards show status, visibility, member counts, and links to tasks and tea
 
 Tasks show their priority, type, deadline, and status controls governed by project permissions.
 
-![Customer Portal tasks in review, in progress, to do, and completed](docs/screenshots/project-tasks.png)
+![Customer Portal tasks with colored status, priority, and type badges](docs/screenshots/project-tasks.png)
+
+### All Tasks
+
+Browse work across projects, with consistent badges for progress, urgency, and task type.
+
+![TaskFlow task list showing colored statuses, priorities, and task types across three projects](docs/screenshots/tasks.png)
 
 ### Project Team
 

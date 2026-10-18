@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { useDateFormatter } from "../features/users/hooks/useDateFormatter";
-import { Alert, Box, Button, Card, CardContent, Chip, CircularProgress, MenuItem, Pagination, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Card, CardContent, CircularProgress, MenuItem, Pagination, Stack, TextField, Typography } from "@mui/material";
+import WorkBadge from "../components/WorkBadge";
 import { useWorkspace } from "../features/tasks/hooks/useWorkspace";
 import CreateTaskDialog from "../features/tasks/components/CreateTaskDialog";
 import { taskService } from "../features/tasks/services/taskService";
@@ -40,9 +41,9 @@ export default function Tasks() {
           <Typography variant="h6" sx={{ overflowWrap: "anywhere" }}>{task.title}</Typography>
           <Button component={RouterLink} to={`/dashboard/projects/${encodeURIComponent(task.projectId)}/tasks`}>{names.get(task.projectId) ?? "View project"}</Button>
           <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
-            <Chip size="small" label={task.status.replaceAll("_", " ")} />
-            <Chip size="small" variant="outlined" label={task.priority} />
-            <Chip size="small" variant="outlined" label={task.type} />
+            <WorkBadge kind="status" value={task.status} />
+            <WorkBadge kind="priority" value={task.priority} />
+            <WorkBadge kind="type" value={task.type} />
           </Stack>
           {task.dueDate && <Typography variant="body2" sx={{ mt: 2 }}>Due {formatDate(task.dueDate, true)}</Typography>}
         </CardContent></Card>)}
