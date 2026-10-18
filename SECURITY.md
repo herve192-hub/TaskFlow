@@ -12,14 +12,19 @@ approval. Production deployment requires the organization-specific controls belo
 | --- | --- |
 | Authentication | Argon2id with 19 MiB, 2 iterations, and parallelism 1; new passwords require 15–128 characters and support passphrases. Existing bcrypt hashes migrate on successful login. Auth failures and validation errors omit credential values. Unique database indexes enforce account identifiers. Production onboarding requires administrator approval, with protected initial provisioning. |
 | Browser sessions | Access tokens use HttpOnly, SameSite=Strict cookies. Production requires Secure host-only `__Host-` cookies and a 1–15 minute lifetime. JavaScript stores only display/user metadata in sessionStorage. Old access/refresh tokens are removed from localStorage. Cookie-authenticated writes require a CSRF cookie/header pair. Sign-out clears the browser's access cookie. |
-| Token validation | Every service validates signature, issuer, audience, access purpose, subject, token identifier, issued time, expiration, and roles. Production uses RS256 with keys of at least 3072 bits; only auth has the private key. Refresh tokens and other algorithms are rejected by API consumers. Stored refresh-token values are SHA-256 digests. |
+| Token validation | Every business service validates signature, issuer, audience, access purpose, subject, token identifier, issued time, expiration, and roles. Production uses RS256 with keys of at least 3072 bits; only auth has the private key. Refresh tokens and other algorithms are rejected by API consumers. Stored refresh-token values are SHA-256 digests. |
 | Authorization and privacy | Project/task permissions are enforced server-side and exercised through real services. Member removal revokes access immediately. Admin endpoints require administrator authority. Private user profiles require self/admin access; profile email must match the signed identity. User-directory summaries remain available to approved accounts within this single organization. |
 | Browser protections | NGINX sets CSP with scripts limited to self, frame restrictions, nosniff, referrer and permissions policies. Inline styles remain allowed for MUI/Emotion. Production serves TLS 1.2/1.3 with HSTS. The CI ingress fixture checks certificate and hostname verification and authentication rate limiting. |
 | Exposure and transport | Gateway routes are explicitly allowlisted; automatic discovery routes are disabled. Management exposure is limited to health with component/details hidden. Production publishes HTTPS only and authenticates infrastructure clients. Production startup rejects unsafe MongoDB/Kafka transport settings. |
 | Containers and secrets | Application containers run without root, with read-only filesystems, dropped capabilities, no-new-privileges, bounded memory/processes, and limited temporary writable storage. Secrets are scoped file mounts, with no private signing key on consumer services. The development stack binds host ports to loopback. Image versions/digests and actions remain pinned. |
 | Audit and CI | Security audit events omit credentials and request bodies. NGINX logs omit query strings. CI runs unit/integration/full-stack checks, source/dependency/image/configuration/secret scans, and weekly rescans. Scanner artifacts and container logs are redacted. Unsafe settings and security failures fail their jobs. |
+| Production policy and recovery | A semantic Compose gate checks normal and bootstrap deployments for isolation, secret scope, healthchecks, resource/log limits, and shutdown timing. Credential endpoints require CSRF protection even with a bearer header. Administrator provisioning preserves the administrator's browser session. Invalid task payloads return bounded 400 errors without echoing values. Browser requests time out and render failures show recovery controls. |
 
 Password storage follows the [OWASP password storage guidance](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html).
+Production TLS 1.2 permits only forward-secret AEAD suites, alongside TLS 1.3,
+following the [OWASP transport guidance](https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Security_Cheat_Sheet.html).
+The ingress fixture checks both versions and rejects a representative static-RSA
+cipher. Image loading is limited to same-origin resources and inline profile photos.
 Production configuration and secret ownership are described in
 [the deployment guide](deploy/production/README.md).
 
@@ -29,6 +34,8 @@ Production configuration and secret ownership are described in
    account lifecycle, and compromised-password policy. The current password-only
    authentication and disabled application recovery do not satisfy every
    enterprise authentication requirement. Existing short passwords need migration.
+   No enterprise identity provider has been selected; SSO/MFA integration is an
+   unresolved release requirement, not a completed control.
 2. Implement centralized session/revocation handling if immediate global logout,
    role changes, account disablement, or incident-driven token invalidation is
    required. Already-issued bearer access tokens remain valid until expiration;

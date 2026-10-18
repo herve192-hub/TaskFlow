@@ -18,6 +18,6 @@ test('a visitor can navigate from sign-in to registration', async ({ page }) => 
 
 test('a direct request to a protected page returns to sign-in', async ({ page }) => {
   await page.goto('/dashboard/projects')
-  await expect(page).toHaveURL('http://127.0.0.1:4173/')
+  await expect(page).toHaveURL('http://127.0.0.1:4173/login')
   await expect(page.getByRole('button', { name: 'Sign In', exact: true })).toBeVisible()
 })

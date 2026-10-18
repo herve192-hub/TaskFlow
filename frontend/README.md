@@ -9,7 +9,7 @@ Axios, and React Hook Form. [System overview](../README.md) ·
 ```mermaid
 flowchart TB
     main["main.tsx: theme and toast providers"] --> routes["AppRoutes: BrowserRouter"]
-    routes --> auth["Auth feature: login, signup, recovery guidance"]
+    routes --> auth["Lazy-loaded auth pages: login, signup, recovery guidance"]
     routes --> dashboard["Dashboard layout and protected routes"]
     dashboard --> projects["Project feature: projects, teams, membership"]
     dashboard --> tasks["Task feature: workspace, project tasks, status controls"]
@@ -19,7 +19,7 @@ flowchart TB
     tasks --> workspace["useWorkspace and loadWorkspace"]
     workspace --> projectService["projectService"]
     workspace --> taskService["taskService"]
-    auth --> api["Typed API modules and shared Axios client"]
+    auth --> api["Shared Axios client and auth/user API modules"]
     users --> api
     projects --> projectService
     projectService --> api
@@ -29,12 +29,21 @@ flowchart TB
     proxy --> gateway["Backend API gateway"]
 ```
 
-`src/api/` owns HTTP paths and response types. Feature services coordinate those
-calls, and pages own loading/error state and user actions. `loadWorkspace`
-exhausts project/task pages, fetching tasks for at most four projects concurrently.
-The live dashboard derives counts, completion percentage, and deadlines from that
-snapshot. Separate dashboard widgets and the topbar's notifications/search still
-contain presentation samples.
+Project and task feature services own their HTTP operations directly. Auth and user
+services coordinate API calls with session/profile updates. All requests share the
+Axios cookie/CSRF client, and feature types describe server responses. Pages own
+loading/error state and user actions. `loadWorkspace` exhausts project/task pages,
+fetching tasks for at most four projects concurrently. The dashboard derives counts,
+completion percentage, and deadlines from that snapshot. The header contains the
+active account's profile, settings, and sign-out actions.
+
+Routes load their page bundles on demand, so sign-in does not download every
+dashboard screen. Authentication pages share their layout and password controls.
+Project and task creation retain entered values on failure and prevent duplicate
+submissions while a request is pending.
+The shared client limits requests to 15 seconds. A root error boundary provides
+reload guidance for rendering failures and unavailable route chunks without
+displaying internal exception details.
 
 ## Routes and navigation
 
@@ -56,8 +65,9 @@ flowchart LR
     layout --> members["projects/:projectId/members"]
 ```
 
-The navigation guard reads display metadata from `sessionStorage`; backend cookie
-validation is the authentication boundary. Account IDs from auth, profile document
+The navigation guard observes display metadata in `sessionStorage` and removes
+protected screens immediately when that metadata is cleared, redirecting to
+`/login`. Backend cookie validation is the authentication boundary. Account IDs from auth, profile document
 IDs, and project membership document IDs are different identifiers. Membership
 and assignment references use the canonical auth account ID.
 
@@ -126,7 +136,7 @@ the original artwork for full, stacked, and compact branding.
 | `npm run lint` | ESLint checks |
 | `npm run build` | TypeScript checks and Vite production bundle |
 | `npm run test:unit` | Vitest utility tests |
-| `npm run test:integration` | Router/storage integration tests |
+| `npm run test:integration` | Router, active-account, and project form integration tests |
 | `npm run test:ci` | Both suites with separate coverage and JUnit reports |
 | `npm run test:e2e` | Chromium smoke tests against the built frontend through Vite preview |
 | `npm run test:e2e:full-stack` | Real-services collaboration, profiles, preferences, and security scenarios |

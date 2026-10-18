@@ -82,6 +82,17 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler({
+            org.springframework.web.bind.MethodArgumentNotValidException.class,
+            org.springframework.http.converter.HttpMessageNotReadableException.class,
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class
+    })
+    public ResponseEntity<Map<String, Object>> handleInvalidRequest(HttpServletRequest request) {
+        // Framework exception messages can contain rejected body values; keep them out of responses/logs.
+        return buildResponse(HttpStatus.BAD_REQUEST, "INVALID_REQUEST",
+                "Request body or parameters are invalid. Check the field values.", request);
+    }
+
     private ResponseEntity<Map<String, Object>> buildResponse(
             HttpStatus status,
             String error,

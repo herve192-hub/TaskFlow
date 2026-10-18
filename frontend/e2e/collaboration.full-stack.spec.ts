@@ -153,6 +153,13 @@ test('a team completes a task, sees dashboard progress, and enforces project acc
       expect(frontend.headers()['x-content-type-options']).toBe('nosniff')
       expect(frontend.headers()['x-frame-options']).toBe('DENY')
       expect((await page.request.post('/api/v1/projects', { data: { name: 'Blocked CSRF project', visibility: 'PRIVATE' } })).status()).toBe(403)
+      const noNonce = await request.newContext({ baseURL: gatewayURL })
+      try {
+        // Public credential endpoints must reject a fabricated bearer header as a CSRF exemption.
+        for (const path of ['/auth/login', '/auth/register']) {
+          expect((await noNonce.post(path, { headers: { Authorization: 'Bearer invalid-test-token' }, data: {} })).status(), path).toBe(403)
+        }
+      } finally { await noNonce.dispose() }
       const refresh = await request.newContext({ baseURL: gatewayURL,
         extraHTTPHeaders: { Authorization: `Bearer ${owner.refreshToken}` } })
       try {

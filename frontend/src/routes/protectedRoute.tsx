@@ -1,15 +1,15 @@
 import { Navigate } from "react-router-dom";
-import { isAuthenticated } from '../features/auth/session'
+import { useCurrentUser } from '../features/auth/hooks/useCurrentUser'
 
 interface Props {
     children: React.ReactNode;
 }
 
-/** Navigation convenience based on tab metadata; server-side cookie validation is the security boundary. */
+/** Remove protected views as soon as tab metadata is cleared; the server remains the authentication boundary. */
 export default function ProtectedRoute({
     children,
 }: Props) {
-    return isAuthenticated()
+    return useCurrentUser()
         ? children
-        : <Navigate to="/" replace/>;
+        : <Navigate to="/login" replace/>;
 }

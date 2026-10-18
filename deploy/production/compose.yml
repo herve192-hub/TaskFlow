@@ -1,7 +1,10 @@
 # Production application stack. MongoDB and Kafka are separately operated TLS services.
 # Only HTTPS is public. Never combine this file with the development Compose file.
 x-runtime: &runtime
+  user: "10001:10001"
   restart: unless-stopped
+  # Exceed Spring's shutdown phase timeout so in-flight requests can finish before SIGKILL.
+  stop_grace_period: 45s
   read_only: true
   cap_drop: [ALL]
   security_opt: ["no-new-privileges:true"]
@@ -9,7 +12,7 @@ x-runtime: &runtime
   mem_limit: 768m
   tmpfs:
     - /tmp:rw,noexec,nosuid,size=64m
-  logging:
+  logging: &runtime-logging
     driver: local
     options:
       max-size: "20m"
@@ -18,6 +21,11 @@ x-runtime: &runtime
     JAVA_TOOL_OPTIONS: "-Xms64m -Xmx384m -XX:MaxMetaspaceSize=192m -XX:MaxDirectMemorySize=64m -XX:ActiveProcessorCount=2"
     LOGGING_LEVEL_ROOT: INFO
     LOGGING_LEVEL_COM_TASKFLOW: INFO
+    SERVER_SHUTDOWN: graceful
+    SPRING_LIFECYCLE_TIMEOUT_PER_SHUTDOWN_PHASE: 30s
+    SERVER_ERROR_INCLUDE_MESSAGE: never
+    SERVER_ERROR_INCLUDE_BINDING_ERRORS: never
+    SERVER_ERROR_INCLUDE_STACKTRACE: never
     MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health
     MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: never
     MANAGEMENT_ENDPOINT_HEALTH_SHOW_COMPONENTS: never
@@ -206,6 +214,7 @@ services:
       test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8084/actuator/health"]
 
   taskflow-web:
+    user: "101:101"
     image: taskflow/frontend:0.0.0
     build:
       context: ../../frontend
@@ -213,6 +222,8 @@ services:
         VITE_API_BASE_URL: /
         VITE_PUBLIC_REGISTRATION_ENABLED: "false"
     restart: unless-stopped
+    stop_grace_period: 30s
+    logging: *runtime-logging
     read_only: true
     cap_drop: [ALL]
     security_opt: ["no-new-privileges:true"]

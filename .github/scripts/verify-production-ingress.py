@@ -32,6 +32,7 @@ def main():
     certificate.chmod(0o444)
     private.chmod(0o444)  # Only the private parent directory is traversable on the host.
     tag = os.environ.get("TASKFLOW_E2E_IMAGE_TAG", "0.0.0")
+    image = os.environ.get("TASKFLOW_E2E_FRONTEND_IMAGE", f"taskflow/frontend-e2e:{tag}")
     project = os.environ.get("COMPOSE_PROJECT_NAME", "taskflow-e2e")
     arguments = ["docker", "run", "--detach", "--name", NAME, "--network", f"{project}_default",
         "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges:true",
@@ -39,7 +40,7 @@ def main():
         "--tmpfs", "/var/cache/nginx:rw,noexec,nosuid,size=32m,uid=101,gid=101,mode=0700",
         "--volume", f"{ROOT / 'frontend/nginx-production.conf'}:/etc/nginx/conf.d/default.conf:ro",
         "--volume", f"{certificate}:/run/secrets/tls.certificate:ro",
-        "--volume", f"{private}:/run/secrets/tls.private-key:ro", f"taskflow/frontend-e2e:{tag}"]
+        "--volume", f"{private}:/run/secrets/tls.private-key:ro", image]
     started = False
     try:
         run(arguments, check=True)
@@ -55,7 +56,7 @@ def main():
         if response is None or response.returncode:
             raise SystemExit("Verified production HTTPS did not become ready")
         headers = response.stdout.split("\r\n\r\n", 1)[0].split("\n\n", 1)[0].lower()
-        for value in ["content-security-policy:", "script-src 'self'", "strict-transport-security: max-age=31536000",
+        for value in ["content-security-policy:", "script-src 'self'", "img-src 'self' data:;", "strict-transport-security: max-age=31536000",
                       "x-frame-options: deny", "x-content-type-options: nosniff", "permissions-policy:"]:
             if value not in headers:
                 raise SystemExit(f"Missing production security header: {value}")
@@ -65,6 +66,16 @@ def main():
                          "--resolve", f"taskflow.test:{PORT}:127.0.0.1", f"https://taskflow.test:{PORT}/"])
         if wrong_host.returncode != 60 or untrusted.returncode != 60:
             raise SystemExit("TLS certificate or hostname verification was not enforced")
+
+        for version in ["1.2", "1.3"]:
+            probe = run(base + ["--fail", "--output", "/dev/null", f"--tlsv{version}", "--tls-max", version,
+                                f"https://taskflow.test:{PORT}/"])
+            if probe.returncode:
+                raise SystemExit(f"Verified TLS {version} connection failed")
+        weak_cipher = run(base + ["--tlsv1.2", "--tls-max", "1.2", "--ciphers", "AES128-SHA",
+                                 f"https://taskflow.test:{PORT}/"])
+        if weak_cipher.returncode != 35:
+            raise SystemExit("Non-forward-secret TLS 1.2 cipher was not rejected")
 
         def auth_request(_):
             result = run(base + ["--output", "/dev/null", "--write-out", "%{http_code}", "--header",
@@ -78,11 +89,12 @@ def main():
         if "429" not in statuses:
             raise SystemExit("Authentication requests were not rate limited")
         report = {"verified_https": True, "security_headers": True, "rejects_wrong_hostname": True,
-                  "rejects_untrusted_certificate": True, "authentication_rate_limit": True}
+                  "rejects_untrusted_certificate": True, "authentication_rate_limit": True,
+                  "tls_1_2_and_1_3": True, "rejects_non_forward_secret_cipher": True}
         logs = STACK / "logs"
         logs.mkdir(exist_ok=True)
         (logs / "ingress-security.json").write_text(json.dumps(report, indent=2))
-        print("Production HTTPS, certificate/hostname verification, security headers, and authentication rate limits passed")
+        print("Production HTTPS, TLS versions/cipher policy, certificate/hostname verification, security headers, and authentication rate limits passed")
     finally:
         if started:
             run(["docker", "rm", "--force", NAME], check=True)

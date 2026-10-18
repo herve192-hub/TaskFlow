@@ -12,10 +12,30 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 
 class TaskControllerTest {
+    @Test
+    void rejectsInvalidTaskBodiesWithoutEchoingOrProcessingTheirValues() throws Exception {
+        TaskService service = mock(TaskService.class);
+        var mvc = MockMvcBuilders.standaloneSetup(new TaskController(service))
+                .setControllerAdvice(new com.taskflow.task_service.exception.GlobalExceptionHandler())
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver()).build();
+        var identity = new UsernamePasswordAuthenticationToken("user-123", null, List.of());
+        for (String body : List.of(
+                "{\"projectId\":\"project-1\",\"title\":\"\",\"description\":\"private-canary\"}",
+                "{\"projectId\":\"project-1\",\"title\":\"private-canary\",\"priority\":\"UNKNOWN\"}",
+                "{\"title\":\"private-canary\",")) {
+            mvc.perform(post("/api/v1/tasks").contentType("application/json").content(body).principal(identity))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("error").value("INVALID_REQUEST"))
+                    .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("private-canary"))));
+        }
+        verifyNoInteractions(service);
+    }
+
     @Test
     void bindsProjectIdAndPagination() throws Exception {
         TaskService service = mock(TaskService.class);

@@ -40,7 +40,8 @@ public final class CookieSecurity {
 
     /**
      * Require the cookie/header nonce on unsafe requests using browser authentication.
-     * Explicit bearer requests use token authentication without the cookie CSRF contract.
+     * Credential endpoints always require the nonce; other explicit bearer requests
+     * use token authentication without the cookie CSRF contract.
      */
     public static void configure(CsrfConfigurer<HttpSecurity> csrf, boolean secure) {
         // Only the CSRF nonce is JavaScript-readable; the access cookie remains HttpOnly.
@@ -52,8 +53,12 @@ public final class CookieSecurity {
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                 .requireCsrfProtectionMatcher(request -> {
                     String authorization = request.getHeader("Authorization");
+                    // Login and registration are reachable before bearer authentication is validated.
+                    // An arbitrary Authorization header must never exempt these cookie-setting endpoints.
+                    boolean establishesSession = Set.of("/auth/login", "/auth/register")
+                            .contains(request.getServletPath());
                     return !SAFE_METHODS.contains(request.getMethod())
-                            && !(authorization != null && authorization.startsWith("Bearer "));
+                            && (establishesSession || !(authorization != null && authorization.startsWith("Bearer ")));
                 });
     }
 }

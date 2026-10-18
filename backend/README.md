@@ -16,7 +16,6 @@ flowchart LR
     parent --> infrastructure["infrastructure"]
     parent --> services["services"]
     commons --> security["common-security: compiled security helpers"]
-    commons --> scaffolds["common-models, common-events, common-exceptions: scaffolds"]
     infrastructure --> gateway["api-gateway"]
     infrastructure --> config["config-server"]
     infrastructure --> discovery["discovery-server"]

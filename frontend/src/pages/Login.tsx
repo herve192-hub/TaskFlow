@@ -1,235 +1,49 @@
-// 
-import {
-    Paper,
-    Button,
-    Typography,
-    Box,
-    TextField,
-} from "@mui/material";
-
-import { Link } from "react-router-dom";
+import { Box, Button, Link as MuiLink, TextField, Typography } from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import AuthLayout from "../components/AuthLayout";
 import { toast } from "react-toastify";
-
-import { useState } from "react";
-import InputAdornment from "@mui/material/InputAdornment";
-import IconButton from "@mui/material/IconButton";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-
-import Divider from "@mui/material/Divider";
-import GoogleIcon from "@mui/icons-material/Google";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import OAuthButton from "../components/oAuthButtonProps.tsx";
-
-import Stack from "@mui/material/Stack";
-import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import MuiLink from "@mui/material/Link";
-
+import AuthLayout from "../components/AuthLayout";
+import PasswordField from "../components/PasswordField";
 import { authService } from "../features/auth/services/authService";
 import { startPagePath } from "../features/users/utils/preferences";
 import type { LoginRequest } from "../features/auth/types/auth.types";
+import { apiErrorMessage } from "../utils/apiError";
 
-import { useNavigate } from "react-router-dom";
-
-import axios from "axios";
-
-
-
-interface LoginFormData {
-    email: string;
-    password: string;
-    rememberMe: boolean;
-}
-
-/** Submit credentials through the cookie/CSRF client, then navigate after session/profile initialization. */
+/** Sign in with the server's cookie/CSRF contract, then restore the saved start page. */
 export default function Login() {
-// Initialize form handling with react-hook-form ...
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<LoginFormData>({
-        defaultValues: {
-            rememberMe: false,
-        },
-    });
-// 
-    const navigate = useNavigate();
-
-// Handle form submission ...
-const onSubmit = async (data: LoginRequest) => {
+  const navigate = useNavigate();
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginRequest>();
+  const signIn = async (data: LoginRequest) => {
     try {
-        await authService.login({
-        email: data.email,
-        password: data.password,
-        });
-
-        toast.success("Login successful");
-
-        navigate(startPagePath(authService.getCurrentUser()?.preferences));
+      await authService.login({ email: data.email.trim(), password: data.password });
+      toast.success("Login successful");
+      navigate(startPagePath(authService.getCurrentUser()?.preferences));
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-        const message =
-            error.response?.data?.message ||
-            "Invalid email or password";
-
-        toast.error(message);
-        return;
-        }
-
-        toast.error("Something went wrong");
+      toast.error(apiErrorMessage(error, "Unable to sign in. Check your email and password."));
     }
-};
-//
+  };
 
-// handle password visibility toggle ...
-    const [showPassword, setShowPassword] = useState(false);
-// 
-    return (
-        <AuthLayout>
-            <Paper
-                elevation={0}
-                sx={{
-                    width: "100%",
-                    maxWidth: 450,
-                    p: 5,
-                    borderRadius: 4,
-                    border: "1px solid",
-                    borderColor: "divider",
-                }}
-            >
-                <Typography 
-                    variant="h4"
-                    sx={{ 
-                        mb: 1,
-                        fontWeight: "bold",
-                     }}
-                >
-                    Welcome Back
-                </Typography>
-
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <TextField
-                        fullWidth
-                        label="Email"
-                        margin="normal"
-                        error={!!errors.email}
-                        helperText={errors.email?.message}
-                        {...register("email", {
-                            required: "Email is required",
-                            pattern: {
-                                value: /^\S+@\S+$/i,
-                                message: "Invalid email address",
-                            },
-                        })}
-                    />
-                    <TextField
-                        fullWidth
-                        label="Password"
-                        type={showPassword ? "text" : "password"}
-                        margin="normal"
-                        error={!!errors.password}
-                        helperText={errors.password?.message}
-                        {...register("password", {
-                            required: "Password is required",
-                            minLength: {
-                                value: 8,
-                                message: "Password must be at least 8 characters",
-                            },
-                        })}
-                        slotProps={{
-                            input: {
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            onMouseDown={(e) => e.preventDefault()}
-                                            onClick={() => setShowPassword((prev) => !prev)}
-                                            edge="end"
-                                        >
-                                            {showPassword ? (<VisibilityOff />) : (<Visibility />)}
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                            },
-                        }}
-                    />
-                    <Box 
-                        sx={{ 
-                            display: "flex", 
-                            justifyContent: "space-between", 
-                            alignItems: "center", 
-                            mt: 1, 
-                            mb: 2,
-
-                        }}
-                    >
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    {...register("rememberMe")}
-                                    color="primary"
-                                /> 
-                            }
-                            label="Remember me"
-                        />
-                        <MuiLink
-                            variant="body2"
-                            component={Link}
-                            to="/forgot-password"
-                            // href="/forgot-password"
-                            // color="primary"
-                            sx={{ 
-                                textDecoration: "none",
-                                cursor: "pointer",
-                                fontWeight: "500",
-                             }}
-                        >
-                            Forgot password?
-                        </MuiLink>
-                    </Box>
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        // size="Large"
-                        sx={{ size: "Large", mt: 3, py: 1.5 }}
-                    >
-                        Sign In
-                    </Button>
-                    <Stack 
-                        direction="column" 
-                        spacing={2}
-                    >
-                        <Divider sx={{ my: 4 }}> or </Divider>
-                        <OAuthButton 
-                            text="Continue with Google"
-                            icon={<GoogleIcon />}
-                        />
-                        <OAuthButton 
-                            text="Continue with GitHub"
-                            icon={<GitHubIcon />}
-                            // sx={{ mt: 2 }}
-                        />
-                    </Stack>
-                </form>
-                <Box 
-                    sx={{
-                        textAlign: "center", 
-                        mt: 3,
-                        color: "text.secondary",
-                    }}
-                >
-                    <Typography>
-                        {import.meta.env.VITE_PUBLIC_REGISTRATION_ENABLED === 'false'
-                          ? 'Contact your administrator for access.' : <>
-                            Don't have an account?{" "}<Link to="/signup">Create one</Link>
-                          </>}
-                    </Typography>
-                </Box>
-            </Paper>
-        </AuthLayout>
-    );
+  return <AuthLayout title="Welcome Back">
+    <Box component="form" onSubmit={handleSubmit(signIn)}>
+      <TextField fullWidth label="Email" type="email" autoComplete="username" margin="normal"
+        disabled={isSubmitting} error={!!errors.email} helperText={errors.email?.message}
+        slotProps={{ htmlInput: { maxLength: 254 } }}
+        {...register("email", { required: "Email is required",
+          pattern: { value: /^\S+@\S+$/i, message: "Invalid email address" } })} />
+      <PasswordField label="Password" autoComplete="current-password" disabled={isSubmitting}
+        error={!!errors.password} helperText={errors.password?.message}
+        registration={register("password", { required: "Password is required", maxLength: 128 })} />
+      <Box sx={{ mt: 1, textAlign: "right" }}>
+        <MuiLink component={Link} to="/forgot-password" variant="body2">Forgot password?</MuiLink>
+      </Box>
+      <Button type="submit" fullWidth variant="contained" size="large" disabled={isSubmitting} sx={{ mt: 3 }}>
+        {isSubmitting ? "Signing in..." : "Sign In"}
+      </Button>
+    </Box>
+    <Typography color="text.secondary" sx={{ mt: 3, textAlign: "center" }}>
+      {import.meta.env.VITE_PUBLIC_REGISTRATION_ENABLED === "false"
+        ? "Contact your administrator for access."
+        : <>Don't have an account? <Link to="/signup">Create one</Link></>}
+    </Typography>
+  </AuthLayout>;
 }

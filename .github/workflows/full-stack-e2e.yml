@@ -56,6 +56,12 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Enforce production deployment policy
+        # Reject security regressions in the real rendered normal and bootstrap configurations.
+        run: |
+          python3 .github/scripts/test-verify-production-compose.py
+          python3 .github/scripts/verify-production-compose.py
+
       - name: Set up Temurin 21.0.12.1+1
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
@@ -97,14 +103,12 @@ jobs:
 
       - name: Verify production HTTPS, headers, and authentication rate limits
         # A separate temporary ingress fixture uses an explicitly trusted test certificate.
-        run: python3 .github/scripts/verify-production-ingress.py
-
-      - name: Validate production deployment configuration
-        # Render and validate Compose settings without starting the production deployment.
         env:
-          TASKFLOW_WEB_ORIGIN: https://taskflow.example.test
-          TASKFLOW_SECRETS_DIR: ./secrets
-        run: docker compose --file deploy/production/compose.yml config --quiet
+          TASKFLOW_E2E_FRONTEND_IMAGE: taskflow/frontend-production-check:${{ github.sha }}
+        run: |
+          docker build --build-arg VITE_API_BASE_URL=/ --build-arg VITE_PUBLIC_REGISTRATION_ENABLED=false \
+            --tag "$TASKFLOW_E2E_FRONTEND_IMAGE" frontend
+          python3 .github/scripts/verify-production-ingress.py
 
       - name: Collect container status and logs
         # Collect before teardown; the helper redacts generated credentials and JWTs.

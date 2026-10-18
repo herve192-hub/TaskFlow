@@ -59,4 +59,59 @@ class ProductionOnboardingTest {
         assertThrows(AccessDeniedException.class, () -> controller.register(new RegisterRequest(), member));
         verifyNoInteractions(service);
     }
+
+    @Test
+    void administratorProvisioningPreservesTheAdministratorsBrowserSession() {
+        AuthService service = mock(AuthService.class);
+        var request = new RegisterRequest();
+        when(service.register(request)).thenReturn(com.taskflow.auth_service.dto.response.AuthResponse.builder()
+                .accessToken("synthetic-new-account-token").build());
+        var controller = new AuthController(service, new JwtProperties());
+        var admin = new UsernamePasswordAuthenticationToken("admin", null,
+                List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+        var result = controller.register(request, admin);
+        assertEquals(201, result.getStatusCode().value());
+        assertNull(result.getHeaders().getFirst(org.springframework.http.HttpHeaders.SET_COOKIE));
+        assertEquals("no-store", result.getHeaders().getCacheControl());
+        verify(service).register(request);
+    }
+
+    @Test
+    void productionSignInUsesASecureHostOnlyCookie() {
+        var service = mock(AuthService.class);
+        var request = new com.taskflow.auth_service.dto.request.LoginRequest();
+        when(service.login(request)).thenReturn(com.taskflow.auth_service.dto.response.AuthResponse.builder()
+                .accessToken("synthetic-access-token").build());
+        var properties = new JwtProperties();
+        properties.setExpiration(900_000);
+        var controller = new AuthController(service, properties);
+        org.springframework.test.util.ReflectionTestUtils.setField(controller, "secureCookie", true);
+        String cookie = controller.login(request).getHeaders().getFirst(org.springframework.http.HttpHeaders.SET_COOKIE);
+        assertNotNull(cookie);
+        assertTrue(cookie.startsWith("__Host-taskflow-access="));
+        for (String attribute : List.of("Secure", "HttpOnly", "SameSite=Strict", "Path=/", "Max-Age=900")) {
+            assertTrue(cookie.contains(attribute), attribute);
+        }
+        assertFalse(cookie.contains("Domain="));
+    }
+
+    @Test
+    void signOutAuditUsesTheAccountIdWithoutRecordingThePrivateEmail() {
+        var logger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("com.taskflow.security.audit");
+        var entries = new ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent>();
+        entries.start();
+        logger.addAppender(entries);
+        try {
+            var account = com.taskflow.auth_service.security.model.CustomUserDetails.builder()
+                    .id("account-opaque-1").email("private@example.test").build();
+            var authentication = new UsernamePasswordAuthenticationToken(account, null, List.of());
+            var controller = new AuthController(mock(AuthService.class), new JwtProperties());
+            controller.logout(authentication);
+            assertTrue(entries.list.stream().anyMatch(entry -> entry.getFormattedMessage().contains("actor=account-opaque-1")));
+            assertTrue(entries.list.stream().noneMatch(entry -> entry.getFormattedMessage().contains("private@example.test")));
+        } finally {
+            logger.detachAppender(entries);
+            entries.stop();
+        }
+    }
 }

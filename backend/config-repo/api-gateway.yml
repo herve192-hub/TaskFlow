@@ -10,6 +10,9 @@ spring:
     gateway:
       server:
         webflux:
+          httpclient:
+            connect-timeout: 2000
+            response-timeout: 10s
           discovery:
             locator:
               # Discovery supplies addresses for allowlisted routes, not automatic public endpoints.
