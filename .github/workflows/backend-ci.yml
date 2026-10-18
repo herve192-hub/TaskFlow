@@ -160,6 +160,7 @@ jobs:
         run: docker build --file "backend/$MODULE/Dockerfile" --tag "taskflow/$SERVICE:$GITHUB_SHA" backend
 
       - name: Scan OS and Java dependencies in the image
+        id: trivy_scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           # Pin the scanner independently of the action; fail on HIGH/CRITICAL findings.
@@ -171,10 +172,10 @@ jobs:
           format: json
           output: image-security.json
 
-      # Summarization replaces the raw report with a redacted copy before upload.
+      # Redact successful or failed scans; a skipped scan has no report to summarize.
       - name: Show security findings in the log and job summary
         id: security_summary
-        if: always()
+        if: always() && (steps.trivy_scan.outcome == 'success' || steps.trivy_scan.outcome == 'failure')
         run: python3 .github/scripts/summarize-trivy.py image-security.json
 
       - name: Upload image scan report
