@@ -31,7 +31,7 @@
         <jackson3.version>3.1.7</jackson3.version>
         <tomcat.version>11.0.27</tomcat.version>
         <bouncycastle.version>1.86</bouncycastle.version>
-        <jjwt.version>0.12.7</jjwt.version>
+        <jjwt.version>0.13.0</jjwt.version>
     </properties>
 
     <!-- ===================== -->
