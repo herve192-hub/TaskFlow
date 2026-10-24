@@ -1,5 +1,5 @@
 #  discovery-server/Dockerfile ...
-FROM eclipse-temurin:21.0.12.1_1-jdk-noble@sha256:b468c3fc688b14450571494f588bd939378e7fd542ed5a73f8efc13f17872a87 AS builder
+FROM eclipse-temurin:24.0.2_12-jdk-noble@sha256:dacac8e9a0df0d2bd24e702b4431132875c249930b70555ebd7ca285b5bee684 AS builder
 
 # Set the working directory inside the container ...
 WORKDIR /app
@@ -19,7 +19,7 @@ RUN sed -i 's/\r$//' mvnw && \
 
 # Now, create a new image that will run the discovery server jar file. ...
 # use the Eclipse Temurin JRE image as the base image for this new image. ...
-FROM eclipse-temurin:21.0.12.1_1-jre-noble@sha256:000fd431958bc81a24abe1e8e5f0f0fd3ae365a594bd50aadb20696805f9408c
+FROM eclipse-temurin:24.0.2_12-jre-noble@sha256:b416d02335e702b0403ff280de9475a3348e29382285969c9d4e17862ce632e7
 
 RUN groupadd --gid 10001 taskflow && \
     useradd --uid 10001 --gid taskflow --no-create-home --home-dir /app --shell /usr/sbin/nologin taskflow && \
