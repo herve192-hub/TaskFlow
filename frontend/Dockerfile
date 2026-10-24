@@ -16,12 +16,16 @@ ENV VITE_PUBLIC_REGISTRATION_ENABLED=${VITE_PUBLIC_REGISTRATION_ENABLED}
 
 RUN npm run build
 
-FROM nginx:1.30.5-alpine3.24@sha256:0985e772fb9f729e6fa0980da05fca5d9c468e870eed43071545afa9d2e27d94
+# NGINX 1.30.6 fixes the server advisories; this Alpine 3.24.3 digest also includes
+# the musl fix for CVE-2026-107891.
+FROM nginx:1.30.6-alpine3.24@sha256:47928bf67eb62a1863cb08d9ecb52d3e704304ba614eaee17884204677702951
 
 # Fixed releases available in the base image's Alpine 3.24 repositories.
 # Keep exact pins in sync with the repository; unavailable versions fail clean CI builds.
 # libx11 patches CVE-2026-88806 in the dependency inherited from NGINX.
+# The pinned base still needs the Brotli fix for CVE-2026-111497.
 RUN apk add --no-cache \
+    brotli-libs=1.2.1-r0 \
     libexpat=2.9.0-r0 \
     libx11=1.8.14-r0 \
     pcre2=10.49-r0 \

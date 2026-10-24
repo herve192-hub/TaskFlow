@@ -38,6 +38,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  aws-terraform:
+    name: AWS Terraform validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install checksum-verified Terraform
+        env:
+          TERRAFORM_VERSION: '1.16.7'
+        run: |
+          terraform_dir="$RUNNER_TEMP/taskflow-terraform"
+          mkdir -p "$terraform_dir"
+          cd "$terraform_dir"
+          archive="terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+          base="https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}"
+          curl --fail --location --silent --show-error --retry 3 "$base/$archive" --output "$archive"
+          curl --fail --location --silent --show-error --retry 3 "$base/terraform_${TERRAFORM_VERSION}_SHA256SUMS" --output checksums.txt
+          awk -v archive="$archive" '$2 == archive {print}' checksums.txt | sha256sum --check --strict
+          unzip -q "$archive" -d "$terraform_dir"
+          echo "$terraform_dir" >> "$GITHUB_PATH"
+
+      - name: Validate infrastructure without AWS credentials
+        working-directory: deploy/aws/terraform
+        run: |
+          terraform fmt -check
+          terraform init -backend=false -input=false -lockfile=readonly
+          terraform validate -no-color
+
   collaboration:
     name: Full-stack collaboration and access controls
     runs-on: ubuntu-24.04
@@ -61,6 +93,7 @@ jobs:
         run: |
           python3 .github/scripts/test-verify-production-compose.py
           python3 .github/scripts/verify-production-compose.py
+          python3 -m unittest discover -s deploy/aws/tests -v
 
       - name: Set up Temurin 21.0.12.1+1
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -105,10 +138,12 @@ jobs:
         # A separate temporary ingress fixture uses an explicitly trusted test certificate.
         env:
           TASKFLOW_E2E_FRONTEND_IMAGE: taskflow/frontend-production-check:${{ github.sha }}
+          TASKFLOW_AWS_FRONTEND_IMAGE: taskflow/frontend-production-check:${{ github.sha }}
         run: |
           docker build --build-arg VITE_API_BASE_URL=/ --build-arg VITE_PUBLIC_REGISTRATION_ENABLED=false \
             --tag "$TASKFLOW_E2E_FRONTEND_IMAGE" frontend
           python3 .github/scripts/verify-production-ingress.py
+          python3 .github/scripts/verify-aws-ingress.py
 
       - name: Collect container status and logs
         # Collect before teardown; the helper redacts generated credentials and JWTs.

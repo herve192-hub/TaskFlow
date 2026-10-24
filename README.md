@@ -75,6 +75,7 @@ notification service remain planned work.
 | Identity, projects, and task workflows | [Business services](backend/services/README.md) |
 | Shared modules and security components | [Commons](backend/commons/README.md) |
 | Production networks, transport, and secret distribution | [Production deployment](deploy/production/README.md) |
+| AWS EC2, HTTPS load balancer, image releases, and runtime secrets | [AWS deployment](deploy/aws/README.md) |
 | Build, test, and security workflows | [CI](.github/README.md) |
 | Disposable full-stack test environment | [Full-stack E2E](.github/e2e/README.md) |
 

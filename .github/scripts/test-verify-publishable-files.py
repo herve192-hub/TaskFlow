@@ -67,7 +67,9 @@ class PublicationChecksTest(unittest.TestCase):
         return "ghp_" + hashlib.sha256(b"disposable-publication-test").hexdigest()[:36]
 
     def test_required_source_lockfiles_and_public_template_are_allowed(self):
-        for name in ("frontend/src/App.tsx", "frontend/package-lock.json", "deploy/production/environment.example"):
+        for name in ("frontend/src/App.tsx", "frontend/package-lock.json", "deploy/production/environment.example",
+                     "deploy/aws/terraform/providers.tf", "deploy/aws/terraform/.terraform.lock.hcl",
+                     "deploy/aws/terraform/settings.example"):
             self.write(name, "Reviewed public build input\n")
             self.git("add", name)
         self.assertEqual(self.check().returncode, 0)
@@ -84,6 +86,19 @@ class PublicationChecksTest(unittest.TestCase):
         self.write("node_modules/.package-lock.json", "{}\n")
         self.git("add", "--force", "node_modules/.package-lock.json")
         self.assertNotEqual(self.check().returncode, 0)
+
+    def test_terraform_runtime_files_are_blocked_without_relying_on_ignore_rules(self):
+        # A forced addition or a file saved outside deploy/aws/terraform must not
+        # publish state, account inputs, plans, or downloaded backend metadata.
+        for name in ("terraform.tfstate", "terraform.tfstate.backup", "terraform.tfstate.1234",
+                     "config/production.tfvars", "config/production.auto.tfvars.json",
+                     "releases/production.tfplan", "releases/production.tfplan.json",
+                     "cache/.terraform/backend.json"):
+            with self.subTest(name=name):
+                self.write(name, "{}\n")
+                self.git("add", "--force", name)
+                self.assertNotEqual(self.check().returncode, 0)
+                self.git("rm", "--cached", name)
 
     def test_symlinks_cannot_leak_external_files(self):
         (self.root / "external.txt").symlink_to("/etc/passwd")

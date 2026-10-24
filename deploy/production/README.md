@@ -1,5 +1,9 @@
 # Production deployment
 
+For an EC2 host with ALB/ACM HTTPS, ECR releases, Secrets Manager, and CloudWatch,
+use the [AWS deployment guide](../aws/README.md). Its Compose override preserves
+the service isolation below while moving browser TLS termination to the ALB.
+
 This file defines the hardened application deployment for a single organization
 on one trusted Docker host. Use `compose.yml` here independently from the root
 development Compose file. It publishes HTTPS only; Config Server, Eureka, the

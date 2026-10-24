@@ -14,7 +14,7 @@ FORBIDDEN_DIRECTORIES = {
     "test-results", "playwright-report", "blob-report", "__pycache__", "logs",
     "secrets", ".secrets", "credentials", "data", "backups", "codeql-results",
     ".aws", ".azure", ".kube", ".ssh", ".gnupg", ".codex", ".agents",
-    ".idea", ".vscode", ".history",
+    ".idea", ".vscode", ".history", ".terraform",
 }
 FORBIDDEN_SUFFIXES = {
     ".pem", ".key", ".private-key", ".password", ".p12", ".pfx", ".jks", ".keystore", ".db", ".sqlite",
@@ -105,6 +105,8 @@ def check(args):
             reason = "private or generated directory"
         elif base.startswith(".env") or ".env." in base or base.endswith(".env"):
             reason = "environment configuration"
+        elif ".tfstate" in base or base.endswith((".tfvars", ".tfvars.json", ".tfplan")) or ".tfplan." in base:
+            reason = "Terraform state, deployment inputs, or saved plan output"
         elif path.suffix.lower() in FORBIDDEN_SUFFIXES or base.endswith((".tar.gz", "~")):
             reason = "key material, local data, or generated output"
         elif base in {".netrc", ".git-credentials", ".credentials", ".htpasswd", "client.properties"} or base.startswith(("id_rsa", "id_ed25519")):
