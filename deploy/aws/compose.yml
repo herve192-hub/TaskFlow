@@ -1,0 +1,56 @@
+# Use ONLY with ../production/compose.yml, never with root docker-compose.yml.
+# Host port 8080 is reachable only from the ALB security group in this AWS setup.
+x-logging: &aws-logging
+  driver: awslogs
+  options:
+    awslogs-region: ${AWS_REGION:?Set the AWS region}
+    awslogs-group: ${TASKFLOW_LOG_GROUP:?Set the provisioned log group}
+    mode: non-blocking
+    max-buffer-size: 4m
+
+services:
+  discovery-server:
+    image: ${TASKFLOW_DISCOVERY_SERVER_IMAGE:?Use a digest from release.json}
+    build: !reset null
+    logging: *aws-logging
+  config-server:
+    image: ${TASKFLOW_CONFIG_SERVER_IMAGE:?Use a digest from release.json}
+    build: !reset null
+    logging: *aws-logging
+  api-gateway:
+    image: ${TASKFLOW_API_GATEWAY_IMAGE:?Use a digest from release.json}
+    build: !reset null
+    logging: *aws-logging
+  auth-service:
+    image: ${TASKFLOW_AUTH_SERVICE_IMAGE:?Use a digest from release.json}
+    build: !reset null
+    logging: *aws-logging
+  user-service:
+    image: ${TASKFLOW_USER_SERVICE_IMAGE:?Use a digest from release.json}
+    build: !reset null
+    logging: *aws-logging
+  project-service:
+    image: ${TASKFLOW_PROJECT_SERVICE_IMAGE:?Use a digest from release.json}
+    build: !reset null
+    logging: *aws-logging
+  task-service:
+    image: ${TASKFLOW_TASK_SERVICE_IMAGE:?Use a digest from release.json}
+    build: !reset null
+    logging: *aws-logging
+  taskflow-web:
+    image: ${TASKFLOW_FRONTEND_IMAGE:?Use a digest from release.json}
+    build: !reset null
+    logging: *aws-logging
+    ports: !override
+      - "8080:8080"
+    secrets: !reset []
+    volumes: !override
+      - ../aws/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ${TASKFLOW_SECRETS_DIR}/alb-trust.conf:/etc/nginx/taskflow-alb-trust.conf:ro
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:8080/healthz"]
+
+# ALB/ACM owns TLS. Reset unused TLS definitions to avoid requiring host key files.
+secrets:
+  tls-certificate: !reset null
+  tls-private: !reset null

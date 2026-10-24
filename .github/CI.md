@@ -30,6 +30,7 @@ scripts, the isolated stack configuration, and the root Compose file.
 | Dependency security | npm audit includes frontend development, optional, and peer dependencies. Trivy's filesystem scan covers manifests, including npm development dependencies; a separate rootfs scan inspects packaged backend JARs and their transitive Java dependencies. The security jobs install internal Maven modules into the local cache and avoid remote dependency identification requests during the Trivy scan. Vulnerability databases still refresh normally. |
 | Secrets | Gitleaks scans all fetched Git history, with redacted results. Trivy scans the current checkout for secrets. |
 | Configuration security | Trivy checks every Dockerfile for security misconfigurations; CodeQL checks GitHub Actions workflows. |
+| AWS deployment | Terraform format/init/validate runs without AWS credentials. Production Compose gates render normal/bootstrap ALB variants. Python tests check archives, digests, secret permissions, and bootstrap removal. An NGINX fixture verifies trusted forwarding and client rate limits. |
 | Container security | Every backend service image and the frontend runtime image are built and scanned for OS and application dependency vulnerabilities. |
 | Dependency maintenance | Dependabot checks GitHub Actions, frontend npm packages, backend Maven dependencies, Docker base images, and Compose images weekly. |
 

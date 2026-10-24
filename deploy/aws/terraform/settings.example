@@ -1,0 +1,57 @@
+# Public HCL input template for this root module; Terraform does not auto-load
+# the .example extension. Copy to the ignored terraform.tfvars and replace every
+# placeholder before running plan. variables.tf documents types and validation;
+# ../README.md describes the full provisioning/publishing/install workflow.
+# Use infrastructure identifiers/secret ARNs only. Secret values belong in Secrets
+# Manager and never in this file, tfvars, command arguments, or release archives.
+# Authenticate to the intended AWS account externally; this template selects a
+# region, not credentials. A successful plan does not prove provider connectivity.
+
+# Copy to terraform.tfvars. No secret VALUES belong here or in Terraform state.
+# Use the region containing your subnets, issued ACM certificate, and app secrets.
+# providers.tf configures AWS, and outputs.tf hands this region to the release CLI.
+region            = "us-east-1"
+# Reuse an existing VPC with DNS and an Internet Gateway; no network is created.
+# security.tf and lb.tf's target group must use the same VPC as these subnets.
+vpc_id            = "vpc-REPLACE"
+
+# Supply two or more ALB-compatible public subnets in different AZs. The first
+# also hosts EC2, so preserve deliberate ordering. Check routes/NACLs/IP capacity.
+# The release helper trusts the exported subnet CIDRs, requiring /16 or narrower.
+public_subnet_ids = ["subnet-REPLACE-A", "subnet-REPLACE-B"]
+
+# Exact lowercase browser hostname; no scheme/port/path. It must match the ACM
+# certificate and resolve to the ALB before browser verification can succeed.
+domain_name       = "taskflow.example.com"
+
+# Replace these illustrative private CIDRs/ports with all real MongoDB/Kafka
+# endpoint ranges, including advertised brokers. Supply routes/provider allowlists
+# separately; security.tf uses this list only to permit outbound TCP connections.
+data_egress_rules = [
+  { cidr = "10.20.0.0/24", port = 27017 }, # Replace with actual MongoDB endpoint ranges.
+  { cidr = "10.30.0.0/24", port = 9096 },  # Replace with all Kafka broker ranges/ports.
+]
+
+# Existing issued regional ACM certificate for the HTTPS listener in lb.tf.
+# Terraform does not request/validate it or create its renewal validation records.
+certificate_arn   = "arn:aws:acm:us-east-1:123456789012:certificate/REPLACE"
+
+# Existing Secrets Manager JSON secret matching ../README.md's exact property names.
+# The host fetches values; Terraform records only this identifier.
+application_secret_arn = "arn:aws:secretsmanager:us-east-1:123456789012:secret:taskflow/production/application-REPLACE"
+
+# Optional initial-admin secret. Uncomment only for first provisioning, use deploy
+# --bootstrap, then remove this input/apply to revoke the host's future reads.
+# bootstrap_secret_arn = "arn:aws:secretsmanager:us-east-1:123456789012:secret:taskflow/production/bootstrap-REPLACE"
+# Optional existing public Route 53 zone. Without it, create the DNS record through
+# your provider using outputs.tf's alb_dns_name. This does not register the domain.
+# hosted_zone_id = "ZREPLACE"
+# Optional existing SNS topics with tested subscriptions/permissions. Without
+# them, cloudwatch.tf still creates alarms but sends no notifications.
+# alarm_topic_arns = ["arn:aws:sns:us-east-1:123456789012:operations"]
+# Other supported overrides are documented in variables.tf: name changes resource
+# names; instance_type must support x86_64/adequate memory; secret_kms_key_arns
+# permits reads through existing secret CMKs. protect_resources defaults to true
+# for EC2/ALB and should be disabled only for reviewed replacement/teardown.
+# Pin the reviewed AL2023 AMI after the initial plan to avoid unplanned AMI updates.
+# ami_id = "ami-REPLACE"

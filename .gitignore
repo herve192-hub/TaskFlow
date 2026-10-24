@@ -21,6 +21,15 @@ __pycache__/
 *.env
 *.env.*
 
+# Terraform local inputs, state, provider cache, and saved plan output
+# Keep .terraform.lock.hcl and reviewed settings.example templates publishable.
+.terraform/
+*.tfstate*
+*.tfvars
+*.tfvars.json
+*.tfplan
+*.tfplan.*
+
 # Credentials, key material, local data, and backups
 secrets/
 .secrets/

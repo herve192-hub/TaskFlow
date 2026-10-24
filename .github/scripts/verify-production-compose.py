@@ -13,13 +13,19 @@ INFRASTRUCTURE = {"config-server", "discovery-server"}
 SERVICES = BUSINESS | INFRASTRUCTURE | {"api-gateway", "taskflow-web"}
 
 
-def render(bootstrap=False):
+def render(bootstrap=False, aws=False):
     # Ignore developer/CI Compose selection and env files; these are public fixture settings only.
     environment = {name: value for name, value in os.environ.items() if not name.startswith("COMPOSE_")}
     environment.update(COMPOSE_DISABLE_ENV_FILE="1", TASKFLOW_WEB_ORIGIN="https://taskflow.example.test",
                        TASKFLOW_SECRETS_DIR="/tmp/taskflow-production-policy-secrets", TASKFLOW_HTTPS_PORT="443")
     command = ["docker", "compose", "--env-file", "/dev/null", "--project-name", "taskflow-production-policy",
                "--file", "deploy/production/compose.yml"]
+    if aws:
+        environment.update(AWS_REGION="us-east-1", TASKFLOW_LOG_GROUP="/taskflow/production-policy")
+        for name in ["frontend", *sorted(SERVICES - {"taskflow-web"})]:
+            key = "TASKFLOW_" + name.upper().replace("-", "_") + "_IMAGE"
+            environment[key] = f"123456789012.dkr.ecr.us-east-1.amazonaws.com/taskflow/{name}@sha256:" + "a" * 64
+        command += ["--file", "deploy/aws/compose.yml"]
     if bootstrap:
         command += ["--file", "deploy/production/compose.bootstrap.yml"]
     result = subprocess.run(command + ["config", "--format", "json"], cwd=ROOT, env=environment,
@@ -27,7 +33,7 @@ def render(bootstrap=False):
     return json.loads(result.stdout)
 
 
-def validate(config, bootstrap=False):
+def validate(config, bootstrap=False, aws=False):
     errors = []
 
     def require(condition, message):
@@ -61,17 +67,30 @@ def validate(config, bootstrap=False):
         health = service.get("healthcheck", {})
         require(bool(health.get("test")) and health["test"][0] in {"CMD", "CMD-SHELL"} and not health.get("disable"),
                 f"{name}: healthcheck required")
-        require(service.get("logging", {}).get("driver") == "local"
-                and service.get("logging", {}).get("options") == {"max-size": "20m", "max-file": "5"},
-                f"{name}: bounded log retention required")
+        logging = service.get("logging", {})
+        if aws:
+            options = logging.get("options", {})
+            require(logging.get("driver") == "awslogs" and options.get("awslogs-region")
+                    and options.get("awslogs-group", "").startswith("/taskflow/")
+                    and options.get("mode") == "non-blocking" and options.get("max-buffer-size") == "4m",
+                    f"{name}: CloudWatch logs with bounded buffers required")
+            require(not service.get("build"), f"{name}: AWS hosts must pull release images without building")
         image = service.get("image", "")
+        if aws:
+            require(bool(re.fullmatch(r"\d{12}\.dkr\.ecr\.[a-z0-9-]+\.amazonaws\.com(?:\.cn)?/[\w/-]+@sha256:[a-f0-9]{64}", image)),
+                    f"{name}: AWS images must use ECR SHA-256 digests")
+        else:
+            require(logging.get("driver") == "local"
+                    and logging.get("options") == {"max-size": "20m", "max-file": "5"},
+                    f"{name}: bounded log retention required")
         require(bool(re.search(r":\d+\.\d+\.\d+(?:[-.][\w.-]+)?$|@sha256:[a-f0-9]{64}$", image)),
                 f"{name}: explicit release image version or digest required")
         require(all(volume.get("read_only") for volume in service.get("volumes", [])),
                 f"{name}: host volume mounts must be read-only")
 
         ports = service.get("ports", [])
-        require((len(ports) == 1 and ports[0].get("target") == 8443 and ports[0].get("protocol") == "tcp")
+        require((len(ports) == 1 and ports[0].get("target") == (8080 if aws else 8443)
+                 and ports[0].get("protocol") == "tcp" and (not aws or ports[0].get("published") == "8080"))
                 if web else not ports, f"{name}: only the frontend HTTPS port may be published")
         secrets = {secret["source"] for secret in service.get("secrets", [])}
         for secret in secrets:
@@ -86,9 +105,17 @@ def validate(config, bootstrap=False):
             require(secrets & bootstrap_secrets == (bootstrap_secrets if bootstrap else set()),
                     "Bootstrap credentials must appear only in the initial provisioning override")
         if web:
-            require({"tls-certificate", "tls-private"} <= secrets, "Frontend TLS secrets required")
-            require(str(service.get("build", {}).get("args", {}).get("VITE_PUBLIC_REGISTRATION_ENABLED")).lower() == "false",
-                    "Frontend public registration must be disabled")
+            if aws:
+                require(not secrets and not {"tls-certificate", "tls-private"} & config.get("secrets", {}).keys(),
+                        "AWS TLS keys belong in ACM, not on EC2")
+                require(any(volume.get("target") == "/etc/nginx/conf.d/default.conf"
+                            and volume.get("source") == str(ROOT / "deploy/aws/nginx.conf")
+                            for volume in service.get("volumes", [])), "AWS ALB ingress configuration required")
+                require(health.get("test", [])[-1:] == ["http://localhost:8080/healthz"], "AWS gateway readiness check required")
+            else:
+                require({"tls-certificate", "tls-private"} <= secrets, "Frontend TLS secrets required")
+                require(str(service.get("build", {}).get("args", {}).get("VITE_PUBLIC_REGISTRATION_ENABLED")).lower() == "false",
+                        "Frontend public registration must be disabled")
             continue
 
         environment = service.get("environment", {})
@@ -109,9 +136,10 @@ def validate(config, bootstrap=False):
 
 
 def main():
-    for bootstrap in [False, True]:
-        validate(render(bootstrap), bootstrap)
-    print("Production isolation, secret scope, resource limits, shutdown, and onboarding policies passed (normal + bootstrap)")
+    for aws in [False, True]:
+        for bootstrap in [False, True]:
+            validate(render(bootstrap, aws), bootstrap, aws)
+    print("Production isolation, secret scope, resources, and onboarding passed (direct TLS + AWS; normal + bootstrap)")
 
 
 if __name__ == "__main__":

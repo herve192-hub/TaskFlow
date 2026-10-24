@@ -55,6 +55,24 @@ class ProductionPolicyTests(unittest.TestCase):
     def test_bootstrap_credentials_cannot_leak_into_routine_deployments(self):
         self.rejected(lambda c: c["services"]["auth-service"]["secrets"].append({"source": "bootstrap-admin-password"}))
 
+    def test_aws_normal_and_bootstrap_deployments_pass(self):
+        for bootstrap in [False, True]:
+            policy["validate"](policy["render"](bootstrap, aws=True), bootstrap, aws=True)
+
+    def test_aws_cannot_publish_backend_ports_or_use_mutable_images(self):
+        for service, change in [
+            ("auth-service", {"ports": [{"target": 8081, "published": "8081"}]}),
+            ("auth-service", {"image": "123456789012.dkr.ecr.us-east-1.amazonaws.com/taskflow/auth-service:latest"}),
+            ("taskflow-web", {"ports": [{"target": 8443, "published": "443", "protocol": "tcp"}]}),
+            ("taskflow-web", {"volumes": []}),
+            ("auth-service", {"logging": {"driver": "json-file"}}),
+        ]:
+            with self.subTest(service=service, change=change):
+                config = policy["render"](aws=True)
+                config["services"][service].update(change)
+                with self.assertRaises(ValueError):
+                    policy["validate"](config, aws=True)
+
 
 if __name__ == "__main__":
     unittest.main()
