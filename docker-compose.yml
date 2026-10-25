@@ -81,7 +81,7 @@ services:
   # lists topics. Plaintext and replication factor one are local-only choices;
   # kafka-data retains events across restarts, without production redundancy.
   kafka:
-    image: apache/kafka:4.1.0@sha256:bff074a5d0051dbc0bbbcd25b045bb1fe84833ec0d3c7c965d1797dd289ec88f
+    image: apache/kafka:4.3.1@sha256:77e3df9054047a88b520d0cc46e16696d3b22022e1d580aeccd2632df6532837
     container_name: taskflow-kafka
     restart: unless-stopped
 
