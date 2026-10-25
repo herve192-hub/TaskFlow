@@ -13,8 +13,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * Serialize task events to versioned Kafka messages using task IDs as partition keys.
- * Asynchronous send failures are logged without rolling back the saved task.
+ * Serializes domain events to versioned messages and sends them through KafkaTemplate.
+ * Topic names come from taskflow.kafka.topics.* configuration and taskId is the partition key,
+ * preserving per-task ordering within Kafka's partition semantics. Async send failures are logged
+ * rather than rolled back into the HTTP operation; no persistent outbox/replay mechanism exists.
  */
 @Slf4j
 @Component

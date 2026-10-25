@@ -1,3 +1,11 @@
+/**
+ * Live overview derived from the complete useWorkspace snapshot. Counts, recent
+ * tasks, progress, and open deadlines share the same dataset and account date rules.
+ * Completion progress includes cancelled tasks in its denominator; deadline lists
+ * exclude completed/cancelled work. Fetch errors stay visible so incomplete data
+ * is not presented as trustworthy totals.
+ */
+
 import { Link as RouterLink } from "react-router-dom";
 import { Alert, Box, Button, CircularProgress, Grid, LinearProgress, Paper, Stack, Typography } from "@mui/material";
 import TaskAltIcon from "@mui/icons-material/TaskAlt";

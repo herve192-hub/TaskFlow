@@ -1,3 +1,9 @@
+# Frontend verification pipeline: lint/tests/build, browser smoke, all-scope npm
+# audit, and final-image vulnerability scanning. Container scanning depends on a
+# successful build/test job; dependency audit runs independently. Full-service flows
+# live in full-stack-e2e.yml. Reports are retained briefly; Trivy artifacts must pass
+# summarize-trivy.py redaction before upload. Read-only jobs do not publish images.
+
 # Check the frontend build and browser smoke flows, audit npm, and scan the runtime image.
 # Cross-service browser scenarios are exercised separately in full-stack-e2e.yml.
 name: Frontend CI

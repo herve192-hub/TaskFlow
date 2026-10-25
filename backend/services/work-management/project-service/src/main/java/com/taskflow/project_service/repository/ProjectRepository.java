@@ -10,6 +10,12 @@ import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+/**
+ * Mongo access for project metadata and owner-scoped case-insensitive name checks.
+ * Active list/search flows pass the caller's permitted project IDs before pagination so another
+ * user's projects do not leak through a global query. Alternate repository methods do not
+ * implicitly carry that authorization filter and require reviewed callers.
+ */
 public interface ProjectRepository
         extends MongoRepository<Project, String> {
 

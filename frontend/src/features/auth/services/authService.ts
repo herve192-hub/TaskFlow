@@ -1,3 +1,11 @@
+/**
+ * Authentication orchestration above authApi and session storage. Login saves only
+ * account metadata, then best-effort restores the user profile/preferences; a user
+ * service outage does not invalidate a successful sign-in. Registration delegates
+ * to the server policy. Logout always clears local display state, even if the
+ * server call fails; callers still surface failure to invalidate the server cookie.
+ */
+
 import {
   login as loginApi,
   register as registerApi,

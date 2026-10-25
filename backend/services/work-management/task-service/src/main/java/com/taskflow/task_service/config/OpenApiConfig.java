@@ -9,6 +9,11 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Describes task endpoint metadata and the bearer scheme for Springdoc consumers.
+ * This schema does not enable admin permissions or expose documentation in production;
+ * SecurityConfig and production deployment properties control endpoint availability.
+ */
 @Configuration
 public class OpenApiConfig {
 

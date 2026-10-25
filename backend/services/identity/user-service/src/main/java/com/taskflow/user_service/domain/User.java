@@ -20,7 +20,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
-/** Profile data stored in the user-service database; credentials belong to auth-service. */
+/**
+ * Profile document in user-service's users collection, independent of auth's credential record.
+ * Mongo id identifies this profile; authUserId is the canonical account link used in memberships
+ * and assignments. Phone/bio/preferences are private profile fields, while directory DTOs expose
+ * only their explicit summary fields. Auditing timestamps come from MongoConfig.
+ */
 @Getter
 @Setter
 @Builder

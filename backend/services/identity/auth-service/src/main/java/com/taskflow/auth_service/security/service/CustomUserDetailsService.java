@@ -12,6 +12,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import org.springframework.stereotype.Service;
 
+/**
+ * Loads a credential account by email for DaoAuthenticationProvider and JwtAuthenticationFilter.
+ * Builds CustomUserDetails with the canonical auth ID, encoded verifier, roles, and enabled flag.
+ * It reads auth's repository only; names/photos/preferences in the profile service are a separate flow.
+ */
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {

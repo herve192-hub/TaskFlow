@@ -11,8 +11,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Allowed edges in the task state machine. This policy checks state changes only;
- * TaskServiceImpl separately checks the caller's project role and relationship to the task.
+ * Single explicit state-transition graph used by TaskServiceImpl before changing status.
+ * Rejects null states, no-op transitions, and edges not listed in allowedTransitions. Completion
+ * must pass through IN_REVIEW; reopening COMPLETED goes to IN_PROGRESS and CANCELLED to TODO.
+ * This graph checks workflow legality only; TaskServiceImpl separately checks who may take an edge.
  */
 @Component
 public class TaskLifecyclePolicy {

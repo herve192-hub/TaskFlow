@@ -1,4 +1,9 @@
 #!/bin/sh
+# Local publication gate enabled through core.hooksPath=.githooks.
+# Scans the staged tree, not ignored secrets or later unstaged edits, with the pinned
+# Gitleaks binary and path policy. A failing check prevents commit creation; install
+# the scanner through .github/scripts/install-gitleaks.py when setting up a clone.
+
 set -eu
 cd "$(git rev-parse --show-toplevel)"
 exec python3 .github/scripts/verify-publishable-files.py --secrets

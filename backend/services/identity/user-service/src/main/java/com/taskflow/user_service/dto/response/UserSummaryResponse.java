@@ -8,7 +8,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** Directory/team display data, including email, without the full profile's phone or bio fields. */
+/**
+ * Explicit limited directory representation used for search, lookup, and user lists.
+ * authUserId is the value to submit for membership/assignment, not the profile id.
+ * Private phone, bio, preferences, and credentials are deliberately absent from this contract.
+ */
 @Getter
 @Setter
 @Builder

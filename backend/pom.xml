@@ -1,3 +1,12 @@
+<!--
+Root Maven parent and reactor entry point for all backend modules.
+Centralizes Java/framework/security versions, dependency management, packaging,
+and test instrumentation; child services opt into executable Boot JAR packaging.
+Surefire runs unit tests; Failsafe runs context/repository integration tests during
+verify. Shared libraries remain plain JARs. Update managed overrides with the
+imported BOMs and validate the full reactor before rebuilding service images.
+-->
+
 <!-- Herve Chendjou -->
 
 <!-- ======================== -->

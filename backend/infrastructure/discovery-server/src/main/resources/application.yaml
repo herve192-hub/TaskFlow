@@ -1,3 +1,8 @@
+# Standalone internal Eureka registry on port 8761. Does not register/fetch itself;
+# application clients register addresses used by gateway and Feign load balancing.
+# Self-preservation tolerates missed heartbeats. Shared infrastructure security
+# protects registry access; production keeps this container on the control network.
+
 # Standalone Eureka registry; application clients register and discover internal service instances here.
 server:
   port: 8761

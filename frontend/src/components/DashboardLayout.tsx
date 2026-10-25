@@ -1,3 +1,10 @@
+/**
+ * Persistent shell for nested dashboard routes: shared Topbar, Sidebar, and Outlet.
+ * A best-effort /me fetch restores display/preferences on full reload without
+ * blocking workspace rendering. Small screens force compact navigation; desktop
+ * collapse state remains local. Fixed-header offsets share layoutConstants.
+ */
+
 // DashboardLayout.tsx ...
 import { Box, Toolbar, useMediaQuery, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";

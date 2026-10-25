@@ -1,3 +1,7 @@
+# Local production secret/env exclusions in addition to root publication guards.
+# Commit environment.example as the public template; actual interpolation values
+# and mounted credential files stay on the deployment host with restricted access.
+
 secrets/
 .env*
 *.env

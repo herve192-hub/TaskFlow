@@ -1,3 +1,10 @@
+/**
+ * Load the signed-in account's private /me profile and offer a revision-based retry.
+ * userService synchronizes safe display metadata as part of a successful fetch.
+ * An active flag suppresses results from unmounted/superseded effects; errors remain
+ * visible to Profile and Settings rather than creating a replacement profile.
+ */
+
 import { useEffect, useState } from "react";
 import { userService } from "../services/userService";
 import type { UserProfile } from "../types/user.types";

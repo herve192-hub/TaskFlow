@@ -1,3 +1,11 @@
+/**
+ * Route-keyed, server-paginated project task list with creation and status controls.
+ * Page indices translate between MUI's one-based display and the API's zero-based
+ * contract. Status choices mirror the backend graph, while project roles are checked
+ * by the server. Rows change only after accepted writes; errors preserve their
+ * previous status. Date presentation follows account preferences.
+ */
+
 import { useEffect, useRef, useState } from "react";
 import { apiErrorMessage } from "../utils/apiError";
 import { Link as RouterLink, useParams } from "react-router-dom";

@@ -4,7 +4,11 @@ import com.taskflow.auth_service.dto.request.LoginRequest;
 import com.taskflow.auth_service.dto.request.RegisterRequest;
 import com.taskflow.auth_service.dto.response.AuthResponse;
 
-/** Credential-account registration and sign-in; browser cookie handling belongs to AuthController. */
+/**
+ * Application boundary implemented by AuthServiceImpl for registration and login.
+ * The controller handles cookie/CSRF transport and production provisioning approval; this service
+ * handles credential persistence and token issuance. Recovery and refresh exchange are not declared.
+ */
 public interface AuthService {
 
     AuthResponse register(RegisterRequest request);

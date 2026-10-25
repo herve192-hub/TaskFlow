@@ -27,6 +27,12 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Domain permission matrix tested with mocked repositories and user-profile lookups.
+ * Covers creator ownership, management roles, duplicate/missing users, protected OWNER membership,
+ * foreign-project membership IDs, nonmember access, and paginated team results.
+ * These tests establish service invariants independently of HTTP DTO validation.
+ */
 class ProjectMembershipTest {
     private final ProjectRepository projects = mock(ProjectRepository.class);
     private final ProjectMemberRepository members = mock(ProjectMemberRepository.class);

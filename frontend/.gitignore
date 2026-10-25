@@ -1,3 +1,7 @@
+# Frontend-local generated/tooling exclusions layered over the root .gitignore.
+# Build output, dependency installs, test reports, and editor state are regenerated;
+# source, package manifests, and the reviewed npm lockfile remain tracked.
+
 # Logs
 logs
 *.log

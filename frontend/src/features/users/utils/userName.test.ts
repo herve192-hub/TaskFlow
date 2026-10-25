@@ -1,3 +1,9 @@
+/**
+ * Unit coverage for profile/auth naming conventions, whitespace normalization,
+ * full-name handling, and human-readable fallbacks. This suite tests presentation,
+ * not account lookup or membership authorization.
+ */
+
 import { describe, expect, it } from 'vitest'
 import { userDisplayName } from './userName'
 

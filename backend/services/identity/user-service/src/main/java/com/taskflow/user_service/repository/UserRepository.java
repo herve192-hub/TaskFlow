@@ -11,7 +11,12 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
-/** Profile persistence; authorization and literal-query escaping are applied by the calling layers. */
+/**
+ * Profile persistence queries scoped by document ID, canonical auth ID, email, or status.
+ * searchActiveUsers accepts an escaped regular expression from UserServiceImpl and matches only
+ * ACTIVE names/email; lookup-by-auth-ID supports preserving inactive historical team references.
+ * Repository methods themselves do not enforce private-profile ownership.
+ */
 public interface UserRepository
         extends MongoRepository<User, String> {
 

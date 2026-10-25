@@ -1,3 +1,11 @@
+# Build and run task-service using backend/ as the Docker build context.
+# The JDK builder uses Maven's selected module plus required reactor dependencies;
+# CI owns test execution, while image packaging skips tests. The final JRE contains
+# only the executable service JAR and runs as UID/GID 10001, matching file-secret
+# ownership in production. EXPOSE 8084 documents the internal port, not a host
+# publication; Compose controls network access and runtime configuration.
+# Task lifecycle/persistence and events; runtime also receives Kafka credentials.
+
 
 # ============================================================
 # BUILD STAGE

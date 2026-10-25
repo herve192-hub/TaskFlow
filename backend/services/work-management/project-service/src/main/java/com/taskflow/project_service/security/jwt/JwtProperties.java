@@ -7,6 +7,12 @@ import jakarta.validation.constraints.AssertTrue;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * Binds jwt.* verification configuration used by the project token adapter.
+ * Common-security accepts RSA public verification or a sufficiently long local/test HMAC secret.
+ * ProductionSecurity rejects private signing material in this service and requires production
+ * settings; field presence in this binding object does not grant signing authority.
+ */
 @Getter
 @Setter
 @ConfigurationProperties(prefix = "jwt")

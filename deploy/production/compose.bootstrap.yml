@@ -1,3 +1,9 @@
+# One-time production override for initial administrator provisioning. Adds only
+# the email/password secret mounts consumed by auth's bootstrap runner; the base
+# stack already supplies signing/database configuration. Recreate auth without this
+# override after provisioning, then remove the host copies. AWS taskflow.py performs
+# that cleanup automatically when deploy is invoked with bootstrap enabled.
+
 # Use only for initial provisioning, then remove these secret mounts on the next start.
 services:
   auth-service:

@@ -9,11 +9,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
-* Utility class for handling date and time operations in TaskFlow...
-* <p>All application timestamps are handled in UTC to ensure
-* consistent behavior across local development, Docker, AWS,
-* and distributed microservices.</p>
-*/
+ * UTC formatting/parsing convenience functions for service-side Instant/LocalDate values.
+ * Null/blank inputs have explicit fallback behavior and malformed dates raise bounded errors.
+ * Browser-local presentation uses saved preferences instead; these helpers do not change the
+ * profile timestamp storage format or implement time-zone preference conversion.
+ */
 
 public final class DateUtils {
 

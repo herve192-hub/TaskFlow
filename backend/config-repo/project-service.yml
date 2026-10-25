@@ -1,3 +1,8 @@
+# Central project and membership storage configuration consumed by project-service.
+# PROJECT_MONGO_URI comes from its runtime secret mount; ownership and role links
+# use canonical auth IDs. Port 8083 is internal and must match Compose health checks.
+# Neither this file nor Config Server should contain database credential values.
+
 # Project and membership storage; connection credentials are supplied at runtime.
 server:
   port: 8083

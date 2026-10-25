@@ -1,3 +1,10 @@
+<!--
+Maven aggregation for auth, profile, project, and task business services.
+Children inherit framework/security/test policy through the root parent, while
+owning persistence and API dependencies. This POM does not run services together;
+Docker Compose supplies their network, configuration, and secret boundaries.
+-->
+
 <!-- Herve Chendjou -->
 <!-- Services module for TaskFlow -->
 <!-- backend/services/pom.xml -->

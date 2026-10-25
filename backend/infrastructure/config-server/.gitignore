@@ -1,3 +1,7 @@
+# Module-local Maven/IDE exclusions layered over the repository rules. Generated
+# outputs are rebuilt from this module's POM and the backend parent reactor; authored
+# Java/resources/tests remain tracked. Keep runtime credentials outside source trees.
+
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar

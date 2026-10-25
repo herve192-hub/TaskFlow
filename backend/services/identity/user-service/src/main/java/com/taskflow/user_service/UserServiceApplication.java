@@ -4,7 +4,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
-/** Start profile and directory APIs; authentication credentials remain owned by auth-service. */
+/**
+ * Starts profile, preferences, avatar, and directory APIs in the user-service package.
+ * Credential validation/token issuance belongs to auth-service; profile records link to that
+ * account through authUserId. Configuration selects a separate logical MongoDB database.
+ */
 @SpringBootApplication
 public class UserServiceApplication {
 

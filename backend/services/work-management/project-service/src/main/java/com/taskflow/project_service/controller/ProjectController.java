@@ -17,7 +17,12 @@ import org.springframework.security.core.Authentication;
 
 import org.springframework.web.bind.annotation.*;
 
-/** Project/team HTTP API; acting user IDs always come from the authenticated principal. */
+/**
+ * Owns public /api/v1/projects CRUD, search, membership, and access-projection routes.
+ * Every operation forwards Authentication.getName as the canonical acting account; memberId
+ * identifies a membership document, whereas request.userId identifies an auth account.
+ * DTO validation handles shape and ProjectServiceImpl enforces ownership/roles and nested scope.
+ */
 @RestController
 @RequestMapping("/api/v1/projects")
 @RequiredArgsConstructor

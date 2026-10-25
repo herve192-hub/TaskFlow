@@ -11,7 +11,12 @@ import com.taskflow.project_service.dto.response.ProjectResponse;
 import com.taskflow.project_service.dto.response.ProjectSummaryResponse;
 import org.springframework.data.domain.Pageable;
 
-/** Project and team operations; userId parameters identify the authenticated auth-service account. */
+/**
+ * Project/team application contract shared by public controllers and internal access endpoints.
+ * Callers supply canonical authenticated actor IDs; implementations enforce owner/member roles,
+ * validate reference IDs, and paginate authorized results. This interface does not define task
+ * cleanup or distributed operations on another service's database.
+ */
 public interface ProjectService {
 
     /** Create the project and its creator's OWNER membership. */

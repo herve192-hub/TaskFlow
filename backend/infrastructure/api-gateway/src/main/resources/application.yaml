@@ -1,3 +1,9 @@
+# Gateway bootstrap identity, internal port, and configuration/discovery locations.
+# Config Server's api-gateway.yml owns active WebFlux routes; these local defaults
+# allow the process to start before remote configuration is available. Production
+# imports authenticated client properties through Compose. Health registration does
+# not expose registry/configuration APIs through the public gateway.
+
 # Gateway bootstrap settings; the Config Server repository owns the explicit public route list.
 server:
   port: 8080

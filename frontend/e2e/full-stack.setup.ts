@@ -1,3 +1,10 @@
+/**
+ * Readiness gate for real-service browser tests. Polls NGINX and gateway routes;
+ * expected authentication/validation errors prove discovery has reached each service,
+ * whereas a gateway health check alone would not. Uses bounded fetch and polling
+ * timeouts; no real credentials are required for these probes.
+ */
+
 import { expect } from '@playwright/test'
 import type { FullConfig } from '@playwright/test'
 

@@ -1,3 +1,11 @@
+# Frontend image contract: build the locked React/Vite application in a Node stage,
+# then serve only dist through an unprivileged NGINX runtime on port 8080.
+# Use frontend/ as the build context; .dockerignore excludes local secrets/artifacts.
+# VITE_* arguments are public build-time settings. Default nginx.conf supports local
+# and CI use; production/AWS Compose mount their own ingress configurations while
+# reusing the security/proxy snippets copied here. Runtime tmpfs paths and UID 101
+# must stay aligned with deploy/production/compose.yml when changing the base image.
+
 FROM node:24.21.0-alpine3.24@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 AS builder
 
 WORKDIR /app

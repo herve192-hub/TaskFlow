@@ -7,7 +7,12 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestClient;
 
-/** Send service credentials as an HTTP header, never embedded in a logged URL. */
+/**
+ * Supplies prototype RestClient builders for authenticated Eureka registration and heartbeats.
+ * Credentials come from Config Server client properties or infrastructure startup secrets.
+ * The interceptor sends Basic auth only to the discovery-server hostname, avoiding credential
+ * leakage to unrelated downstream requests and keeping secrets out of logged discovery URLs.
+ */
 @Configuration
 public class EurekaClientAuthentication {
     @Bean

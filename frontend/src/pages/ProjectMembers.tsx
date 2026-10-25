@@ -1,3 +1,12 @@
+/**
+ * Paginated project team management. A route-keyed child resets state on project
+ * changes and loads project details, server access decisions, and memberships.
+ * Directory enrichment joins canonical account IDs to safe profile summaries;
+ * directory failures preserve usable memberships with a warning. Member document
+ * IDs address writes; OWNER restrictions and self-leave behavior are enforced by
+ * the service, while UI pending state prevents duplicate writes.
+ */
+
 import { useEffect, useRef, useState } from "react";
 import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import {

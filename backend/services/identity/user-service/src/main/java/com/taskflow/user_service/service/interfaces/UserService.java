@@ -12,7 +12,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
 
-/** Profile operations; authUserId is the shared account identity and id is a local profile ID. */
+/**
+ * Profile application contract used by public/self-service and internal controllers.
+ * Callers supply authenticated canonical IDs; implementations own mapping/persistence, avatar
+ * validation, preference validation, and directory search/batch bounds. Credential-account
+ * creation and password changes are outside this interface.
+ */
 public interface UserService {
 
     UserResponse createUser(

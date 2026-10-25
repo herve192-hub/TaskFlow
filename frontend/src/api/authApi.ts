@@ -1,3 +1,9 @@
+/**
+ * Thin /auth login and registration calls using the shared cookie/CSRF transport.
+ * Returns the server envelope without persisting credentials; authService decides
+ * which account metadata to expose to React. Endpoint changes must match AuthController.
+ */
+
 import api from "./axios";
 
 import type {

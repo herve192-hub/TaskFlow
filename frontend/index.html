@@ -1,3 +1,10 @@
+<!--
+Vite HTML entry: provides the React mount node and loads src/main.tsx as a module.
+Vite rewrites asset/module paths during the dist build; BrowserRouter deep links
+return this file through NGINX. Font links request Google Fonts, but the deployed
+same-origin CSP restricts external loading, so browser/system fallbacks apply.
+-->
+
 <!doctype html>
 <html lang="en">
   <head>

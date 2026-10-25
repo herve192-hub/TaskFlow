@@ -13,8 +13,11 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
- * Bridge domain events to the optional external publisher after a Spring transaction commits.
- * Fallback execution also handles calls without a transaction; this is not a durable outbox.
+ * Bridges Spring domain events to an optional external TaskEventPublisher.
+ * AFTER_COMMIT runs after an active transaction commits; fallbackExecution also handles calls
+ * without a transaction. Missing publishers are explicitly skipped for isolated contexts/tests.
+ * The bridge plus async Kafka callbacks is best effort, not a durable outbox or exactly-once
+ * transaction spanning MongoDB and Kafka.
  */
 @Slf4j
 @Component

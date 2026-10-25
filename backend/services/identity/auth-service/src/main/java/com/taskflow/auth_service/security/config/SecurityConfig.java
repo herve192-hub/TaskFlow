@@ -30,7 +30,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-/** Stateless JWT authentication with cookie CSRF protection and one explicit browser origin. */
+/**
+ * Wires credential authentication, JWT request filtering, CORS, and cookie-CSRF protection.
+ * Public reachability of register/login is intentional; AuthController separately requires a platform
+ * administrator for production provisioning. Stateless means no server-side HTTP session, not no
+ * CSRF: cookie-authenticated writes follow the shared CookieSecurity nonce contract.
+ */
 @Configuration
 @org.springframework.context.annotation.Import({com.taskflow.security.ProductionSecurity.class, com.taskflow.security.EurekaClientAuthentication.class})
 @RequiredArgsConstructor

@@ -5,6 +5,12 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;
 
+/**
+ * MongoDB access for auth's credential documents, used by AuthServiceImpl and bootstrap.
+ * Email/username lookups support login and uniqueness checks; hasAdministrator gates first-start
+ * provisioning. It does not access user-service profiles. Canonicalization belongs in the service,
+ * and unique Mongo indexes remain important for concurrent registration attempts.
+ */
 public interface UserRepository
         extends MongoRepository<User, String> {
 

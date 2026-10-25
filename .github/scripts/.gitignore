@@ -1,1 +1,4 @@
+# Ignore Python bytecode produced while importing CI helper modules and tests.
+# Authored scripts and regression fixtures stay tracked; execution caches are disposable.
+
 __pycache__/

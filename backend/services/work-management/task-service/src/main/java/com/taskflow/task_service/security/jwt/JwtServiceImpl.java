@@ -13,7 +13,12 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
-/** Validate the shared access-token contract; extractUsername returns the auth-service account ID. */
+/**
+ * Adapts task-service claim helpers to common-security's AccessTokenValidator.
+ * Successful parsing verifies signature, issuer, audience, access purpose, lifetime, and required
+ * identity/platform claims before returning the canonical account subject. HMAC is a local/test
+ * compatibility branch; production distribution supplies only the RSA public verification key.
+ */
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {

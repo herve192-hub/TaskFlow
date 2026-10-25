@@ -10,6 +10,9 @@ TaskFlow enables users to create projects, manage teams and tasks, and track wor
 through a validated status workflow. The frontend communicates with four business
 services through NGINX and an API gateway. Kafka carries task lifecycle events.
 
+See the [source documentation guide](docs/SOURCE_GUIDE.md) for code entry points,
+cross-service contracts, configuration ownership, and documentation conventions.
+
 ---
 
 ## ✨ Features

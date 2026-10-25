@@ -9,6 +9,12 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Binds jwt.* verification configuration used by the task token adapter.
+ * Common-security accepts RSA public verification or a sufficiently long local/test HMAC secret.
+ * ProductionSecurity rejects private signing material in this service and requires production
+ * settings; field presence in this binding object does not grant signing authority.
+ */
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "jwt")

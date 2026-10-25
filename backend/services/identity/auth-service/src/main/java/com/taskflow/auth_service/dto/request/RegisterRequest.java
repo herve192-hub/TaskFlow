@@ -6,7 +6,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-/** Account input with bounded names and 15-128 character passphrases; roles are assigned server-side. */
+/**
+ * Validated input to account creation, shared by public development and admin-approved production flows.
+ * Names, username, email, and passphrase have bounded lengths; AuthController decides whether the
+ * caller may register an account. Roles, canonical ID, password encoding, and approval state are
+ * assigned server-side rather than accepted as writable fields.
+ */
 @Data
 
 public class RegisterRequest {

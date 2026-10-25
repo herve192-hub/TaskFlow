@@ -13,6 +13,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 
+/**
+ * Describes project/team endpoints and their bearer authentication scheme for Springdoc.
+ * The schema is documentation metadata, not an authorization rule or an exposed production UI.
+ * Production disables documentation endpoints through configuration and SecurityConfig.
+ */
 @Configuration
 public class OpenApiConfig {
     

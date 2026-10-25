@@ -1,7 +1,16 @@
+# Local development stack: builds the SPA and seven Spring services, plus disposable
+# MongoDB/Kafka infrastructure with named volumes. Loads the ignored root .env;
+# port bindings target loopback for developer access. This is independent of the
+# production stack, which uses external TLS data services and scoped secret files.
+# Health dependencies gate startup, not ongoing dependency availability. Named
+# volumes retain local records/events across restarts; removing volumes deletes them.
+
 # version: '3.9'
 
 services:
 
+  # Built SPA and same-origin HTTP API proxy. Only the local frontend port is needed
+  # for normal browser use; the Dockerfile's VITE_* arguments become public assets.
   taskflow-web:
     image: taskflow/frontend:0.0.0
     pull_policy: build
@@ -32,8 +41,9 @@ services:
       retries: 5
       start_period: 10s
 
-  # mongodb service is built from the official MongoDB image. It is named mongodb and exposes port 27017.
-  # It is connected to the taskflow-network and has a healthcheck that checks the /actuator/health endpoint.The service uses a volume to persist data and environment variables to set the root username and password. ...
+  # Development document store shared by the four service-owned logical databases.
+  # Root credentials come from the ignored .env; mongosh ping gates startup.
+  # mongodb-data persists local records; production uses external scoped TLS accounts.
   mongodb:
     image: mongo:8.0.5@sha256:7bd28e5eea1c5766a084d5818254046f3ebe3b8f20a65e3a274640189e296667
     container_name: mongodb
@@ -66,8 +76,10 @@ services:
       retries: 5
       start_period: 30s
 
-# Kafka service is built from the official Apache Kafka image. It is named taskflow-kafka and exposes port 9092.
-# It is connected to the taskflow-network and has a healthcheck that checks the /actuator/health endpoint. The service uses environment variables to configure Kafka settings, including node ID, process roles, listeners, and replication factors. It also uses a volume to persist Kafka data. ...
+  # Single-node KRaft broker/controller for development task events. Containers use
+  # kafka:29092; host clients use the external listener. The Kafka CLI health probe
+  # lists topics. Plaintext and replication factor one are local-only choices;
+  # kafka-data retains events across restarts, without production redundancy.
   kafka:
     image: apache/kafka:4.1.0@sha256:bff074a5d0051dbc0bbbcd25b045bb1fe84833ec0d3c7c965d1797dd289ec88f
     container_name: taskflow-kafka
@@ -122,9 +134,9 @@ services:
       timeout: 10s
       retries: 10
       start_period: 30s
-  # Discovery Server service is built from the Dockerfile located at infrastructure/discovery-server/Dockerfile.
-  # It is named discovery-server and exposes port 8761. 
-  # It is connected to the taskflow-network and has a healthcheck that checks the /actuator/health endpoint. ...
+  # Eureka registry for local gateway/Feign service-name lookup. Runtime profiles
+  # choose development or protected infrastructure policy; loopback publication
+  # permits local diagnostics without making the registry an Internet endpoint.
   discovery-server:
     image: taskflow/discovery-server:1.0.0
     pull_policy: build
@@ -157,9 +169,9 @@ services:
       retries: 5
       start_period: 30s
 
-  # Config Server service is built from the Dockerfile located at infrastructure/config-server/Dockerfile.
-  # It is named config-server and exposes port 8888. It is connected to the taskflow-network 
-  # and has a healthcheck that checks the /actuator/health endpoint. ...
+  # Native shared/service configuration source. Mounts backend/config-repo so route
+  # and storage defaults can be loaded separately from JAR packaging; environment
+  # supplies local values. Registry health gates startup, not future availability.
   config-server:
     image: taskflow/config-server:1.0.0
     pull_policy: build
@@ -206,9 +218,9 @@ services:
       retries: 10
       start_period: 60s
 
-  # API Gateway service is built from the Dockerfile located at infrastructure/api-gateway/Dockerfile.
-  # It is named api-gateway and exposes port 8080. It depends on the discovery-server and config-server services, is connected to the taskflow-network,
-  # and has a healthcheck that checks the /actuator/health endpoint. ...
+  # Reactive route allowlist loaded from Config Server and resolved through Eureka.
+  # NGINX normally forwards browser calls here; direct loopback access supports
+  # local API clients. Business services still validate tokens and permissions.
   api-gateway:
     image: taskflow/api-gateway:1.0.0
     pull_policy: build
@@ -259,6 +271,9 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+  # Credential account creation/sign-in and token issuance. Owns taskflow-auth in
+  # MongoDB; profile creation is a separate user-service request. Local environment
+  # controls signing/settings; production uses scoped file imports instead.
   auth-service:
     image: taskflow/auth-service:0.0.1
     pull_policy: build
@@ -305,9 +320,9 @@ services:
       retries: 5
       start_period: 30s
       
-# User Service is built from the Dockerfile located at services/identity/user-service/Dockerfile.
-# It is named user-service and exposes port 8082. It depends on the discovery-server, config-server, and mongodb services, is connected to the taskflow-network,
-# and has a healthcheck that checks the /actuator/health endpoint. ...
+  # Profiles, preferences, avatars, and directory summaries in taskflow-users.
+  # Links documents to canonical auth IDs without owning sign-in credentials.
+  # Project/member screens call its summary endpoints through the gateway.
   user-service:
     image: taskflow/user-service:0.0.1
     pull_policy: build
@@ -366,9 +381,9 @@ services:
       retries: 10
       start_period: 60s
 
-  # Project Service is built from the Dockerfile located at services/work-management/project-service/Dockerfile.
-  # It is named project-service and exposes port 8083. It depends on the discovery-server, config-server, and mongodb services, is connected to the taskflow-network,
-  # and has a healthcheck that checks the /actuator/health endpoint. ...
+  # Project metadata and membership roles in taskflow-projects. Validates member
+  # identities through user-service and answers internal task authorization checks;
+  # those logical links are not cross-database foreign keys.
   project-service:
     image: taskflow/project-service:0.0.1
     pull_policy: build
@@ -426,7 +441,9 @@ services:
       timeout: 10s
       retries: 10
       start_period: 60s
-  #
+  # Task lifecycle and soft-deleted records in taskflow-tasks. Consults project/user
+  # services with the caller's token and publishes status/completion events to Kafka.
+  # Startup health ordering does not guarantee event delivery or ongoing availability.
   task-service:
     image: taskflow/task-service:1.0.0
     pull_policy: build
@@ -495,12 +512,15 @@ services:
       start_period: 60s
 
 
+# Docker-managed development persistence. Restarting containers retains these;
+# compose down with volume removal destroys the local database and event history.
 volumes:
   mongodb-data:
     # driver: local
   kafka-data:
     # driver: local
 
+# One local bridge permits service-name DNS; production splits edge/control/egress.
 networks:
   taskflow-network:
     driver: bridge

@@ -1,3 +1,9 @@
+# Sanitize a Trivy JSON report before logging or artifact upload. Remove matched
+# secret values/source context, replace repeated matches elsewhere in the report,
+# then atomically replace the raw file. Summaries deduplicate high/critical findings
+# and escape table text. Workflow conditions permit upload only after this succeeds;
+# this script does not change the scanner's vulnerability gate or suppress findings.
+
 """Show actionable Trivy findings without exposing secret matches."""
 
 import argparse
@@ -9,6 +15,8 @@ import tempfile
 from pathlib import Path
 
 
+# Collect actual secret matches before dropping Match/Code. Recursively replace
+# those values in other fields so artifact summaries cannot reintroduce the match.
 def redact(report):
     """Keep findings and locations while removing credential values from artifacts."""
     matches = set()
@@ -32,6 +40,8 @@ def redact(report):
     return clean(report)
 
 
+# Group high/critical failures by actionable identity while retaining affected
+# locations. Ignore passing config checks and never format secret payload fields.
 def summarize(report):
     findings = {}
     for result in report.get("Results", []) or []:
@@ -85,6 +95,8 @@ def summarize(report):
     return "\n".join(lines + [""])
 
 
+# Sanitize the file atomically before console/job-summary output; missing or invalid
+# reports fail instead of allowing an unredacted artifact through workflow guards.
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("report", type=Path)

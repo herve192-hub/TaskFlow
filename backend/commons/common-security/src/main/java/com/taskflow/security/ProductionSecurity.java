@@ -13,9 +13,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 
 /**
- * Startup checks imported by the gateway and business services under the prod profile.
- * Validate configured transport and authentication requirements before serving requests;
- * these checks do not establish database privileges or verify external infrastructure.
+ * Fail-fast production configuration validation, explicitly imported by gateway/business SecurityConfig.
+ * Requires one HTTPS origin, secure cookies, and administrator-controlled registration before serving.
+ * Business services additionally validate key distribution and MongoDB TLS options; task-service
+ * checks Kafka authentication/hostname verification. These checks validate configured properties,
+ * not the actual database privileges, provider backups, or remote server configuration.
  */
 @Configuration
 @Profile("prod")

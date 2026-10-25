@@ -28,7 +28,13 @@ import com.taskflow.auth_service.security.jwt.JwtProperties;
 import com.taskflow.security.CookieSecurity;
 import java.time.Duration;
 
-/** Authentication API returning client tokens and setting the browser's HttpOnly access cookie. */
+/**
+ * Owns browser-facing /auth endpoints and their cookie/cache behavior.
+ * GET /csrf materializes the shared nonce; login sets an HttpOnly access cookie; logout clears that
+ * browser cookie while existing bearer JWTs expire independently. Production registration requires
+ * ROLE_ADMIN and preserves the administrator's cookie while provisioning the new account.
+ * Frontend authApi/authService rely on these paths and no-store responses.
+ */
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -67,6 +73,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    // The public route must stay reachable for development while this handler enforces
+    // production approval. Avoid setting the new account's cookie during admin provisioning.
     public ResponseEntity<AuthResponse> register(
             @Valid @RequestBody RegisterRequest request,
             Authentication authentication

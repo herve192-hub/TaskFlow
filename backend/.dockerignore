@@ -1,3 +1,9 @@
+# Backend image build-context boundary used by every Java service Dockerfile.
+# Exclude local secrets, build/test output, editor state, and private diagnostics
+# before Docker receives backend/. Maven builds the selected module from source;
+# committed config-repo files remain available for the separate runtime mount.
+# Keep patterns aligned with .gitignore and publication policy when adding artifacts.
+
 # VCS and local tooling
 .git
 .gitignore

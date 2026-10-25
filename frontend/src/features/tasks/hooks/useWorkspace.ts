@@ -1,3 +1,11 @@
+/**
+ * Load workspaceService data for dashboard/task screens with explicit loading,
+ * error, and revision-based refresh state. Effect cleanup ignores late results
+ * when the route unmounts or refresh supersedes a request; it does not cancel HTTP
+ * traffic. Consumers should render error/retry instead of treating missing data
+ * as an empty workspace.
+ */
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { loadWorkspace } from "../services/workspaceService";

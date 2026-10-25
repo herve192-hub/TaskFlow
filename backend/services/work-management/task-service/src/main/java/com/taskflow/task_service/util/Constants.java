@@ -1,5 +1,11 @@
 package com.taskflow.task_service.util;
 
+/**
+ * Task route/transport/validation defaults shared by callers that reference these constants.
+ * Path strings must agree with TaskController, frontend taskService, and the gateway route allowlist.
+ * Length/page constants are not automatically enforced: DTO constraints and pageable configuration
+ * remain the actual HTTP validation boundaries.
+ */
 public final class Constants {
 
     private Constants() {

@@ -23,7 +23,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/** Validate the access token against the current credential account before populating Spring Security. */
+/**
+ * Reads bearer/cookie access credentials once per servlet request and validates the current account.
+ * CustomUserDetailsService loads the credential record, then JwtService checks subject/email/enabled
+ * state before populating SecurityContextHolder. Invalid credentials clear the context and leave
+ * SecurityConfig to reject protected routes; they do not become anonymous account identities.
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter

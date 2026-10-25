@@ -1,3 +1,10 @@
+/**
+ * UI labels, descriptions, and roles assignable through membership dialogs.
+ * OWNER is deliberately excluded: ordinary member edits do not transfer ownership.
+ * Keep enum spellings aligned with project.types.ts and backend permission policy;
+ * these options describe controls and cannot grant server-side privileges.
+ */
+
 import { ProjectRole } from "../types/project.types";
 
 // Ownership is established at project creation and cannot be assigned through generic membership edits.

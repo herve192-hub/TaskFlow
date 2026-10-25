@@ -1,3 +1,10 @@
+<!--
+Executable native Spring Cloud Config Server with Eureka registration and shared
+infrastructure authentication. Reads backend/config-repo at runtime rather than
+embedding credentials in the JAR. Boot packaging supplies the Docker runtime;
+config client libraries belong in downstream service modules.
+-->
+
 <!-- Herve Chendjou -->
 <!-- this pom file contains the dependencies for the config server -->
 <!-- it allows the application to fetch configuration from a remote source -->

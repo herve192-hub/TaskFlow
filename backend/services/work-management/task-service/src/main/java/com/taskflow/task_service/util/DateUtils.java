@@ -6,6 +6,11 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+/**
+ * UTC helpers for Instant/date formatting, parsing, and past/future checks.
+ * Blank/null behavior is explicit and invalid Instant input raises a bounded application error.
+ * These helpers do not schedule reminders or replace the browser's saved time-zone presentation.
+ */
 public final class DateUtils {
 
     private DateUtils() {

@@ -1,3 +1,10 @@
+<!--
+Aggregator and inherited parent for reusable backend libraries. Declares
+common-security in the reactor while inheriting root dependency/test management.
+This POM creates no server or executable application; runtime services declare
+library dependencies explicitly.
+-->
+
 <project>
 
     <modelVersion>4.0.0</modelVersion>

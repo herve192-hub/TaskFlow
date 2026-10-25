@@ -1,3 +1,10 @@
+/**
+ * Server-paginated list of project teams visible to the caller. Each team is a
+ * project membership set, not a separate organization entity. Cards link to the
+ * ProjectMembers route; server totals drive pagination. Cleanup suppresses stale
+ * loads and failures offer retry instead of displaying a fabricated empty team.
+ */
+
 import { useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Alert, Box, Button, Card, CardActions, CardContent, CircularProgress, Pagination, Stack, Typography } from "@mui/material";

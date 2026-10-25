@@ -6,7 +6,11 @@ import com.taskflow.task_service.events.TaskStatusChangedEvent;
 import java.time.Instant;
 import java.util.UUID;
 
-/** Versioned wire envelope; eventId is generated per publication and changedBy is an auth-service ID. */
+/**
+ * External schema-version-1 status-change message built from the internal domain event.
+ * Includes previous/new status and canonical actor with a fresh eventId; Kafka uses taskId as key.
+ * Changing enum values or field meaning affects downstream consumers even when HTTP DTOs compile.
+ */
 public record TaskStatusChangedMessage(
         String eventId,
         String eventType,

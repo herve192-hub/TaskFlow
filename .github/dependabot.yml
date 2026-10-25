@@ -1,3 +1,9 @@
+# Weekly dependency-update proposals for Actions, frontend npm, backend Maven,
+# container bases, and development MongoDB/Kafka images. Group related changes for
+# review, then rely on CI to check compatibility and security. Updating a Docker tag
+# must retain a valid digest, and exact npm versions must remain synchronized with
+# the lockfile. This configuration proposes changes; it does not release or deploy.
+
 version: 2
 updates:
   - package-ecosystem: github-actions

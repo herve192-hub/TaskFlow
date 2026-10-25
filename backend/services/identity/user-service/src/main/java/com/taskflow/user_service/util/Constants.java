@@ -1,5 +1,10 @@
 package com.taskflow.user_service.util;
 
+/**
+ * Optional shared route-fragment constants for profile-module callers.
+ * Defining a path here does not register a controller endpoint. Keep any new use consistent
+ * with UserController mappings and the API gateway's explicit public route allowlist.
+ */
 public final class Constants {
 
      private Constants() {}

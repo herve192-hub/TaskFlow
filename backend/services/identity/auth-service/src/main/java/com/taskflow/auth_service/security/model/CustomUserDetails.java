@@ -14,6 +14,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Adapts credential-account fields to Spring Security's authenticated principal.
+ * getUsername returns email for credential lookup; getId supplies the canonical JWT subject and
+ * opaque audit actor. Platform roles become GrantedAuthority values. The current adapter's lock/
+ * expiry methods return true; do not assume every domain.User status field is enforced here.
+ */
 @Getter
 @Builder
 @AllArgsConstructor

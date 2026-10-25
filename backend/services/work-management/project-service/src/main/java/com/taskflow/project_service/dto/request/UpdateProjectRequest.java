@@ -5,6 +5,11 @@ import com.taskflow.project_service.domain.enums.ProjectVisibility;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+/**
+ * Optional project metadata changes; null fields retain their stored values in ProjectMapper.
+ * Owner identity and membership are not writable here. ProjectServiceImpl requires project
+ * edit rights and checks renamed projects against the owner's existing names.
+ */
 @Data
 public class UpdateProjectRequest {
 

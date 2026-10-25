@@ -1,3 +1,10 @@
+/**
+ * Accessible responsive logo rendered from the original PNG artwork through SVG
+ * viewports. Horizontal, stacked, and mark variants share one image asset; viewBox
+ * coordinates crop symbol/wordmark without modifying the source. Keep those bounds
+ * synchronized if replacing the artwork.
+ */
+
 import { Box } from "@mui/material";
 import logo from "../assets/TaskFlow Gradient Flow Logo.png";
 

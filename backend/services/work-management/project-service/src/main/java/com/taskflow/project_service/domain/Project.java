@@ -19,7 +19,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Project metadata; team membership is stored separately in ProjectMember documents. */
+/**
+ * Project metadata document keyed independently of auth accounts and user profiles.
+ * ownerId is the creator's canonical account ID; membership records determine access. Visibility
+ * and lifecycle values are metadata and do not independently bypass current membership checks.
+ * Task documents live in another service, so deleting this document is not a task-store cascade.
+ */
 @Data
 @Builder
 @NoArgsConstructor

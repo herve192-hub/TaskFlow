@@ -1,3 +1,9 @@
+/**
+ * Verify production UI onboarding controls when public registration is disabled:
+ * direct signup navigation redirects and login omits public signup links. This
+ * complements the auth service's independent production provisioning policy.
+ */
+
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import AppRoutes from "./AppRoutes";

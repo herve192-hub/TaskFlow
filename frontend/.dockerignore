@@ -1,3 +1,9 @@
+# Frontend image build-context boundary. Exclude installed dependencies, generated
+# assets/reports, credentials, local environments, and private diagnostics before
+# Docker receives frontend/. Dockerfile installs the committed lockfile itself;
+# only its compiled dist assets enter the runtime stage. Ignore rules do not replace
+# scanning the final image or keeping VITE_* values free of secrets.
+
 node_modules
 dist
 dist-ssr

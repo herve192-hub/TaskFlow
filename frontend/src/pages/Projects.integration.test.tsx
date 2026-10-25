@@ -1,3 +1,9 @@
+/**
+ * Exercise project creation through the real form/page interaction with mocked
+ * service calls. Rejection must preserve input, retry must reload the list, and
+ * pending writes must not duplicate. Backend authorization is tested separately.
+ */
+
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { ThemeProvider } from "@mui/material/styles";
 import { MemoryRouter } from "react-router-dom";

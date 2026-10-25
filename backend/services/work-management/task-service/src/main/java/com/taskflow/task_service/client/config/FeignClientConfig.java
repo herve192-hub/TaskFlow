@@ -8,7 +8,12 @@ import feign.codec.ErrorDecoder;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
-/** Forward the request's access token so project/user lookups run with the same caller identity. */
+/**
+ * Propagates the current request's bearer/cookie access token to project/user internal calls.
+ * No token is cached in a singleton field; the request-scoped servlet proxy supplies the caller.
+ * FeignErrorDecoder distinguishes access/invalid-reference/outage errors. Non-request/background
+ * callers would need their own explicit identity propagation design.
+ */
 @Configuration
 @RequiredArgsConstructor
 public class FeignClientConfig {

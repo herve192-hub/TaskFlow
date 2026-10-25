@@ -19,7 +19,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 
-/** Verify the shared access-token contract; extractUsername returns the canonical account ID (sub). */
+/**
+ * Adapts profile-service claim helpers to common-security's AccessTokenValidator.
+ * Successful parsing verifies signature, issuer, audience, access purpose, lifetime, and required
+ * identity/platform claims before returning the canonical account subject. HMAC is a local/test
+ * compatibility branch; production distribution supplies only the RSA public verification key.
+ */
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {

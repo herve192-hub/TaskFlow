@@ -1,3 +1,8 @@
+# Native Config Server bootstrap. Serves local classpath/config-repo files on port
+# 8888 and registers with Eureka for internal infrastructure discovery. Compose
+# mounts backend/config-repo read-only; InfrastructureSecurityConfiguration protects
+# non-health endpoints. Credentials are supplied by runtime configtree imports.
+
 # Config Server reads repository files locally; no Git-host credentials are needed for native mode.
 
 server:

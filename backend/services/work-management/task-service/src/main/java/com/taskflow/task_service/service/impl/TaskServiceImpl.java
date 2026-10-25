@@ -54,7 +54,13 @@ import com.taskflow.task_service.service.policy.TaskLifecyclePolicy;
 
 import org.springframework.context.ApplicationEventPublisher;
 
-/** Coordinates task persistence, project access decisions, lifecycle policy, and domain events. */
+/**
+ * Coordinates tasks/comments with current project access, assignee validation, and lifecycle policy.
+ * Project/user lookups forward the caller's token through Feign; task data is stored independently.
+ * Management roles own assignment/cancellation/reopening, while eligible members can update their
+ * created/assigned tasks. Delete is soft archive. Status saves publish the two active domain events;
+ * Kafka delivery is best effort and does not make a distributed database/broker transaction.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -132,6 +138,8 @@ public class TaskServiceImpl implements TaskService {
     // TASK UPDATE
     // =========================================================
     @Override
+    // Generic metadata updates must preserve the same assignee authorization as the dedicated
+    // assignment endpoint. Status is deliberately absent from UpdateTaskRequest.
     public TaskResponse updateTask( String taskId, UpdateTaskRequest request, String userId ) {
 
         validateUserId(userId);
@@ -262,6 +270,8 @@ public class TaskServiceImpl implements TaskService {
     // =========================================================
     @Override
     @Transactional(readOnly = true)
+    // This personal query filters by assignee ID and archive state only; unlike the project
+    // list/detail routes it does not perform a current-membership lookup for each result.
     public PageResponse<TaskSummaryResponse> getMyTasks( Pageable pageable, String userId ) {
 
         validateUserId(userId);
@@ -371,6 +381,8 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
+    // Validate the graph edge and caller permission separately before persistence. The saved
+    // state/completion timestamp are the source of domain events, not untrusted request fields.
     public TaskResponse changeTaskStatus(
             String taskId,
             ChangeTaskStatusRequest request,
@@ -417,6 +429,8 @@ public class TaskServiceImpl implements TaskService {
     // =========================================================
 
     /** A completion emits both the general transition event and a completion-specific event. */
+    // Spring publication is not a durable broker handoff. The listener may run after commit
+    // (or through its no-transaction fallback), and Kafka send failures are logged asynchronously.
     private void publishStatusEvents(
         Task task,
         TaskStatus previousStatus,

@@ -8,6 +8,11 @@ import lombok.Data;
 
 import java.time.Instant;
 
+/**
+ * Reduced list/query representation for project and personal task pages.
+ * Omits large descriptions/comments and full audit/effort data while retaining status, priority,
+ * assignee, and due date needed by dashboard/list views. It is not a full TaskResponse.
+ */
 @Data
 @Builder
 public class TaskSummaryResponse {

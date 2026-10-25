@@ -1,3 +1,10 @@
+# AWS-only overlay applied after ../production/compose.yml by taskflow.py.
+# Replaces local builds with all eight digest-pinned ECR images from release.json,
+# ships container output to the Terraform CloudWatch group, and exposes NGINX port
+# 8080 only behind the ALB security group. ALB/ACM owns TLS; unused TLS mounts and
+# secret definitions are reset. Compose reset/override tags require the documented
+# Compose version. Network/resource/credential isolation is inherited from the base.
+
 # Use ONLY with ../production/compose.yml, never with root docker-compose.yml.
 # Host port 8080 is reachable only from the ALB security group in this AWS setup.
 x-logging: &aws-logging

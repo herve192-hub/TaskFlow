@@ -9,7 +9,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/** Preserve the caller's authentication and translate user-service failures for project operations. */
+/**
+ * Forwards the current request's bearer/cookie access credential as a bearer header to user-service.
+ * Reading request context per invocation avoids storing one caller's token in a shared bean.
+ * FeignErrorDecoder translates access/absence/outage responses; timeouts are configured in
+ * shared application configuration. Do not substitute infrastructure Basic credentials here.
+ */
 @Configuration
 public class FeignClientConfig {
 

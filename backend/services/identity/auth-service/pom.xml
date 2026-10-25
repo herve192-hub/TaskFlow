@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+Credential-account service dependencies: servlet APIs, MongoDB, validation,
+Spring Security, Argon2 support, and JWT issuance. common-security supplies shared
+cookie/token rules; managed versions come from the backend root. Compiler setup
+supports Lombok-generated model code and Boot packaging creates the runtime JAR.
+OpenAPI tooling is disabled by production environment settings.
+-->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	

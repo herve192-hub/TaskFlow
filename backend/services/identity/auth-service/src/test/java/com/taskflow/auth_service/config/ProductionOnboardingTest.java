@@ -17,6 +17,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/**
+ * Unit/controller tests for first-admin provisioning, no automatic account promotion, and production onboarding.
+ * Mocked repositories/encoders isolate account creation; direct controller calls verify approval,
+ * secure cookie shape, administrator-session preservation, and opaque-ID audit behavior.
+ * These tests do not replace a real filter-chain CSRF or live database integration test.
+ */
 class ProductionOnboardingTest {
     private MockEnvironment bootstrap() {
         return new MockEnvironment().withProperty("taskflow.bootstrap.admin.email", "admin@example.test")

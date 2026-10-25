@@ -2,6 +2,12 @@ package com.taskflow.project_service.security.jwt;
 
 import java.util.List;
 
+/**
+ * Verification/claim-access boundary used by project-service request authentication.
+ * The caller identity is the canonical token subject returned by extractUserId, not a profile document ID or requested path user.
+ * Implementations delegate the security contract to common-security; this service does not issue
+ * credential-account tokens or implement refresh exchange.
+ */
 public interface JwtService {
 
     /**

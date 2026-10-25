@@ -10,6 +10,11 @@ import lombok.Data;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Detailed project metadata returned after authorized CRUD operations.
+ * The members field exists in this schema, but ProjectMapper does not fetch memberships to
+ * hydrate it; the paginated members endpoint is the active team source. ownerId is an auth ID.
+ */
 @Data
 @Builder
 @NoArgsConstructor

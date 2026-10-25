@@ -1,3 +1,10 @@
+/**
+ * Task API adapter used by project pages and workspace aggregation. Encodes path
+ * IDs, requests server-paginated project tasks in creation order, and sends explicit
+ * status patches rather than embedding lifecycle changes in generic updates.
+ * Backend project membership and TaskLifecyclePolicy decide which writes succeed.
+ */
+
 import api from "../../../api/axios";
 import type {
   CreateTaskRequest, PageResponse, TaskResponse, TaskSummaryResponse, TaskStatus,

@@ -1,4 +1,9 @@
 #!/bin/sh
+# Local publication gate for each source ref proposed to Git by pre-push input.
+# Checks committed blobs and available history through verify-publishable-files.py;
+# remote-ref deletion uploads no tree. Enable via core.hooksPath=.githooks and use
+# the pinned scanner. This hook validates content and does not perform the push.
+
 set -eu
 cd "$(git rev-parse --show-toplevel)"
 while read -r local_ref local_oid remote_ref remote_oid; do

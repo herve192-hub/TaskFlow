@@ -1,3 +1,10 @@
+/**
+ * Reusable react-hook-form password input for login and signup. Registration props
+ * carry field validation while this component supplies a 128-character limit and
+ * accessible visibility toggle. Toggle buttons do not submit the form or steal
+ * input focus; password contents remain in the caller's transient form state.
+ */
+
 import { useState } from "react";
 import { IconButton, InputAdornment, TextField } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";

@@ -2,6 +2,11 @@ package com.taskflow.task_service.util;
 
 import java.util.Collection;
 
+/**
+ * Opt-in string/collection/numeric validation helpers for task-module callers.
+ * They do not replace request DTO constraints, TaskLifecyclePolicy, or service permission checks.
+ * String equality/length helpers validate values, not cross-service identity ownership.
+ */
 public final class ValidationUtils {
 
     private ValidationUtils() {

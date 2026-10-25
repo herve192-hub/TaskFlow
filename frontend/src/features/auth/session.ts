@@ -1,3 +1,12 @@
+/**
+ * Reactive per-tab account display cache. sessionStorage holds taskflow.user;
+ * HttpOnly cookies remain the API credential. Legacy localStorage credentials are
+ * removed on module load. A custom same-tab event plus storage subscription feeds
+ * useCurrentUser; snapshots remain primitive strings for useSyncExternalStore.
+ * Validate cached identity shape and clear it on logout/401. Never cache token
+ * fields or private profile contact details here.
+ */
+
 import type { AuthUser } from './types/auth.types'
 
 const sessionKey = 'taskflow.user'

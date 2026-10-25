@@ -27,7 +27,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import com.taskflow.user_service.security.jwt.JwtService;
 import org.springframework.security.access.AccessDeniedException;
 
-/** Profile self-service and directory summaries; full profile reads require self/admin access. */
+/**
+ * Owns /api/v1/users self-service and directory HTTP contracts.
+ * /me routes take identity from Authentication, and profile creation also matches email to
+ * validated token claims. Private profile-by-document-ID reads require ownership or platform admin.
+ * Directory/search/batch lookup return UserSummaryResponse instead of private phone/bio fields.
+ * Bean Validation checks payload shape; UserServiceImpl applies persistence and field-specific rules.
+ */
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor

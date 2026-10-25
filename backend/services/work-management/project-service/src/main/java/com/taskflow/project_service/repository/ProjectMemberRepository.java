@@ -10,7 +10,11 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 import java.util.Optional;
 
-/** Membership lookups used to calculate current project access and scope project listings. */
+/**
+ * Mongo queries for project-team membership, caller-project scope, counts, and removals.
+ * ProjectServiceImpl uses projectId/userId pairs to derive permissions and validates a membership
+ * belongs to the route's project before mutation. Repository methods alone do not authorize callers.
+ */
 public interface ProjectMemberRepository
         extends MongoRepository<ProjectMember, String> {
 

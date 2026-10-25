@@ -14,6 +14,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+/**
+ * Security regression tests for signature algorithms, issuer/audience/purpose, and required identity claims.
+ * Keys/tokens are generated or constructed as test fixtures, not production credentials. These
+ * unit tests exercise the shared parser without starting HTTP services or MongoDB.
+ */
 class AccessTokenValidatorTest {
     private static final String KEY = "isolated-unit-test-signing-key-".repeat(3);
 

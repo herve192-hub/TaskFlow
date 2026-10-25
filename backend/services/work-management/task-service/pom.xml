@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+Task service build: MongoDB persistence, servlet API/security, Feign project-role
+checks, and Kafka event publishing. Shared token validation and managed JWT versions
+keep identity consistent with other services. Boot packaging and Lombok compiler
+configuration support the Docker runtime; root tests distinguish unit and integration
+suites. Kafka producer support does not create a durable transactional outbox.
+-->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

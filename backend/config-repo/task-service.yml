@@ -1,3 +1,9 @@
+# Central task storage and Kafka producer configuration consumed by task-service.
+# TASK_MONGO_URI and production Kafka security properties arrive through scoped
+# runtime mounts. Versioned topics match KafkaTaskEventPublisher message contracts;
+# acks/idempotence improve broker delivery but do not make MongoDB writes and sends
+# atomic. Keep topic changes coordinated with any external consumers.
+
 # Task persistence and the Kafka producer used by status-change/completion events.
 server:
   port: 8084

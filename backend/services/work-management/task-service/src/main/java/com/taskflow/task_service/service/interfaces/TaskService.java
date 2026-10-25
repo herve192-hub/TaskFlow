@@ -12,7 +12,12 @@ import com.taskflow.task_service.dto.request.ChangeTaskStatusRequest;
 
 import org.springframework.data.domain.Pageable;
 
-/** Task operations using auth-service account IDs for callers, creators, and assignees. */
+/**
+ * Application contract for task metadata, project/personal queries, assignment, comments, and lifecycle.
+ * Callers pass canonical actor IDs from authentication. The implementation owns permission checks,
+ * repository operations, completion timestamps, and domain events; this interface does not expose
+ * password management, arbitrary project role assignment, or an external transaction boundary.
+ */
 public interface TaskService {
 
     TaskResponse createTask(

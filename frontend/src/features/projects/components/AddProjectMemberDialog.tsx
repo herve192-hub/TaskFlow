@@ -1,3 +1,11 @@
+/**
+ * Directory-backed membership form. Load existing members, debounce active-user
+ * search, and exclude accounts already in the project. Selection stores canonical
+ * authUserId; the backend validates existence and permission again on submission.
+ * Effect cleanup ignores stale searches, and a pending ref serializes writes.
+ * Failures preserve selections for retry; role choices exclude ownership transfer.
+ */
+
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import {

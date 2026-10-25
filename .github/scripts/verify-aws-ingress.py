@@ -1,3 +1,9 @@
+# Disposable Docker test for deploy/aws/nginx.conf and its trusted ALB boundary.
+# A fake gateway and isolated network exercise HTTPS markers, client-address trust,
+# rate limiting, SPA fallback, and health routing. Does not contact AWS or validate
+# real security groups; Terraform/production policy own those boundaries. Fixture
+# containers/networks are cleaned up even when an assertion fails.
+
 """Exercise the AWS NGINX configuration with synthetic ALB headers and a fake gateway."""
 
 import json
@@ -15,6 +21,8 @@ def run(*arguments):
     return subprocess.check_output(arguments, text=True, stderr=subprocess.STDOUT).strip()
 
 
+# Start the isolated fake ALB/gateway boundary, assert client trust and API behavior,
+# then remove fixture resources through finally even when a check fails.
 def main():
     image = os.environ["TASKFLOW_AWS_FRONTEND_IMAGE"]
     name = "taskflow-aws-check-" + uuid.uuid4().hex[:10]

@@ -1,3 +1,11 @@
+/**
+ * Browser contracts for auth-service requests, token envelopes, and display identity.
+ * AuthUser.id is the canonical account ID shared with project/task authorization.
+ * firstname/lastname reflect auth JSON spelling; user-service profiles use camelCase.
+ * AuthResponse describes the wire format; session persistence must copy only user
+ * metadata, never accessToken or refreshToken.
+ */
+
 import type { UserPreferences } from "../../users/types/user.types";
 
 export interface LoginRequest {

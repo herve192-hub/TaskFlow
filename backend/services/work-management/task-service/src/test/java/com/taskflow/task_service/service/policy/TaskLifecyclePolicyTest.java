@@ -9,6 +9,11 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+/**
+ * Exhaustive unit examples for the explicit workflow graph, including reopening and invalid edges.
+ * Reject null/no-op transitions and shortcuts to completion. This policy suite tests graph legality;
+ * actor/project permission checks remain in TaskServiceImpl and its collaboration tests.
+ */
 class TaskLifecyclePolicyTest {
 
     private TaskLifecyclePolicy policy;

@@ -1,3 +1,8 @@
+# Offline regression coverage for the release/deployment trust boundaries.
+# Synthetic Terraform settings/manifests, mocked AWS/Docker commands, and temporary
+# files exercise validation, archive allowlisting, property escaping, and secret-file
+# permissions. No real AWS credentials, image publication, or host deployment occurs.
+
 """Exercise release boundaries without AWS credentials or a Docker daemon."""
 
 import importlib.util

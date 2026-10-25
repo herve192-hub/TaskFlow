@@ -1,2 +1,6 @@
+# Maven launcher line-ending policy: Unix mvnw uses LF and Windows .cmd uses CRLF.
+# These are vendor launchers; keep their executable content intact and use the root
+# backend wrapper for reactor builds. Attributes do not configure Java runtime behavior.
+
 /mvnw text eol=lf
 *.cmd text eol=crlf

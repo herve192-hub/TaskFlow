@@ -9,6 +9,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Editable profile fields for PUT /users/me; omitted values are kept by the null-skipping mapper.
+ * Names reject whitespace-only input and lengths are bounded. Email, identity, preferences,
+ * avatar, status, and timestamps have separate ownership/endpoints and are not writable here.
+ */
 @Getter
 @Setter
 @Builder

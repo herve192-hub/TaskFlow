@@ -1,3 +1,8 @@
+# Collect only the isolated E2E project's status/log output before teardown.
+# Generated runtime credentials, URL user-info, and JWT-shaped strings are redacted
+# before writing ignored log artifacts. It does not collect arbitrary host logs or
+# production secrets. Maintain redaction when adding new fixture credential sources.
+
 """Collect isolated test logs without retaining credentials or JWT values."""
 
 from pathlib import Path
@@ -8,6 +13,8 @@ ROOT = Path(__file__).resolve().parents[2]
 STACK = ROOT / ".github/e2e"
 
 
+# Skip absent runtime setup. Capture both stdout/stderr, redact before disk writes,
+# and fail log collection without printing raw process output on command errors.
 def main():
     directory = STACK / "logs"
     directory.mkdir(exist_ok=True)

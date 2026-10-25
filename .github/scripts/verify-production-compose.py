@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# Structural production policy for rendered Compose: enforce expected services,
+# public ingress, networks, runtime hardening, and per-service secret scope for direct,
+# bootstrap, and AWS combinations. Rendering uses synthetic interpolation values and
+# an explicit empty env file, so real secret contents are not read. Needs the Compose
+# CLI, not running application containers. Regression tests mutate the rendered model
+# to prove sensitive policy violations are rejected.
+
 """Enforce the repository's production isolation policy without reading real secret values."""
 
 import json
@@ -13,6 +20,8 @@ INFRASTRUCTURE = {"config-server", "discovery-server"}
 SERVICES = BUSINESS | INFRASTRUCTURE | {"api-gateway", "taskflow-web"}
 
 
+# Render actual base/overlay files with public fixture values. Clear inherited
+# Compose selectors and disable implicit .env loading to isolate the policy check.
 def render(bootstrap=False, aws=False):
     # Ignore developer/CI Compose selection and env files; these are public fixture settings only.
     environment = {name: value for name, value in os.environ.items() if not name.startswith("COMPOSE_")}
@@ -33,6 +42,8 @@ def render(bootstrap=False, aws=False):
     return json.loads(result.stdout)
 
 
+# Assert the effective merged service model, not raw YAML fragments. Account for
+# the legitimate bootstrap mounts and ALB ingress changes without widening other scopes.
 def validate(config, bootstrap=False, aws=False):
     errors = []
 
@@ -135,6 +146,8 @@ def validate(config, bootstrap=False, aws=False):
         raise ValueError("Production policy failed:\n" + "\n".join(errors))
 
 
+# Check direct/AWS combinations with and without one-time administrator mounts;
+# a passing base alone cannot prove that overlay merges preserve the policy.
 def main():
     for aws in [False, True]:
         for bootstrap in [False, True]:

@@ -29,6 +29,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Repository/client/publisher-mocked service tests for allowed status changes and completion timestamps.
+ * Verify saved state plus status/completion event emission and clearing completedAt on management
+ * reopen. Kafka delivery and live project permissions are separate integration concerns.
+ */
 @ExtendWith(MockitoExtension.class)
 class TaskServiceImplTest {
 

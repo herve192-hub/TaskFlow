@@ -1,3 +1,11 @@
+/**
+ * Browser smoke checks for sign-in rendering, signup navigation, and redirecting
+ * anonymous visitors from protected pages against the built SPA. These flows do
+ * not require backend APIs; real credential validation and persistence belong to
+ * the full-stack scenarios.
+ * playwright.config.ts starts Vite preview and retains failure diagnostics.
+ */
+
 import { expect, test } from '@playwright/test'
 
 // These smoke checks exercise the production bundle's navigation without requiring a signed-in account.

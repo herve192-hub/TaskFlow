@@ -1,3 +1,9 @@
+/**
+ * Unit coverage for timezone/date/time formatting, invalid-input fallbacks, and
+ * allowlisted post-login destinations. Fixed timestamps make boundary behavior
+ * repeatable; no server timezone configuration is changed.
+ */
+
 import { describe, expect, it } from "vitest";
 import { defaultPreferences, formatAccountDate, startPagePath } from "./preferences";
 import type { UserPreferences } from "../types/user.types";

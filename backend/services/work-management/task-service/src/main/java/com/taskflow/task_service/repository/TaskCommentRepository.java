@@ -8,6 +8,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * Mongo comment storage and newest-first per-task pagination.
+ * TaskServiceImpl first resolves an active task and checks caller view access before using these
+ * methods. findByIdAndTaskId is available for scoped future edit/delete work; its existence does
+ * not mean those HTTP operations are implemented.
+ */
 @Repository
 public interface TaskCommentRepository
         extends MongoRepository<TaskComment, String> {

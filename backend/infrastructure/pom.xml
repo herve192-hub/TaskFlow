@@ -1,3 +1,10 @@
+<!--
+Maven aggregation for discovery, centralized configuration, and the API gateway.
+Inherits root versions and verification plugins; each child declares its own
+runtime and Boot packaging. This module organizes builds, not runtime startup;
+Compose health dependencies control infrastructure startup ordering.
+-->
+
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

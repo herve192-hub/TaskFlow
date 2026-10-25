@@ -1,3 +1,10 @@
+/**
+ * Reactive account menu and branding for the fixed dashboard header. Reads current
+ * session display metadata for names, initials, avatar, and profile/settings links.
+ * Logout delegates cookie invalidation to authService and reports network failure.
+ * Drawer offsets use the same widths as Sidebar through layoutConstants.
+ */
+
 import { AppBar, Avatar, Box, IconButton, Menu, MenuItem, Toolbar, Typography } from "@mui/material";
 import { useState } from "react";
 import { toast } from "react-toastify";

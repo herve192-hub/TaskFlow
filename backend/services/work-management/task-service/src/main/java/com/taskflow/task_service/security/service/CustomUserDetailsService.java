@@ -6,6 +6,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import org.springframework.stereotype.Service;
 
+/**
+ * Builds lightweight UserDetails from an already supplied account identifier without a database lookup.
+ * It is not credential verification and uses an empty password plus ROLE_USER. The active request
+ * filter validates JWTs independently; project/task permissions still require service-layer checks.
+ */
 @Service
 public class CustomUserDetailsService
         implements UserDetailsService {

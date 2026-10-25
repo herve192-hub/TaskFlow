@@ -13,6 +13,12 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Maps known project/membership failures to structured 400/403/404/409/503 responses.
+ * Validation errors describe fields, malformed JSON has a bounded message, and unexpected
+ * exceptions receive a generic 500 while diagnostic details stay server-side. Keep raw bearer
+ * credentials and private request bodies out of messages/logs added to these handlers.
+ */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {

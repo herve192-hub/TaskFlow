@@ -1,3 +1,7 @@
+# Frontend feature-request form for motivation and acceptance criteria.
+# This nested frontend metadata is not the root GitHub issue-template directory;
+# move/configure it explicitly if enabling repository-wide issue forms.
+
 
 name: Feature Request
 description: Suggest a feature

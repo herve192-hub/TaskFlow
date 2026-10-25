@@ -12,7 +12,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
-/** Map task/comment DTOs while leaving authorization, lifecycle, and auditing decisions to the service. */
+/**
+ * Explicitly maps task/comment request and response boundaries with builders and selective fields.
+ * Null update values retain existing state, and input tag collections are copied on create/update.
+ * Canonical creator/author IDs are supplied by the service. Authorization, lifecycle state,
+ * completion timestamps, and assignment eligibility remain in TaskServiceImpl.
+ */
 @Component
 public class TaskMapper {
 

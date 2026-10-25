@@ -1,3 +1,9 @@
+# Central gateway route and browser-origin policy loaded from Config Server.
+# The explicit /auth and versioned users/projects/tasks routes resolve through Eureka;
+# discovery lookup does not automatically expose every registered service. Keep paths
+# aligned with frontend API modules and NGINX. Credentialed CORS requires an exact
+# origin; production passes TASKFLOW_WEB_ORIGIN and keeps infrastructure paths private.
+
 # Explicit public routes for the reactive gateway; /internal and infrastructure APIs stay unlisted.
 server:
   port: 8080

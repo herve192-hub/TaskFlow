@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# Publication boundary used by hooks and security CI. Validate staged or committed
+# Git blobs, rejecting private/generated paths, symlinks, oversized files, and tracked
+# ignored files. Optional working-tree mode reviews pending unignored edits; ignored
+# runtime secrets are never copied into the scanner input. Secret checks require an
+# exact pinned Gitleaks version and can include all locally available history.
+# This audits selected content; it neither stages files nor sends anything to GitHub.
+
 """Check Git's actual publishable files without reading ignored runtime secrets."""
 
 import argparse
@@ -26,10 +33,14 @@ GITLEAKS_VERSION = "8.30.1"
 MAX_FILE_BYTES = 10 * 1024 * 1024
 
 
+# Use argument arrays and binary output so Git paths/blobs remain lossless;
+# NUL-delimited callers handle whitespace/newlines in filenames.
 def git(*args, input_data=None):
     return subprocess.check_output(["git", *args], input=input_data)
 
 
+# Resolve explicit override, configured/managed local install, or PATH, then check
+# the exact required version. Never silently skip a missing scanner in publication gates.
 def gitleaks_binary():
     repair = "Run: python3 .github/scripts/install-gitleaks.py"
     configured = subprocess.run(
@@ -53,6 +64,9 @@ def gitleaks_binary():
     return binary
 
 
+# Choose committed/index blobs by default, or explicit working-tree review mode.
+# Validate paths/modes before reading contents, then stage only approved content in
+# a disposable scanner directory; history scans stay local and use redacted output.
 def check(args):
     root = Path(os.fsdecode(git("rev-parse", "--show-toplevel")).strip())
     os.chdir(root)

@@ -5,7 +5,12 @@ import com.taskflow.task_service.events.TaskCompletedEvent;
 import java.time.Instant;
 import java.util.UUID;
 
-/** Completion wire envelope with task effort data and canonical account IDs, independent of JWT claims. */
+/**
+ * External schema-version-1 completion message built from TaskCompletedEvent.
+ * Adds eventType and a newly generated eventId plus occurrence data for Kafka consumers.
+ * Consumers must manage schema compatibility/idempotency themselves; reconstructing a message
+ * creates a different UUID and does not constitute stable retry deduplication.
+ */
 public record TaskCompletedMessage(
         String eventId,
         String eventType,

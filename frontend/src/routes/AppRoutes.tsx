@@ -1,3 +1,11 @@
+/**
+ * Route map for public authentication and nested dashboard screens. Lazy imports
+ * split page bundles; Suspense handles loading and App catches render failures.
+ * ProtectedRoute observes session display metadata; backend cookies authorize APIs.
+ * VITE_PUBLIC_REGISTRATION_ENABLED is a build-time UI switch; the auth service's
+ * production policy independently controls who may create accounts.
+ */
+
 import {
   BrowserRouter,
   Route,

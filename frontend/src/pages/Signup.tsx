@@ -1,3 +1,10 @@
+/**
+ * Public onboarding form for deployments that enable registration. Maps UI field
+ * names to the auth API, validates confirmation, and delegates credential creation
+ * to authService. Server policy owns account roles and production provisioning.
+ * AppRoutes hides this route when the production build disables public registration.
+ */
+
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";

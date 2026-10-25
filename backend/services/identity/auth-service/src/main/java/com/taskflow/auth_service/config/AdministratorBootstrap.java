@@ -13,7 +13,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-/** Provision the first production administrator from protected startup secrets, never by promotion. */
+/**
+ * Creates the first production administrator from protected startup properties through ApplicationRunner.
+ * If an administrator already exists it does nothing; otherwise it creates a new encoded-password
+ * account and refuses to promote a colliding email/username. The initial Compose override mounts
+ * these secrets into auth only; deploy/aws/taskflow.py later removes the bootstrap mounts.
+ */
 @Configuration
 @Profile("prod")
 public class AdministratorBootstrap {

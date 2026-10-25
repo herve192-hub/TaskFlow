@@ -1,3 +1,9 @@
+/**
+ * Verify router reactions to valid/missing/cleared display metadata and removal of
+ * legacy token-based localStorage assumptions. Uses memory routing and browser storage;
+ * the route guard itself does not validate the server cookie.
+ */
+
 import { act, cleanup, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'

@@ -9,7 +9,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-/** Active-task queries exclude archived documents; the inherited ID lookup also permits restore flows. */
+/**
+ * Mongo task queries for project/personal lists, counts, titles, and logical references.
+ * Active paths include ArchivedFalse so soft-deleted tasks do not appear in normal list/count
+ * results. Queries alone are not authorization: project callers must check access before use,
+ * and creator/assignee lists currently scope by account ID without a membership join.
+ */
 @Repository
 public interface TaskRepository extends MongoRepository<Task, String> {
 

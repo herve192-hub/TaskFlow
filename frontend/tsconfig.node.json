@@ -1,3 +1,7 @@
+// Node tooling type-checking contract for build/test configs and browser-test helpers.
+// Node globals belong here rather than the browser source environment. Strict unused
+// checks catch stale tooling; bundler resolution matches the config loaders. This
+// project emits no runtime files and stores incremental metadata with dependencies.
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",

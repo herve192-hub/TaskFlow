@@ -1,3 +1,9 @@
+# Public interpolation template for direct production Compose. Copy to the ignored
+# .env beside compose.yml; set an exact HTTPS origin with no trailing slash and the
+# host's published TLS port. TASKFLOW_SECRETS_DIR points to protected files listed in
+# compose.yml; relative paths resolve from the Compose project directory. Store
+# credential values in those files, never in this template or VITE_* build arguments.
+
 # Public deployment template; copy to the ignored .env file and edit locally.
 # Credentials belong in protected secret files, never in this template.
 TASKFLOW_WEB_ORIGIN=https://taskflow.example.com

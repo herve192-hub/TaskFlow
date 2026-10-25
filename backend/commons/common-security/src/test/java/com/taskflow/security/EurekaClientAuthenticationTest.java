@@ -9,6 +9,11 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
+/**
+ * Checks that infrastructure Basic credentials are attached only to the discovery-server host.
+ * The fixture also verifies clean service URLs and the prototype RestClient interception contract;
+ * it does not contact a production registry or validate its remote TLS/network configuration.
+ */
 class EurekaClientAuthenticationTest {
     @Test
     void addsCredentialsOnlyToTheDiscoveryServerAndKeepsTheUrlClean() {

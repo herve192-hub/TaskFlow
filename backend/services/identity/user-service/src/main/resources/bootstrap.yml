@@ -1,0 +1,3 @@
+# Reserved legacy bootstrap file; intentionally defines no configuration.
+# Current startup uses spring.config.import in application.yaml and runtime secret
+# imports. Keep settings there instead of depending on legacy bootstrap loading.

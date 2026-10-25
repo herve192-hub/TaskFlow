@@ -1,3 +1,8 @@
+# Central profile/directory storage configuration consumed by user-service.
+# USER_MONGO_URI comes from its scoped runtime mount; the database contains profiles
+# linked to canonical auth IDs, not passwords. Port 8082 must match Compose health
+# checks. Production URI policy requires authenticated TLS storage.
+
 
 # Profiles live in a separate database from auth credentials, linked by canonical account IDs.
 server:

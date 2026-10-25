@@ -1,3 +1,9 @@
+/**
+ * Client navigation guard subscribed to the active account through useCurrentUser.
+ * Missing display metadata redirects to login; this is a UI convenience, not proof
+ * of authorization. Axios sends the HttpOnly cookie and handles rejected sessions.
+ */
+
 import { Navigate } from "react-router-dom";
 import { useCurrentUser } from '../features/auth/hooks/useCurrentUser'
 

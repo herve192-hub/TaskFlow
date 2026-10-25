@@ -4,7 +4,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-/** Start task APIs, project/user Feign clients, and the configured task-event publisher. */
+/**
+ * Starts task CRUD, assignment, comment, lifecycle, and event-publication components.
+ * Feign clients resolve project/user services through Eureka; task data has its own MongoDB
+ * store. Application configuration supplies Kafka topics/transport and shared production guards.
+ */
 @SpringBootApplication
 @EnableFeignClients
 public class TaskServiceApplication {

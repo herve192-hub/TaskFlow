@@ -1,3 +1,11 @@
+/**
+ * Real-service browser configuration extending smoke defaults. Uses externally
+ * started NGINX/Compose and global readiness probes instead of Vite preview.
+ * One worker and no retries avoid replaying stateful collaboration against shared
+ * disposable data. Environment overrides select CI-local endpoints; reports/traces
+ * are diagnostic artifacts that may contain fixture account information.
+ */
+
 import { defineConfig } from '@playwright/test'
 import smokeConfig from './playwright.config'
 

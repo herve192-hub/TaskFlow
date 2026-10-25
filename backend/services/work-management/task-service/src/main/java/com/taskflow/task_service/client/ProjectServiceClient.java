@@ -6,7 +6,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.taskflow.task_service.client.dto.ProjectAccessResponse;
 
-/** Discover project-service by name; its access route derives the caller from the forwarded token. */
+/**
+ * Authenticated Feign contract for project existence, caller access, and assignee membership.
+ * The access endpoint derives identity from the forwarded token, not a userId query parameter.
+ * TaskServiceImpl consults this owning service before project-scoped operations rather than
+ * embedding project memberships or trusting role claims supplied by the browser.
+ */
 @FeignClient(name = "project-service")
 public interface ProjectServiceClient {
 

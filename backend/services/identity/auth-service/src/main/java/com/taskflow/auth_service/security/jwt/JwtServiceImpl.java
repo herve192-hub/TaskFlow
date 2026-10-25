@@ -28,7 +28,13 @@ import java.util.UUID;
 import com.taskflow.security.AccessTokenValidator;
 import com.taskflow.security.JwtKeys;
 
-/** Issue purpose-specific tokens; API claim extraction always enforces the shared access contract. */
+/**
+ * Signs access and refresh JWTs with distinct audiences/purposes and unique IDs.
+ * Production uses auth-only RSA private material; other services receive only the public key.
+ * Claim extraction delegates to AccessTokenValidator, so refresh tokens cannot authenticate API calls.
+ * The current-account check adds enabled/identity validation during auth requests; project/task
+ * permissions are enforced in their owning services, not inferred from the presence of a valid JWT.
+ */
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {

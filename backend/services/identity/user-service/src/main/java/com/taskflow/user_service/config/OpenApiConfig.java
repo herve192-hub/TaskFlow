@@ -9,6 +9,12 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 
+/**
+ * Supplies descriptive metadata for the profile API's OpenAPI document.
+ * Contact/license/external-document links are documentation metadata rather than implemented
+ * support integrations. Production disables/denies docs endpoints through deployment/security
+ * settings; editing this bean does not change route access.
+ */
 @Configuration
 public class OpenApiConfig {
 

@@ -16,6 +16,12 @@ import org.springframework.security.core.Authentication;
 
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Legacy platform-admin task-query routes, separate from ordinary project membership APIs.
+ * The public gateway omits /api/v1/admin paths and the current task JWT filter grants ROLE_USER
+ * rather than propagating platform admin authorities, so these handlers are not a complete public
+ * administration feature. Normal UI task workflows use TaskController.
+ */
 @RestController
 @RequestMapping("/api/v1/admin/tasks")
 @RequiredArgsConstructor

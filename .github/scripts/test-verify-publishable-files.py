@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# Publication/installer regression tests in disposable Git repositories and archives.
+# Exercise staged versus unstaged content, forbidden paths, scanner discovery/version,
+# secret/history invocation, and checksum/archive validation without publishing.
+# Fixtures are synthetic and temporary; the real repository index remains untouched.
+
 """Exercise publication protections against real disposable Git repositories."""
 
 import hashlib

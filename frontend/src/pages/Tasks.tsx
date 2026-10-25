@@ -1,3 +1,10 @@
+/**
+ * Workspace-wide task view built from the complete useWorkspace snapshot. Project
+ * filtering and 20-row pagination happen locally after all API pages load. Creation
+ * requires a selected project and refreshes the workspace on success. Counts include
+ * the loaded unarchived tasks; fetch errors remain explicit and retryable.
+ */
+
 import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { useDateFormatter } from "../features/users/hooks/useDateFormatter";

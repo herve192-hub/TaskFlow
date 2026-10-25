@@ -1,3 +1,10 @@
+/**
+ * Real-service account/profile browser scenario for private details, display names,
+ * avatars, and saved preferences. Uses the isolated Compose environment and actual
+ * cookie/CSRF requests; persistent fixture writes are removed with its volumes.
+ * Run through the full-stack config rather than the Vite-preview smoke configuration.
+ */
+
 import { randomUUID } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { expect, request, test } from '@playwright/test'

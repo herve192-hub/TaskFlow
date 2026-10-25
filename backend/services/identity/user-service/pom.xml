@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+Private profile and public directory service dependencies. MongoDB owns profile
+storage, ModelMapper applies DTO mapping, and shared JWT/cookie helpers validate
+requests independently of auth-service. Inherits root verification and version
+management; the Boot JAR is consumed by this service's Dockerfile.
+-->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
