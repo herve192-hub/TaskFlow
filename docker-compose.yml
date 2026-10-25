@@ -45,7 +45,7 @@ services:
   # Root credentials come from the ignored .env; mongosh ping gates startup.
   # mongodb-data persists local records; production uses external scoped TLS accounts.
   mongodb:
-    image: mongo:8.0.5@sha256:7bd28e5eea1c5766a084d5818254046f3ebe3b8f20a65e3a274640189e296667
+    image: mongo:9.0.4@sha256:dc28ed5a9d0fc616903c3f463bb1e53b92b49f441721b91926e87d90bf957ce8
     container_name: mongodb
     restart: unless-stopped
 
