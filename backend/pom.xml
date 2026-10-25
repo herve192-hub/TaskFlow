@@ -188,7 +188,7 @@ imported BOMs and validate the full reactor before rebuilding service images.
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.11.0</version>
+                    <version>3.16.0</version>
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
