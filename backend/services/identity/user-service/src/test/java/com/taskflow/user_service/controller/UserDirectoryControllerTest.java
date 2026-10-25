@@ -16,6 +16,11 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Standalone controller tests for directory query/pagination and comma-separated canonical-ID lookup.
+ * Mocked services make parameter binding deterministic; directory visibility/query semantics are
+ * covered by UserDirectoryTest rather than inferred from these transport-only assertions.
+ */
 class UserDirectoryControllerTest {
     private final UserService service = mock(UserService.class);
     private final MockMvc mvc = MockMvcBuilders.standaloneSetup(new UserController(service,

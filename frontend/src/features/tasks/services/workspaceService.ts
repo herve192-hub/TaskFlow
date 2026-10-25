@@ -1,3 +1,12 @@
+/**
+ * Assemble a complete workspace snapshot from all project pages and all unarchived
+ * task pages. Project task lists run in batches of four to bound parallel traffic;
+ * the combined result is sorted newest first for dashboard and Tasks consumers.
+ * Any failed page rejects the snapshot so totals never silently reflect partial
+ * data. This in-browser aggregation grows with workspace size; server aggregates
+ * would be needed before using it for very large accounts.
+ */
+
 import { projectService } from "../../projects/services/projectService";
 import { taskService } from "./taskService";
 import type { PageResponse, ProjectSummary } from "../../projects/types/project.types";

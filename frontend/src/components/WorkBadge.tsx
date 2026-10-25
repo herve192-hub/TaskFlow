@@ -1,3 +1,10 @@
+/**
+ * Shared task/project enum presentation: labels, icons, and readable color tones.
+ * Type-checked maps require definitions for the supported backend enum values.
+ * Used across overview and detail lists so status/priority meanings stay consistent;
+ * badges display state and never implement authorization or lifecycle transitions.
+ */
+
 import Chip from "@mui/material/Chip";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import TimelapseIcon from "@mui/icons-material/Timelapse";

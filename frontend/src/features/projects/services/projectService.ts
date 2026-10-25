@@ -1,3 +1,11 @@
+/**
+ * Project-service adapter for lists, details, access decisions, and memberships.
+ * Path identifiers are encoded; page indices are zero based. getAllProjectMembers
+ * exhausts bounded pages for duplicate filtering in the add-member dialog.
+ * Use membership document IDs for update/removal and canonical account IDs for adds;
+ * server permission checks remain authoritative for every mutation.
+ */
+
 import api from "../../../api/axios";
 
 import type {

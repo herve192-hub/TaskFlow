@@ -12,7 +12,12 @@ import com.taskflow.user_service.dto.response.UserSummaryResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-/** Build full, directory, and internal profile views using the configured strict, null-skipping mapper. */
+/**
+ * Maps profile entities to private, summary, and internal DTOs with strict/null-skipping ModelMapper.
+ * Adds normalized fullName and a preference fallback for older stored profiles.
+ * Request ownership and authorization are already decided by controller/service callers; mapping
+ * does not prove an account may view or edit the entity.
+ */
 @Component
 public class UserMapper {
 

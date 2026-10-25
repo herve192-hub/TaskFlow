@@ -1,3 +1,9 @@
+/**
+ * Account-recovery guidance screen. No reset email, recovery token, or password
+ * change request is sent because the application has no implemented recovery API.
+ * Keep this guidance aligned with the deployed administrator support process.
+ */
+
 import { Typography, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";

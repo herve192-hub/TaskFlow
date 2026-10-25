@@ -1,3 +1,9 @@
+/**
+ * Verify normal children and safe reload recovery for render failures. Runs React
+ * in jsdom with a deliberately throwing child; checks private exception details
+ * are not rendered. Does not test network retry or deployed chunk distribution.
+ */
+
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import AppErrorBoundary from "./AppErrorBoundary";

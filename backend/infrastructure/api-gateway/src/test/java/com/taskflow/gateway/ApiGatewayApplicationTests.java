@@ -13,6 +13,11 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import reactor.core.publisher.Mono;
 
+/**
+ * Gateway context/CORS integration tests with controlled application properties.
+ * Verify that the configured browser origin can send the expected request headers and an unrelated
+ * origin is rejected. Failsafe runs this context suite; the full-stack scenario covers actual routing.
+ */
 @SpringBootTest(properties = "TASKFLOW_WEB_ORIGIN=http://127.0.0.1:15173")
 class ApiGatewayApplicationTests {
 

@@ -18,7 +18,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-/** Authenticate the signed account subject and platform authorities without loading a profile document. */
+/**
+ * Establishes profile-service Authentication from a verified bearer token or configured access cookie.
+ * The principal is the canonical auth account ID, not email or a profile document ID; platform
+ * roles come from validated token claims. Missing/invalid tokens leave authorization to the filter
+ * chain, while UserController separately enforces ownership of full private profile responses.
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

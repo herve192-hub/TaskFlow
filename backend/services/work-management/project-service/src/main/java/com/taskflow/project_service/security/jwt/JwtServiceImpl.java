@@ -14,7 +14,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 
-/** Verify access tokens through the shared contract and expose subject IDs and platform roles. */
+/**
+ * Adapts project-service claim helpers to common-security's AccessTokenValidator.
+ * Successful parsing verifies signature, issuer, audience, access purpose, lifetime, and required
+ * identity/platform claims before returning the canonical account subject. HMAC is a local/test
+ * compatibility branch; production distribution supplies only the RSA public verification key.
+ */
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {

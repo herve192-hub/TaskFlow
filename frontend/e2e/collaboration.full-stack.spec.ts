@@ -1,3 +1,11 @@
+/**
+ * Stateful browser scenario against the real disposable Compose stack. Exercises
+ * collaboration and authorization across projects, membership, tasks, persistence,
+ * and event delivery with generated fixture accounts. Runs serially without retries;
+ * use playwright.full-stack.config.ts after preparing/starting the isolated services.
+ * Never point these writes or test credentials at a production environment.
+ */
+
 import { execFile } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
 import { fileURLToPath } from 'node:url'

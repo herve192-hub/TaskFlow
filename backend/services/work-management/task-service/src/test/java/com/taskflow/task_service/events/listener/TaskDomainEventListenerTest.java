@@ -14,6 +14,11 @@ import java.time.Instant;
 
 import static org.mockito.Mockito.*;
 
+/**
+ * Direct listener tests checking forwarding of status/completion events to an optional publisher.
+ * Verify that absence of a publisher is tolerated in isolated contexts; direct invocation does
+ * not test transaction commit timing, Kafka acknowledgments, or durable delivery.
+ */
 class TaskDomainEventListenerTest {
 
     private TaskEventPublisher taskEventPublisher;

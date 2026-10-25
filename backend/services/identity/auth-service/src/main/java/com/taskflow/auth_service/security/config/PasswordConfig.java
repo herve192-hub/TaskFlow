@@ -8,7 +8,12 @@ import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import java.util.Map;
 
-/** Use Argon2id for new hashes while accepting existing bcrypt hashes during migration. */
+/**
+ * Defines the PasswordEncoder consumed by authentication, registration, and administrator bootstrap.
+ * New hashes use Argon2id; the delegating encoder also accepts prefixed and legacy unprefixed bcrypt.
+ * AuthServiceImpl upgrades an old verifier only after a successful credential check. Do not log
+ * plaintext passwords or silently remove the legacy matcher while stored accounts still depend on it.
+ */
 @Configuration
 public class PasswordConfig {
     

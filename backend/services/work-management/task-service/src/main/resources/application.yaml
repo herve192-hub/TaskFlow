@@ -1,3 +1,8 @@
+# Task bootstrap defaults for configuration, discovery, fallback storage, shutdown,
+# and health. Central task-service.yml adds task database and event producer settings;
+# production mounts the URI, public JWT key, and Kafka security properties per service.
+# Keep internal port/health probes aligned with Compose and avoid credentials in defaults.
+
 # Task-service bootstrap defaults; Config Server supplies persistence and Kafka producer settings.
 spring:
   application:

@@ -1,3 +1,9 @@
+# Auth bootstrap defaults before centralized configuration/runtime overrides.
+# MongoDB account indexes enforce unique identifiers; JWT access/refresh durations
+# are milliseconds. The process owns signing and credential validation; production
+# requires mounted RSA keys and secure cookie policy. Config Server/Eureka URLs are
+# internal settings; Compose health ports and shutdown budgets must stay aligned.
+
 # Local bootstrap defaults; deployed stacks provide protected Config Server and secret-file imports.
 spring:
   data:

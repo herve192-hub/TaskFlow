@@ -14,6 +14,11 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Failsafe MongoDB integration tests for project/archive isolation, title checks, and status queries.
+ * Writes disposable task fixtures and cleans repository data, so use only the dedicated test
+ * MongoDB database configured by CI; never point this suite at production data.
+ */
 @DataMongoTest
 class TaskRepositoryIT {
     @Autowired

@@ -1,3 +1,6 @@
+// TypeScript project entry: delegate browser and Node tooling to separate environments.
+// npm run build uses tsc -b for both; Vite owns JavaScript emission and asset bundling.
+// Keep new source/tooling paths in the appropriate referenced project's include list.
 {
   "files": [],
   // Check browser source and Node-based tooling through their separate compiler environments.

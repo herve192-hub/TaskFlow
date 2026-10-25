@@ -16,7 +16,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Task document with soft deletion; account references use auth-service IDs rather than profile IDs. */
+/**
+ * Task document owned by this service; project/account references are logical IDs across databases.
+ * TODO/MEDIUM/TASK defaults apply at construction and archived implements soft deletion.
+ * completedAt tracks entry to completion and is cleared on reopening by TaskServiceImpl.
+ * Parent/sprint/watcher fields do not create foreign-key enforcement or a watcher API by themselves.
+ */
 @Data
 @Builder
 @NoArgsConstructor

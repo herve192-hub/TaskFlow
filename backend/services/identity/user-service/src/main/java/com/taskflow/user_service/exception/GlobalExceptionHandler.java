@@ -5,6 +5,12 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Translates profile/domain validation failures into Spring ProblemDetail responses.
+ * Known absence/conflict/input/access failures receive 404/409/400/403 respectively.
+ * The UI's apiError helper reads these bodies. Keep messages bounded and avoid inserting raw
+ * avatar data or credential values into the exceptions this advice serializes.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

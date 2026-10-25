@@ -1,3 +1,8 @@
+# Security-policy regression tests using the real rendered production Compose model.
+# Mutate known-good configurations to ensure broader ports/networks/secret exposure
+# and weakened runtime controls are rejected. Requires Docker Compose rendering,
+# not live application services or real credential files.
+
 """Security regression tests mutate the real rendered Compose configuration."""
 
 from copy import deepcopy

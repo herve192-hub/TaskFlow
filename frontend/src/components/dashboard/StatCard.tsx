@@ -1,3 +1,9 @@
+/**
+ * Presentational dashboard metric card. The parent supplies a computed count, icon,
+ * and theme tone; this component owns responsive layout and readable labels only.
+ * Data loading and completeness decisions stay in Dashboard/useWorkspace.
+ */
+
 // 
 import { Box, Paper, Typography } from "@mui/material";
 

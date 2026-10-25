@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+Project/membership service build: MongoDB persistence, servlet security/validation,
+DTO mapping, and OpenFeign calls to the user directory. Shared security validates
+the caller before project roles are applied. Root management controls compatible
+versions and tests; compiler annotation processing supports Lombok model builders.
+-->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

@@ -11,7 +11,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
-/** Reactive public API entry point; business services validate tokens and enforce resource permissions. */
+/**
+ * Bootstraps the reactive public API router and a credentialed single-origin CORS filter.
+ * Routes and bounded downstream timeouts are defined in backend/config-repo/api-gateway.yml;
+ * Eureka resolves the allowed business-service names. NGINX forwards only the public API paths.
+ * The gateway does not replace each business service's JWT verification or resource authorization.
+ */
 @SpringBootApplication
 @Import({com.taskflow.security.ProductionSecurity.class, com.taskflow.security.EurekaClientAuthentication.class})
 public class ApiGatewayApplication {

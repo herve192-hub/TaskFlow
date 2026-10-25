@@ -6,6 +6,11 @@ import lombok.Data;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Legacy structured error envelope with timestamp/status/message/details fields.
+ * AuthExceptionHandler currently returns bounded message maps instead; this model does not decide
+ * status codes or redact sensitive input automatically. Do not populate details with credentials.
+ */
 @Data
 @Builder
 

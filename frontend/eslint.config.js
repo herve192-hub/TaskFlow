@@ -1,3 +1,10 @@
+/**
+ * Flat ESLint configuration for authored React/TypeScript source and tooling.
+ * Applies TypeScript, Hooks, and React Refresh rules; generated build/coverage and
+ * browser reports are ignored. Keep file globs aligned with new source extensions
+ * so CI's npm run lint continues to cover maintained code.
+ */
+
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'

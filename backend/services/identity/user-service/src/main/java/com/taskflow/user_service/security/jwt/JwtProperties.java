@@ -10,6 +10,12 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Binds jwt.* verification configuration used by the profile token adapter.
+ * Common-security accepts RSA public verification or a sufficiently long local/test HMAC secret.
+ * ProductionSecurity rejects private signing material in this service and requires production
+ * settings; field presence in this binding object does not grant signing authority.
+ */
 @Configuration
 @ConfigurationProperties(prefix = "jwt")
 @Validated

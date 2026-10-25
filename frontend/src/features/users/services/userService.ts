@@ -1,3 +1,11 @@
+/**
+ * User-profile orchestration over userApi. /me restores profile names, avatar, and
+ * preferences into the active display session only when canonical account IDs match;
+ * private phone/bio stay out of sessionStorage. Initial profile creation occurs only
+ * after 404, with a refetch for creation races. Directory search/lookup expose public
+ * summaries for teams; they do not confer project permissions.
+ */
+
 import axios from "axios";
 import { createCurrentUser, getCurrentUser, lookupUsers, searchUsers, updateCurrentUser, updateCurrentAvatar, updateCurrentPreferences } from "../../../api/userApi";
 import type { AuthUser } from "../../auth/types/auth.types";

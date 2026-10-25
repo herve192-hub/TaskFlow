@@ -1,3 +1,8 @@
+# Frontend bug-report form describing symptoms, reproduction, and expected behavior.
+# This nested location is frontend metadata; GitHub's repository-level issue picker
+# normally reads root .github/ISSUE_TEMPLATE. Moving it there would change repository
+# behavior and should be an explicit configuration change.
+
 name: Bug Report
 
 description: Report a bug

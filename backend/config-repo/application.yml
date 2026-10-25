@@ -1,3 +1,9 @@
+# Shared non-secret configuration served by the native Config Server to clients.
+# Sets bounded Feign waits, discovery defaults, restricted health exposure, logging,
+# and development JWT/CORS defaults. Service-named YAML files add database/routes.
+# Runtime environment and scoped configtree/property imports supply deployment-specific
+# values; production uses RSA keys and explicit origins instead of development defaults.
+
 # Shared defaults served by Config Server; service-named files supply database and routing settings.
 # Keep credential values in runtime properties/secret files rather than this repository.
 

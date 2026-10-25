@@ -1,3 +1,9 @@
+# User profile service bootstrap: identity, local Mongo defaults, Config Server,
+# discovery, graceful shutdown, and restricted health details. Central user-service.yml
+# supplies the authoritative URI; deployed credentials come from scoped file imports.
+# Production token verification uses only the RSA public key. Endpoint registration
+# and SecurityConfig authorization are separate layers.
+
 # Profile-service bootstrap defaults; centralized configuration supplies the service-specific MongoDB URI.
 spring:
   application:

@@ -1,3 +1,10 @@
+/**
+ * Display-name normalization for profile camelCase fields and auth lowercase fields.
+ * Trim names, then use fullName or a caller-provided label when needed. Membership
+ * screens should pass a human-readable fallback rather than exposing internal IDs.
+ * This presentation helper does not resolve or validate account identity.
+ */
+
 interface PersonName {
   firstName?: string | null;
   lastName?: string | null;

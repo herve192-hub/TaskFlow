@@ -7,6 +7,11 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Standalone MockMvc tests for internal canonical-account-ID route binding.
+ * The service is mocked, so assertions check HTTP/controller dispatch rather than JWT signatures,
+ * MongoDB behavior, or gateway exposure of /internal routes.
+ */
 class InternalUserControllerTest {
     @Test
     void bindsUserIdForLookupAndExistenceCheck() throws Exception {

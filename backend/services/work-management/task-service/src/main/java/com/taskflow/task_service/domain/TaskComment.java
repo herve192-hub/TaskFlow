@@ -10,6 +10,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
+/**
+ * Comment document linked to one task ID and canonical author account ID.
+ * TaskServiceImpl checks access to the active task before reads/creation and TaskMapper shapes
+ * responses. createdAt is audited; edited/editedAt are model fields without a current comment-edit API.
+ */
 @Data
 @Builder
 @NoArgsConstructor

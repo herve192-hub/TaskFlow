@@ -117,6 +117,25 @@ recovery and provider OAuth flows are not implemented.
 
 ## Local development and checks
 
+### Package and compiler files
+
+| File | What it owns and how it is used |
+| --- | --- |
+| `package.json` | Private ES-module package and command entry points below. Runtime dependencies supply React, routing, MUI/Emotion styling, forms, Axios, and toast feedback. Development dependencies supply TypeScript/Vite, lint rules, Vitest/jsdom/Testing Library, coverage, and Playwright. Keep exact direct versions compatible with their plugins and test runners. |
+| `package-lock.json` | npm-generated resolved dependency tree and integrity values. `npm ci` consumes it in local setup, CI, and the Docker builder. Update it through npm alongside `package.json`; do not hand-edit dependency records or add comments. It contains package metadata, not application runtime settings. |
+| `.npmrc` | `save-exact=true` keeps newly saved direct dependencies exact. Private registry authentication belongs outside tracked source. |
+| `.nvmrc` | Single Node version consumed by nvm and CI's setup-node action. Keep it aligned with the Node Docker builder. It remains a plain version value so version-manager parsing stays reliable. |
+| `tsconfig.json` | Project reference entry for `tsc -b`; separates browser source and Node tooling environments. TypeScript configuration files allow inline comments. |
+| `tsconfig.app.json` | Strict React/browser checks for `src`, DOM/Vite types, bundler module resolution, and no compiler emission. Vite creates the runtime bundle. |
+| `tsconfig.node.json` | Checks Vite/Vitest/Playwright configuration and E2E helpers with Node types. Compiler caches stay under ignored `node_modules/.tmp`. |
+
+The package manifests use JSON and remain machine-readable without comments;
+their responsibilities are documented here. Compiler configs and authored source
+carry inline explanations. API DTO changes should update frontend types and the
+corresponding service together; a TypeScript interface does not validate runtime JSON.
+
+### Commands
+
 From this directory:
 
 ```bash

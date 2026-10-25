@@ -20,7 +20,11 @@ import java.io.IOException;
 import java.util.List;
 import com.taskflow.security.CookieSecurity;
 
-/** Populate account identity and platform authorities; project-specific roles come from memberships. */
+/**
+ * Establishes the canonical account principal and validated platform authorities on each request.
+ * Project roles come from current membership records, not the token's ROLE_ADMIN spelling.
+ * Invalid credentials clear the context; protected endpoints are rejected by SecurityConfig.
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter

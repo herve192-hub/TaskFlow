@@ -19,7 +19,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-/** Active profile-service security configuration; private-profile ownership is checked in the controller. */
+/**
+ * Defines the profile-service servlet authentication and authorization chain.
+ * Installs JWT filtering and cookie-CSRF protection, permits health probes, denies other actuator/
+ * documentation endpoints, and reserves admin paths for platform administrators. The shared prod
+ * startup check enforces transport/key settings; resource ownership remains in controllers/services.
+ */
 @Configuration
 @org.springframework.context.annotation.Import({com.taskflow.security.ProductionSecurity.class, com.taskflow.security.EurekaClientAuthentication.class})
 @EnableMethodSecurity

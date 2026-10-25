@@ -1,3 +1,10 @@
+<!--
+Reactive WebFlux gateway module with Config Server and Eureka integration.
+The gateway forwards only configured business routes; downstream services verify
+user credentials and roles. Avoid introducing servlet web starters into this
+reactive runtime. Boot packaging feeds the gateway Dockerfile.
+-->
+
 <!-- Herve Chendjou -->
 <!-- this pom file contains the dependencies for the api gateway -->
 <!-- it allows the application to route requests to the appropriate microservices -->

@@ -8,7 +8,12 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/** Translate account failures into bounded responses without echoing passwords or rejected values. */
+/**
+ * Maps auth exceptions to bounded HTTP responses used by the browser/API client.
+ * Authentication failure returns a generic 401; forbidden production provisioning returns 403;
+ * invalid/duplicate registration details are not echoed back. Audit events exclude private emails
+ * and token/password values. This advice complements, rather than replaces, the security filter chain.
+ */
 @RestControllerAdvice
 public class AuthExceptionHandler {
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)

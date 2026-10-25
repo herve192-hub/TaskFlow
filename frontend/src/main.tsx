@@ -1,3 +1,9 @@
+/**
+ * Browser entry point: mount one React root with StrictMode, the shared MUI theme,
+ * CSS reset, and global toast notifications. App owns routing and error recovery.
+ * StrictMode may replay effects in development; network effects must tolerate cleanup.
+ */
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 // AppRoutes owns the router; keep theme, baseline styles, and notifications shared by all routes.

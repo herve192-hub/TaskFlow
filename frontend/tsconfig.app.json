@@ -1,3 +1,7 @@
+// Browser source type-checking contract for src/, including React JSX and Vite types.
+// Strict checks validate application DTOs/hooks; DOM libraries describe browser APIs.
+// Bundler resolution matches Vite. noEmit avoids competing with Vite's output, and
+// incremental metadata stays under ignored node_modules rather than publishable source.
 {
   "compilerOptions": {
     // Cache compiler metadata with dependencies so it stays outside publishable source files.

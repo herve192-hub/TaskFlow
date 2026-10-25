@@ -9,6 +9,11 @@ import lombok.Data;
 import java.time.Instant;
 import java.util.Set;
 
+/**
+ * Safe credential-account metadata included in AuthResponse, distinct from the profile service response.
+ * Its ID is the JWT subject used across services. AuthServiceImpl maps names/roles/provider state
+ * explicitly, excluding the encoded password and refresh-token digest from serialization.
+ */
 @Data
 @Builder
 

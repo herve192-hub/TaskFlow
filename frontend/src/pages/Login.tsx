@@ -1,3 +1,10 @@
+/**
+ * Sign-in form using authService's HttpOnly-cookie and CSRF flow. Trims email but
+ * preserves password bytes; validation and disabled controls improve feedback.
+ * After login/profile restoration, navigate to the allowlisted saved start page.
+ * Production builds may hide signup links; the server independently enforces onboarding.
+ */
+
 import { Box, Button, Link as MuiLink, TextField, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";

@@ -9,9 +9,11 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Shared access-token contract for the business services: signature, issuer,
- * audience, access purpose, identity claims, lifetime, and platform authorities.
- * Refresh tokens cannot satisfy this contract even when signed by the same issuer.
+ * Defines the access-token contract shared by auth and all business services.
+ * Call parse before trusting subject, email, or platform roles: it verifies the configured
+ * issuer, taskflow-api audience, access purpose, signature algorithm, and identity claims.
+ * Production callers supply the RSA public key; the HMAC overload supports local/test setups.
+ * Project membership permissions remain the responsibility of project/task services.
  */
 public final class AccessTokenValidator {
     public static final String AUDIENCE = "taskflow-api";

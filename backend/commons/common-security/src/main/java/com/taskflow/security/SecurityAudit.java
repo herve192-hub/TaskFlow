@@ -2,7 +2,13 @@ package com.taskflow.security;
 
 import org.slf4j.LoggerFactory;
 
-/** Security events deliberately exclude credentials, tokens, email addresses, and bodies. */
+/**
+ * Writes bounded security event names and opaque account/resource identifiers through SLF4J.
+ * Auth and membership operations call record after the relevant decision or persistence step.
+ * Callers must exclude emails, passwords, tokens, and bodies: character sanitization prevents
+ * log injection but cannot decide which application data is private. Production Docker logs
+ * flow to the configured local or CloudWatch destination.
+ */
 public final class SecurityAudit {
     private SecurityAudit() { }
 

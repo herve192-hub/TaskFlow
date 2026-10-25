@@ -7,6 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+/**
+ * Platform-admin route scaffold returning descriptive strings rather than persisted project operations.
+ * It has role checks but is not a completed administrative CRUD API; the public gateway's
+ * allowlist does not expose /api/v1/admin paths. Normal project/team behavior is in ProjectController.
+ */
 @RestController
 @RequestMapping("/api/v1/admin/projects")
 @RequiredArgsConstructor

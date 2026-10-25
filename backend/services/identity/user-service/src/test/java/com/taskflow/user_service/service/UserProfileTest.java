@@ -22,6 +22,11 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Profile service/mapper tests for identity-preserving edits, preference defaults, and validation ordering.
+ * Generate real PNG bytes to exercise AvatarImages and reject external URLs/SVG/malformed/large data.
+ * Mock persistence isolates behavior without a database or actual account credentials.
+ */
 class UserProfileTest {
     private final UserRepository repository = mock(UserRepository.class);
     private final UserMapper mapper;

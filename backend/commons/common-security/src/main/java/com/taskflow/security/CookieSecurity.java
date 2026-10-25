@@ -8,7 +8,13 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
-/** Shared browser-cookie names, bearer-token extraction, and CSRF configuration. */
+/**
+ * Shared browser-cookie and CSRF contract imported by each servlet service's SecurityConfig.
+ * Token extraction prefers an explicit bearer credential; it does not retry a rejected bearer
+ * using a cookie. Secure deployments use host-only cookie names and a JavaScript-readable
+ * CSRF nonce, while the access cookie remains HttpOnly. Login and registration always need
+ * CSRF on unsafe methods, including requests carrying an Authorization header.
+ */
 public final class CookieSecurity {
     private static final Set<String> SAFE_METHODS = Set.of("GET", "HEAD", "OPTIONS", "TRACE");
 

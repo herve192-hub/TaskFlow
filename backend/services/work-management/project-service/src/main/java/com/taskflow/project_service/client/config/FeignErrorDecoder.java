@@ -7,7 +7,11 @@ import com.taskflow.project_service.exception.UserServiceUnavailableException;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 
-/** Preserve denied/missing-user outcomes and distinguish downstream service failures from invalid input. */
+/**
+ * Converts user-service HTTP errors into project-domain failures for the service/advice layers.
+ * 401/403 becomes access denied, 404 means an invalid referenced profile, and server failures
+ * become UserServiceUnavailableException. Other statuses use Feign's default decoder.
+ */
 public class FeignErrorDecoder
         implements ErrorDecoder {
 

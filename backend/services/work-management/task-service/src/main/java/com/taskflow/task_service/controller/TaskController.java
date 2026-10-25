@@ -22,7 +22,12 @@ import org.springframework.security.core.Authentication;
 
 import org.springframework.web.bind.annotation.*;
 
-/** Task HTTP API; authenticated account IDs flow into the service's project and task policy checks. */
+/**
+ * Owns /api/v1/tasks HTTP routes for CRUD, project/personal lists, assignment, status, and comments.
+ * Actor identity comes from Authentication; DTO constraints bound bodies before service execution.
+ * TaskServiceImpl performs current project access checks and TaskLifecyclePolicy validates status
+ * edges. Keep path/binding changes aligned with frontend taskService and the gateway allowlist.
+ */
 @RestController
 @RequestMapping("/api/v1/tasks")
 @RequiredArgsConstructor

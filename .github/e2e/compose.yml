@@ -1,3 +1,10 @@
+# Disposable real-service browser-test stack, independent of developer/production
+# Compose projects and secrets. prepare-full-stack-e2e.py stages compiled JARs and
+# fresh fixture credentials under ignored .github/e2e paths. Test infrastructure
+# uses isolated volumes; only browser/gateway entry ports bind loopback. This setup
+# exercises actual NGINX, discovery, configuration, persistence, and Kafka; fixtures
+# must never be reused for a real deployment.
+
 # A separate project, network, and volumes; never loads the developer's .env.
 # Maven packages the actual services once, then mounts their JARs read-only.
 x-runtime: &runtime

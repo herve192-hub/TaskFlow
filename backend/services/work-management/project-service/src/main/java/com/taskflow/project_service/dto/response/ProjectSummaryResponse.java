@@ -9,6 +9,11 @@ import lombok.Data;
 
 import java.time.Instant;
 
+/**
+ * List/search projection including metadata and a separately counted memberCount.
+ * ProjectServiceImpl scopes project IDs to the caller's memberships before pagination, then
+ * maps this response. It does not embed full membership/profile/task collections.
+ */
 @Data
 @Builder
 @NoArgsConstructor

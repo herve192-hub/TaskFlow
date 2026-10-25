@@ -1,3 +1,9 @@
+# Repository-wide publication exclusions. Keep credentials, local environment,
+# Terraform state/inputs, data, generated outputs, and diagnostic reports off Git.
+# Ignore rules do not remove files already tracked; publication hooks additionally
+# inspect index/ref contents. Explicit Maven wrapper exceptions preserve reproducible
+# backend builds while excluding nested generated wrapper directories.
+
 # Dependencies and generated build/test output
 node_modules/
 dist/

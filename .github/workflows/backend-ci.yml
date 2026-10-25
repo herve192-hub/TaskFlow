@@ -1,3 +1,9 @@
+# Backend verification pipeline for the Maven reactor and seven deployable images.
+# MongoDB-backed verification runs unit plus Failsafe suites and checks both executed;
+# the image matrix starts only after that succeeds. Temporary keys/fixture credentials
+# are test-only. Each final image is scanned and reports are redacted before upload.
+# Pinned actions/base images and managed Maven versions should be updated together.
+
 # Verify Java services against MongoDB, then scan each deployable backend image.
 # Action SHAs and image digests pin the dependencies used to execute these checks.
 name: Backend CI

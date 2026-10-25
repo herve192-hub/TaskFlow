@@ -1,3 +1,10 @@
+# Integration pipeline tying the actual browser to NGINX, gateway, business services,
+# MongoDB, and Kafka using isolated disposable fixtures. Independently validates
+# Terraform without AWS credentials. Production Compose policy and TLS/ALB ingress
+# regressions are tested locally; this workflow does not deploy infrastructure.
+# Stage JARs and generated secrets before starting Compose; redact diagnostics before
+# teardown and upload only allowlisted test artifacts. Always attempt volume cleanup.
+
 # Exercise the real browser, NGINX, gateway, services, MongoDB, and Kafka together.
 # The Compose stack uses disposable credentials and data, with no production deployment.
 name: Full-stack E2E

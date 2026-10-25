@@ -10,6 +10,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Profile-initialization input used by POST /users/me after account registration/login.
+ * The controller enforces token-email consistency; the service sets authUserId and ACTIVE status.
+ * Clients cannot supply document identity, status, auditing timestamps, or credential fields.
+ */
 @Getter
 @Setter
 @Builder

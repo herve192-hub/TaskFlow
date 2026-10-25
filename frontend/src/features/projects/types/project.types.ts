@@ -1,3 +1,11 @@
+/**
+ * Wire types shared by project lists, task workspace joins, and team management.
+ * Roles are project-scoped and independent of platform ROLE_USER/ROLE_ADMIN.
+ * ProjectAccessResponse carries current server decisions for rendering controls.
+ * PageResponse uses the project's zero-based page contract. Load actual membership
+ * pages through projectService rather than relying on ProjectResponse.members.
+ */
+
 export enum ProjectStatus {
   PLANNING = "PLANNING",
   ACTIVE = "ACTIVE",

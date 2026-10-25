@@ -1,3 +1,10 @@
+/**
+ * Controlled project creation form owned by the Projects page. Trims the request,
+ * collects visibility metadata, and leaves the backend to set owner/membership.
+ * A pending ref prevents duplicate submissions before React disables controls.
+ * Close/reset follows successful creation; rejected writes retain inputs for retry.
+ */
+
 import { useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { apiErrorMessage } from "../../../utils/apiError";

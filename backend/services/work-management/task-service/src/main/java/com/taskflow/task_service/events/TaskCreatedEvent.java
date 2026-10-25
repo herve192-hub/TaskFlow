@@ -6,6 +6,11 @@ import com.taskflow.task_service.domain.enums.TaskType;
 
 import java.time.Instant;
 
+/**
+ * Declared task-created event shape with task/project/actor metadata.
+ * Current createTask persists and returns the entity without publishing this event. Consumers
+ * must not assume a creation topic, notification, or reliable delivery pipeline is implemented.
+ */
 public record TaskCreatedEvent(
 
         String taskId,

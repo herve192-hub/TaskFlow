@@ -1,3 +1,10 @@
+/**
+ * Last-resort React render boundary enclosing routing, including lazy chunk errors.
+ * Shows a safe reload action without printing exception details into the UI.
+ * This handles render failures; asynchronous API errors belong in page-level state
+ * and event handlers. A full reload obtains current deployment assets.
+ */
+
 import { Component } from "react";
 import type { ReactNode } from "react";
 import { Alert, Box, Button, Typography } from "@mui/material";

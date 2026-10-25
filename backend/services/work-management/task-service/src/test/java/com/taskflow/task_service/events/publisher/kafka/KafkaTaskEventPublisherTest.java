@@ -22,6 +22,11 @@ import java.util.concurrent.CompletableFuture;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * KafkaTemplate-mocked tests for topic selection, message projection, and taskId partition keys.
+ * No live broker is contacted; successful mocks are not evidence of broker ACLs, ordering across
+ * partitions, or a MongoDB/Kafka atomic transaction.
+ */
 @ExtendWith(MockitoExtension.class)
 class KafkaTaskEventPublisherTest {
 

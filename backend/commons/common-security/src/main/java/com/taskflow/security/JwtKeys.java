@@ -7,7 +7,12 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
-/** Parse PEM-encoded RSA keys without including key material in validation errors. */
+/**
+ * Converts protected PEM configuration into RSA keys consumed by token signing/verification.
+ * Public keys must use X.509 SubjectPublicKeyInfo and private keys unencrypted PKCS#8;
+ * both require a modulus of at least 3072 bits. Parsing failures deliberately omit key
+ * material from messages. ProductionSecurity also checks that auth's two keys match.
+ */
 public final class JwtKeys {
     private JwtKeys() { }
 

@@ -1,3 +1,10 @@
+/**
+ * Defaults and presentation rules for saved account preferences. Start pages map
+ * to an allowlist of local routes, preventing arbitrary redirects after sign-in.
+ * Intl formats ISO timestamps in the saved timezone with UTC fallback; malformed
+ * instants produce a readable placeholder. No helper changes stored task instants.
+ */
+
 import type { UserPreferences } from "../types/user.types";
 
 export const defaultPreferences: UserPreferences = {

@@ -1,3 +1,11 @@
+/**
+ * Account preferences editor using private /me data and server-validated settings.
+ * Draft and saved values stay separate for dirty checks, discard, reset, and preview.
+ * A save synchronizes session preferences, updating date formatting throughout the UI;
+ * resetting defaults still requires saving. The pending lock serializes preference
+ * and logout requests. Timezone choices come from the browser's Intl database.
+ */
+
 import { useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";

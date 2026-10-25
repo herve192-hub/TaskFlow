@@ -8,6 +8,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Profile data returned only by authenticated internal lookup to collaborating services.
+ * Uses canonical authUserId plus names/email/avatar/status for reference validation and display.
+ * It omits private phone/bio/preferences and all authentication credentials.
+ */
 @Getter
 @Setter
 @Builder

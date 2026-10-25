@@ -9,6 +9,12 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Binds jwt.* properties loaded through application/config-tree configuration.
+ * Issuer and verification material are validated at binding; ProductionSecurity adds RSA-only,
+ * key-pair, distribution, and token-lifetime checks for prod. expiration values are milliseconds.
+ * The development HMAC secret is a compatibility path, not a production signing-key substitute.
+ */
 @Configuration
 @ConfigurationProperties(prefix = "jwt")
 @Validated

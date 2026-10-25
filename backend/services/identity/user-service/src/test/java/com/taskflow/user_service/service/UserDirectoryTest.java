@@ -19,6 +19,11 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Repository-mocked service tests for ACTIVE literal search and historical batch lookup semantics.
+ * Cover escaped regex input, canonical auth IDs, inactive member resolution, size bounds, and
+ * avoiding unnecessary queries. These do not execute MongoDB's regex engine against real data.
+ */
 class UserDirectoryTest {
     private final UserRepository repository = mock(UserRepository.class);
     private final UserMapper mapper = mock(UserMapper.class);

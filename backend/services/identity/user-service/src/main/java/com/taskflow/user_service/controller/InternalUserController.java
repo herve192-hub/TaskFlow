@@ -8,7 +8,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/** Authenticated service lookups using canonical account IDs; these routes are absent from gateway routing. */
+/**
+ * Authenticated internal lookup API for project/task Feign clients using canonical auth IDs.
+ * Returns a bounded internal summary or an existence boolean; does not expose password state.
+ * The gateway omits /internal routes, but direct callers still pass the service security chain.
+ * Existence means a profile is present, not necessarily active or authorized for a project.
+ */
 @RestController
 @RequestMapping("/internal/users")
 @RequiredArgsConstructor

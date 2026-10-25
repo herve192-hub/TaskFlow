@@ -16,6 +16,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 
+/**
+ * Standalone MVC tests for project/pagination binding and bounded invalid-task error responses.
+ * Mocked TaskService must not receive rejected body values. This verifies transport/validation
+ * behavior without claiming to exercise the real JWT filter or MongoDB repository.
+ */
 class TaskControllerTest {
     @Test
     void rejectsInvalidTaskBodiesWithoutEchoingOrProcessingTheirValues() throws Exception {

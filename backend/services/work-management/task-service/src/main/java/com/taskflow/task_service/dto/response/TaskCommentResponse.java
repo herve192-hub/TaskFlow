@@ -5,6 +5,11 @@ import lombok.Data;
 
 import java.time.Instant;
 
+/**
+ * Comment projection containing task/author IDs, content, and audit/edit metadata.
+ * Author identity is a canonical auth ID resolved separately for display; the response does not
+ * embed profile data or grant permission to mutate the referenced task.
+ */
 @Data
 @Builder
 public class TaskCommentResponse {

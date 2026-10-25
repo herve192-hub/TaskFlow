@@ -10,6 +10,12 @@ import lombok.Data;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Client input for creating a task within one project; actor/status/timestamps remain server-owned.
+ * DTO constraints bound the title/description and require priority/type. TaskServiceImpl checks
+ * creation rights, assignee eligibility, and duplicate active titles. Optional reference/effort
+ * fields are metadata; their presence alone does not implement scheduling or cross-store joins.
+ */
 @Data
 public class CreateTaskRequest {
 

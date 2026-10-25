@@ -6,7 +6,12 @@ import java.util.Base64;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 
-/** Accept only small raster images, without fetching user-controlled URLs or accepting SVG markup. */
+/**
+ * Validates browser-supplied PNG/JPEG data URLs before embedding them in a profile document.
+ * Enforces encoded size and actual decoded image format/dimensions with ImageIO; blanks clear
+ * the photo. Frontend avatar.ts performs the user-friendly crop/compression, while this server
+ * check remains the storage boundary and never fetches an external image URL.
+ */
 public final class AvatarImages {
     private AvatarImages() {}
 

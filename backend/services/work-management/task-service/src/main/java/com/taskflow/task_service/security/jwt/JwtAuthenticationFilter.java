@@ -24,7 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 import com.taskflow.security.CookieSecurity;
 
-/** Establish the signed caller identity; task/project permissions are evaluated by the service layer. */
+/**
+ * Authenticates the canonical signed account subject for task-service requests.
+ * The current extractAuthorities implementation grants ROLE_USER only rather than propagating
+ * platform admin authorities. Project management permissions are resolved through project-service;
+ * keep that distinction in mind before enabling legacy /api/v1/admin/task routes.
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter

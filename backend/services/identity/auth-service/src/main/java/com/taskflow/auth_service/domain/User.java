@@ -19,7 +19,12 @@ import java.util.Set;
 
 import org.springframework.context.annotation.Configuration;
 
-/** Credential/account document; its ID becomes the canonical subject used by the other services. */
+/**
+ * Owns credential state in auth's users collection, separate from user-service profile documents.
+ * The Mongo ID is the canonical cross-service account ID. Password contains an encoded verifier,
+ * and refreshToken contains only the latest refresh credential's digest. Response mapping excludes
+ * both fields. Unique username/email indexes and service checks support registration consistency.
+ */
 @Document(collection = "users")
 
 @Getter

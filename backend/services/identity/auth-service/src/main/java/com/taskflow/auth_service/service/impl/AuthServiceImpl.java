@@ -31,7 +31,13 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/** Owns credential validation, account creation, password migration, and token issuance. */
+/**
+ * Coordinates normalized account registration, credential verification, token issuance, and audit events.
+ * UserRepository owns credential records, PasswordEncoder hashes/migrates verifiers, and JwtService
+ * creates purpose-specific tokens. Only refresh-token digests are persisted; response credentials are
+ * transient. Registration assigns ROLE_USER, while AuthController enforces production admin approval.
+ * No distributed transaction creates a user-service profile; the browser initializes that separately.
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -43,6 +49,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
+    // Canonicalize identity before both uniqueness checks and persistence. This creates
+    // only the credential account; user-service profile initialization is a separate request.
     public AuthResponse register(RegisterRequest request) {
         // Use the same canonical email for uniqueness checks and subsequent sign-in lookups.
         request.setEmail(request.getEmail().trim().toLowerCase(Locale.ROOT));
@@ -103,6 +111,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
+    // Authenticate through the configured provider before issuing any token. Persisting a
+    // new refresh digest does not revoke already issued access JWTs in other services.
     public AuthResponse login(LoginRequest request) {
         request.setEmail(request.getEmail().trim().toLowerCase(Locale.ROOT));
 

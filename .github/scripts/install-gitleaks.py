@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# Developer scanner installer for publication hooks. Reads the required version
+# from verify-publishable-files.py, downloads the platform release and checksum list,
+# verifies bytes/version, then atomically installs in Git's shared local metadata.
+# Only the executable member is read; archive paths are never extracted. Git local
+# configuration records the path so worktrees reuse it. Installation needs network
+# and Git-metadata write access but does not modify tracked source or enable hooks.
+
 """Install the pinned, checksum-verified scanner in Git's persistent local metadata."""
 
 import hashlib
@@ -17,6 +24,8 @@ from urllib.request import urlopen
 VERSION = runpy.run_path(str(Path(__file__).with_name("verify-publishable-files.py")))["GITLEAKS_VERSION"]
 
 
+# Validate the chosen archive checksum and a bounded regular executable member.
+# Return bytes for a later atomic install without extracting arbitrary archive paths.
 def verified_binary(archive, checksums, archive_name):
     expected = [
         fields[0] for line in checksums.splitlines()
@@ -32,6 +41,8 @@ def verified_binary(archive, checksums, archive_name):
         return bundle.extractfile(member).read()
 
 
+# Resolve platform/version, download and verify upstream release bytes, run its
+# version check, then atomically replace the local binary and record its Git path.
 def install():
     system = {"Linux": "linux", "Darwin": "darwin"}.get(platform.system())
     machine = {"x86_64": "x64", "amd64": "x64", "aarch64": "arm64", "arm64": "arm64"}.get(platform.machine().lower())

@@ -15,6 +15,11 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Standalone MockMvc tests proving /me operations use the authenticated account, not body-injected IDs.
+ * Exercise bounded names/private details, preference enums, safe start pages, and avatar removal.
+ * The mock principal bypasses JWT filtering intentionally; full-stack tests cover cookie authentication.
+ */
 class UserSelfServiceControllerTest {
     private final UserService service = mock(UserService.class);
     private final MockMvc mvc = MockMvcBuilders.standaloneSetup(new UserController(service, mock(JwtService.class)))

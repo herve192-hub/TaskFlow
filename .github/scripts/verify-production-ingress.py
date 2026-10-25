@@ -1,3 +1,9 @@
+# Disposable Docker test for the direct production HTTPS NGINX configuration.
+# Uses a generated test certificate/fake gateway to verify TLS, forwarded headers,
+# rate limits, browser headers, and production SPA onboarding behavior. Runs separately
+# from the E2E app network and removes its fixture containers. Requires a prebuilt
+# frontend image; the helper generates its own test certificate without real keys.
+
 """Verify the production NGINX TLS policy and headers using an isolated test certificate."""
 
 from concurrent.futures import ThreadPoolExecutor
@@ -17,6 +23,8 @@ def run(arguments, **kwargs):
     return subprocess.run(arguments, cwd=ROOT, capture_output=True, text=True, **kwargs)
 
 
+# Build isolated TLS fixture inputs and validate observable HTTP/TLS behavior.
+# The finally cleanup is essential because assertions can fail after containers start.
 def main():
     directory = STACK / "secrets"
     directory.mkdir(mode=0o700, exist_ok=True)

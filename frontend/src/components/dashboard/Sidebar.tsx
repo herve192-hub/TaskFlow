@@ -1,3 +1,10 @@
+/**
+ * Permanent workspace navigation with route-aware selection and compact/full modes.
+ * DashboardLayout owns collapse state; shared widths keep the fixed header aligned.
+ * Links are UI navigation only; ProtectedRoute and backend authorization govern
+ * access. Add new nested routes in AppRoutes when adding destinations here.
+ */
+
 // Sidebar.tsx ...
 import { Box, Drawer, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Toolbar } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";

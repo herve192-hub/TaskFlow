@@ -1,3 +1,10 @@
+/**
+ * Application-wide MUI palette, gradients, typography, and component defaults.
+ * main.tsx installs the single ThemeProvider; shared shells, badges, and cards reuse
+ * these tokens. Keep text/background contrast in mind when replacing logo colors;
+ * this module contains presentation configuration, with no persisted account state.
+ */
+
 import { alpha, createTheme } from "@mui/material/styles";
 
 // The logo's blue/cyan/teal flow anchors the UI; darker shades keep text readable on white.

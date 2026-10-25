@@ -8,6 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Checks actual project/member/summary projection shapes through the mapper and ModelMapper bean setup.
+ * Protects owner IDs, role metadata, and member-count mapping without starting MongoDB or HTTP.
+ */
 class ProjectMapperTest {
 
     private final ProjectMapper mapper = new ProjectMapper(new ModelMapperConfig().modelMapper());

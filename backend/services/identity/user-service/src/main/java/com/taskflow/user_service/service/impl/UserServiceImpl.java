@@ -31,8 +31,11 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * Manage profile documents separately from auth-service credentials.
- * Profile IDs identify local documents; authUserId identifies the JWT subject across services.
+ * Coordinates profile repository operations and DTO mapping for UserController/internal clients.
+ * Profile creation binds the canonical auth ID; avatar and preferences have dedicated validators.
+ * Search is ACTIVE-only and literal-regex escaped, batch lookup includes inactive profiles to
+ * resolve existing references, and the general list currently includes all profiles.
+ * Deactivation changes profile status only; it does not disable auth-service credentials.
  */
 @Service
 @RequiredArgsConstructor
@@ -178,6 +181,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    // This changes only the profile document's lifecycle status. Auth accounts and already
+    // issued tokens are owned by another service and are not revoked by this operation.
     public void deactivateCurrentUser(
             String authUserId
     ) {
@@ -205,6 +210,8 @@ public class UserServiceImpl implements UserService {
 
     /** Search active profiles using a bounded literal query rather than caller-supplied regex syntax. */
     @Override
+    // Escape the query before Mongo regex evaluation and filter ACTIVE profiles. The general
+    // getUsers list and historical-ID lookup intentionally have different status behavior.
     public Page<UserSummaryResponse> searchUsers(String query, Pageable pageable) {
         String search = query == null ? "" : query.trim();
         if (search.length() > 100) {

@@ -1,3 +1,7 @@
+# Regression coverage for security-report redaction. Synthetic secret matches and
+# source snippets must disappear from serialized reports/summaries while finding
+# identifiers and locations remain actionable. Runs without the Trivy executable.
+
 import importlib.util
 import json
 from pathlib import Path

@@ -5,6 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+/**
+ * Client-editable name/description/visibility when creating a project.
+ * Bean Validation bounds public input, while ProjectServiceImpl supplies owner identity and
+ * creates OWNER membership from the authenticated caller. No ownerId or role can be injected.
+ */
 @Data
 public class CreateProjectRequest {
 

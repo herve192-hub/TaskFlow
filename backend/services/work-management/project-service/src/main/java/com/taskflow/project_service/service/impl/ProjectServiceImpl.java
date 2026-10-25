@@ -37,7 +37,14 @@ import feign.RetryableException;
 import java.util.List;
 import java.util.Objects;
 
-/** Persist project/team changes and derive project permissions from current membership records. */
+/**
+ * Owns project/team invariants and projects the current membership permission model.
+ * Creation writes both project metadata and an OWNER membership. OWNER alone may delete a
+ * project; OWNER/ADMIN manage members and MANAGER also edits metadata. Membership mutations
+ * validate the nested project and never transfer ownership through the generic member route.
+ * Profile existence is checked through authenticated Feign; task data is in another database
+ * and is not automatically deleted when this service removes a project.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -123,6 +130,8 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional(readOnly = true)
+    // This is the authoritative permission projection consumed by task-service. Recompute
+    // from current membership so removed members cannot retain access through old JWT claims.
     public ProjectAccessResponse getProjectAccess( String projectId, String userId ) {
 
         validateProjectId(projectId);
@@ -234,6 +243,8 @@ public class ProjectServiceImpl implements ProjectService {
     // PROJECT DELETE
     // =========================================================
     @Override
+    // Remove this service's memberships and metadata only. Task documents live in task-service;
+    // there is no implemented cross-service delete cascade or project event publisher.
     public void deleteProject( String projectId, String userId ) {
 
         validateProjectId(projectId);
@@ -403,6 +414,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    // memberId identifies a membership document, not a user account. Validate its projectId
+    // before applying a role change so a nested URL cannot mutate another project's team.
     public ProjectMemberResponse updateProjectMember( String projectId, String memberId,
             UpdateProjectMemberRequest request, String userId ) {
 

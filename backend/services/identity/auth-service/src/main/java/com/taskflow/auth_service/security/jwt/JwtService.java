@@ -9,6 +9,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Token issuance/parsing interface used by AuthServiceImpl and the auth request filter.
+ * Access parsing follows common-security's strict contract. Refresh-token issuance exists, but this
+ * interface does not provide refresh rotation/exchange or global revocation. Cookie transport is
+ * handled through the shared extractor and AuthController rather than by callers persisting tokens.
+ */
 public interface JwtService {
 
     String generateAccessToken(UserDetails user);

@@ -5,6 +5,12 @@ package com.taskflow.user_service.util;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
+/**
+ * Legacy reusable string/collection/contact validators, invoked only by callers that opt in.
+ * Their password helper is not the auth-service registration policy and their Long-ID helper
+ * is not validation of Mongo/auth string IDs. Active controller DTO constraints and service
+ * checks remain authoritative for current profile APIs.
+ */
 public final class ValidationUtils {
 
     private ValidationUtils() {

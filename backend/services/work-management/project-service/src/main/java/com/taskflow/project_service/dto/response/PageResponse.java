@@ -5,6 +5,12 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * Stable project pagination envelope constructed from Spring Data Page metadata.
+ * page is zero-based and content contains mapped summaries or members, not entities.
+ * Frontend projectService exhausts these pages for workspace/team views; keep field names and
+ * last/totalPages behavior compatible when changing list endpoints.
+ */
 @Data
 @Builder
 public class PageResponse<T> {

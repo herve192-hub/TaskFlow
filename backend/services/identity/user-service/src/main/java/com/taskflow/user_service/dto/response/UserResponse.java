@@ -11,6 +11,11 @@ import lombok.Setter;
 
 import java.time.Instant;
 
+/**
+ * Private/self-service profile representation produced by UserMapper.
+ * Contains both profile id and canonical authUserId plus contact/profile/preferences fields.
+ * UserController restricts full-profile reads; directory callers use UserSummaryResponse instead.
+ */
 @Getter
 @Setter
 @Builder

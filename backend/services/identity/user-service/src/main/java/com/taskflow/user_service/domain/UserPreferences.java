@@ -9,7 +9,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** Private, account-scoped display preferences; never included in directory summaries. */
+/**
+ * Embedded per-account display preferences accepted by /me/preferences.
+ * Time zone is an IANA zone string validated by UserServiceImpl; enums constrain date/start-page
+ * choices and defaults cover older profiles. Frontend useDateFormatter and authService consume
+ * these settings; changing display preferences does not change stored Instant timestamps.
+ */
 @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class UserPreferences {
     public enum DateFormat { MONTH_DAY_YEAR, DAY_MONTH_YEAR, YEAR_MONTH_DAY }

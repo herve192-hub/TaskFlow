@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# Prepare disposable browser-test inputs from already packaged backend services.
+# Select exactly one executable Boot JAR per module, generate fresh RSA/infra/Mongo
+# credentials, and stage ignored bind-mount files consumed by .github/e2e/compose.yml.
+# The host-private secrets directory allows container-readable fixture files without
+# exposing them through Git. Runtime env output is mode 0600; CI masks generated
+# passwords. This helper must never source a developer or production .env.
+
 """Stage executable JARs and generate credentials for the isolated E2E stack."""
 
 import os
@@ -21,6 +28,8 @@ MODULES = {
 }
 
 
+# Stage executable artifacts first, then generate isolated credentials/keys and
+# runtime env files. Re-running rotates fixture credentials; use a disposable stack.
 def main():
     jars = STACK / "jars"
     jars.mkdir(parents=True, exist_ok=True)

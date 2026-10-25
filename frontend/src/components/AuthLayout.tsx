@@ -1,3 +1,10 @@
+/**
+ * Responsive shared shell for login, signup, and recovery pages. Owns branding,
+ * headings, and form-card spacing; children own validation and network actions.
+ * TaskFlowLogo and theme tokens keep the authentication screens aligned with the
+ * signed-in workspace without adding route or session side effects.
+ */
+
 import { Box, Paper, Typography } from "@mui/material";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";

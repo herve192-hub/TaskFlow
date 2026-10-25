@@ -1,3 +1,10 @@
+/**
+ * Prepare an avatar entirely in the browser: accept PNG/JPEG up to 2 MB and 16 MP,
+ * center-crop to a square, resize to 256 pixels, then encode a bounded PNG data URL.
+ * Bitmap resources are closed in finally. Profile uploads the result; backend image
+ * validation remains required because callers can bypass browser checks.
+ */
+
 /** Decode a bounded raster upload and save a small square PNG; SVG and animated images are excluded. */
 export async function prepareAvatar(file: File): Promise<string> {
   if (!["image/png", "image/jpeg"].includes(file.type)) throw new Error("Choose a PNG or JPEG photo.");

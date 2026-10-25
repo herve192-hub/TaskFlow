@@ -1,3 +1,9 @@
+# Project/membership bootstrap: service identity, fallback storage, configuration
+# and discovery clients, graceful shutdown, and health visibility. Central YAML and
+# scoped runtime mounts supply the deployment URI/public verification key. Port and
+# health checks must remain coordinated with production Compose. Project roles are
+# application policy, independent of these transport/startup settings.
+
 # Project-service bootstrap defaults; Config Server supplies project/membership storage settings.
 spring:
   application:

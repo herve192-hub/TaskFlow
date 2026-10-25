@@ -1,3 +1,11 @@
+/**
+ * Project-scoped task creation form with title, description, priority, type, and
+ * optional deadline. datetime-local input uses the device timezone before conversion
+ * to an ISO instant; account preferences affect display separately. A pending ref
+ * blocks duplicate writes. Preserve form state on failure and let the parent reload
+ * tasks only after the backend accepts creation.
+ */
+
 import { useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { apiErrorMessage } from "../../../utils/apiError";

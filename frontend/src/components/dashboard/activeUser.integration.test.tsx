@@ -1,3 +1,9 @@
+/**
+ * Verify reactive account identity across Topbar and Dashboard after reload/session
+ * replacement, including blank-name fallbacks and avatar selection. Uses controlled
+ * session/workspace fixtures rather than real auth or user services.
+ */
+
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { ThemeProvider } from '@mui/material/styles'
 import { MemoryRouter } from 'react-router-dom'

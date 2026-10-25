@@ -8,6 +8,11 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
+/**
+ * Stable zero-based task/comment pagination envelope built from Spring Data Page.
+ * Frontend taskService/workspaceService exhausts pages using the content/last/totalPages contract.
+ * Return DTO projections here rather than persisting this wrapper as a MongoDB document.
+ */
 @Data
 @Builder
 @NoArgsConstructor

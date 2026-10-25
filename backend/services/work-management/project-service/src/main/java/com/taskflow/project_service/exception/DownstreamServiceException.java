@@ -1,5 +1,10 @@
 package com.taskflow.project_service.exception;
 
+/**
+ * Base failure type carrying the name of an unavailable collaborating service.
+ * GlobalExceptionHandler maps it to a bounded 503 response; retaining the cause supports local
+ * diagnostics without serializing an upstream response or caller token.
+ */
 public class DownstreamServiceException extends RuntimeException {
 
     private final String serviceName;

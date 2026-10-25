@@ -1,3 +1,10 @@
+/**
+ * Task-service JSON contracts and enum values used by forms, badges, and lists.
+ * Project/member references use canonical backend IDs; timestamps travel as ISO
+ * strings and are formatted at the UI boundary. Keep the status graph in ProjectTasks
+ * and the backend lifecycle policy aligned when adding or changing enum values.
+ */
+
 export type { PageResponse } from "../../projects/types/project.types";
 
 /** Wire values match the backend lifecycle; the enum alone does not authorize any transition. */

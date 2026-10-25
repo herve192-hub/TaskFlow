@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+# AWS release/deployment orchestration alongside Terraform-provisioned resources.
+# Terraform outputs supply non-secret settings; Secrets Manager supplies runtime
+# credentials only on EC2. publish requires reviewed committed source, pushes eight
+# amd64 images to ECR, resolves immutable digests, then uploads an allowlisted S3
+# bundle. deploy validates that bundle, serializes host changes, stages restricted
+# secret files, and waits for the production+AWS Compose stack to become healthy.
+# Successful installs update /opt/taskflow/current; failed installs do not offer an
+# automatic rollback. Host secret directories remain for mounted files and require
+# operator lifecycle management. Never print captured AWS/Compose response bodies.
+
 """Publish a reviewed AWS release, or install its digest-pinned Compose stack on EC2.
 
 Uses Python's standard library, AWS CLI v2, and Docker Compose 2.24.4+.
@@ -43,6 +53,8 @@ RELEASE_FILES = [
 ]
 
 
+# Run from the release root and hide command output by default. Use visible only
+# for non-secret image build/push output; errors disclose command name/exit code only.
 def run(command, *, env=None, input_data=None, visible=False):
     result = subprocess.run(command, cwd=ROOT, env=env, input=input_data,
                             stdout=None if visible else subprocess.PIPE,
@@ -53,10 +65,15 @@ def run(command, *, env=None, input_data=None, visible=False):
     return result.stdout
 
 
+# Consistent AWS CLI JSON calls without a pager. Credentials come from the normal
+# CLI chain (the EC2 instance role on hosts), never Terraform or command-line secrets.
 def aws(region, *arguments):
     return run(["aws", "--region", region, "--no-cli-pager", "--output", "json", *arguments])
 
 
+# Validate Terraform-output shape and destinations before any release/host work.
+# Origin, registry/account/region, and narrow ALB subnet trust must agree. This is
+# input validation, not an AWS permission or resource-existence check.
 def settings_valid(settings):
     required = {"region", "origin", "application_secret_arn", "log_group", "alb_subnet_cidrs",
                 "ecr_repositories", "release_bucket"}
@@ -88,6 +105,8 @@ def settings_valid(settings):
         raise ValueError("All images must use the same ECR registry")
 
 
+# Require a known schema/release ID and exactly eight expected repository digests.
+# The manifest is a reviewed deployment input; this does not cryptographically sign it.
 def manifest_valid(manifest):
     if manifest.get("version") != 1 or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}", manifest.get("release", "")):
         raise ValueError("Invalid release manifest version or ID")
@@ -101,6 +120,8 @@ def manifest_valid(manifest):
             raise ValueError(f"Release image {name} must use its expected ECR repository and SHA-256 digest")
 
 
+# Temporary Docker config keeps the short-lived ECR credential out of persistent
+# user config; cleanup occurs on both success and failure of the enclosing operation.
 @contextmanager
 def docker_login(settings):
     # Keep the short-lived ECR token out of the user's persistent Docker config.
@@ -113,6 +134,9 @@ def docker_login(settings):
         yield environment
 
 
+# Mutation boundary: build/push all images, then upload the allowlisted release.
+# Require a clean Git tree for a reviewable source revision. Partial failure may
+# leave published images; S3 upload happens only after the full manifest validates.
 def publish(args):
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}", args.release):
         raise ValueError("Release ID must be a Docker-compatible tag of at most 64 characters")
@@ -159,6 +183,8 @@ def publish(args):
     print(f"Published {key} (source {commit}). Install it on EC2 with the deployment guide.")
 
 
+# Read one Secrets Manager JSON value and require the exact documented key set.
+# Reject empty/non-string/NUL values without reporting them in exception output.
 def read_secret(region, arn, expected_keys):
     response = json.loads(aws(region, "secretsmanager", "get-secret-value", "--secret-id", arn))
     values = json.loads(response["SecretString"])
@@ -169,6 +195,8 @@ def read_secret(region, arn, expected_keys):
     return values
 
 
+# Escape credentials for Java .properties syntax before writing Config Server
+# client settings; raw backslashes, separators, whitespace, and Unicode must round-trip.
 def property_escape(value):
     # Java properties escaping, including UTF-16 code units for non-ASCII characters.
     result = []
@@ -185,6 +213,9 @@ def property_escape(value):
     return "".join(result)
 
 
+# Materialize configtree property files for container UID/GID 10001 under a private
+# host directory. Derive protected Config Server properties and credential-free
+# Eureka URL; generate separate read-only NGINX trust rules from validated ALB CIDRs.
 def write_secrets(directory, values, settings):
     username = values["spring.security.user.name"]
     password = values["spring.security.user.password"]
@@ -207,6 +238,8 @@ def write_secrets(directory, values, settings):
     trust.chmod(0o444)
 
 
+# Select the explicit production base then AWS overlay with an empty env file.
+# Append the one-time bootstrap overlay last only for initial admin provisioning.
 def compose_command(bootstrap=False):
     command = ["docker", "compose", "--env-file", "/dev/null", "--project-name", "taskflow-production",
                "--file", str(ROOT / "deploy/production/compose.yml"), "--file", str(ROOT / "deploy/aws/compose.yml")]
@@ -215,6 +248,9 @@ def compose_command(bootstrap=False):
     return command
 
 
+# Root-only EC2 operation guarded by cloud-init readiness and a nonblocking host
+# lock. Validate/pull before recreating services; wait for health before moving the
+# current-release symlink. Bootstrap mounts are removed by recreating auth first.
 def deploy(args):
     if os.geteuid() != 0:
         raise ValueError("Run deployment with sudo on the prepared EC2 host")
@@ -259,6 +295,8 @@ def deploy(args):
     print(f"Installed {manifest['release']}. Verify {settings['origin']}/healthz and the sign-in flow.")
 
 
+# Parse explicit publish/deploy actions and report sanitized failures. Do not
+# append exception text/locals here: captured provider responses can contain secrets.
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)

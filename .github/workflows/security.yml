@@ -1,3 +1,10 @@
+# Repository security gates complement service CI: CodeQL analyzes source, Trivy
+# scans authored files/resolved backend dependencies, and Gitleaks checks fetched
+# history plus publication policy. Source-only scans exclude generated dependency
+# and cache trees. The Trivy summary step removes matched secrets before artifacts
+# are uploaded; scanner exit codes still fail the job. No path filter means changes
+# anywhere can trigger these checks. Only CodeQL receives security-event write access.
+
 # Complement image scans with source analysis, repository/JAR scans, and Git history checks.
 # No path filter: changes anywhere in the repository can introduce sensitive files or secrets.
 name: Security

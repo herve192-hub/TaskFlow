@@ -13,7 +13,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
-/** Project-scoped role assignment; this document's ID differs from its canonical userId. */
+/**
+ * Membership document linking one project ID to a canonical auth user ID and project role.
+ * Its own Mongo ID is the memberId used in nested update/delete URLs. Owner membership is
+ * created with the project; service rules prevent generic role changes/removal from transferring
+ * ownership. joinedAt is populated by Mongo auditing.
+ */
 @Data
 @Builder
 @NoArgsConstructor

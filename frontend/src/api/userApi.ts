@@ -1,3 +1,10 @@
+/**
+ * Transport contract for the user service's /me profile, avatar, preferences,
+ * active-directory search, and bounded batch lookup endpoints. Lookup keys are
+ * canonical auth account IDs, not user-profile document IDs. Private /me data
+ * must not be substituted for the public summaries used by membership screens.
+ */
+
 import api from "./axios";
 import type { UserPreferences, UserProfile, UpdateProfileRequest, UserSearchPage, UserSummary } from "../features/users/types/user.types";
 

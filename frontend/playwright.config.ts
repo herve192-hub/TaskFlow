@@ -1,3 +1,10 @@
+/**
+ * Browser smoke suite against a locally started Vite preview of the built SPA.
+ * Excludes *.full-stack.spec.ts; those need an independently started Compose stack.
+ * CI bounds workers/retries and records failure diagnostics plus JUnit/HTML reports.
+ * Keep generated traces and reports out of version control.
+ */
+
 import { defineConfig, devices } from '@playwright/test'
 
 // Smoke-test the compiled frontend through Vite preview; real services use the full-stack config.

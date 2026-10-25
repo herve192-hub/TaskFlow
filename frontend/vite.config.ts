@@ -1,3 +1,10 @@
+/**
+ * Local development/build configuration for the React SPA. Vite proxies /auth and
+ * /api to the local gateway so cookies and CSRF remain same-origin in development.
+ * Production serves dist through NGINX instead; changes to API prefixes must remain
+ * aligned with the gateway routes and NGINX locations.
+ */
+
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 

@@ -19,6 +19,11 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Standalone MVC tests for access/member routes, authenticated-actor binding, and invalid role bodies.
+ * Mocked ProjectService responses isolate transport/status handling; ProjectMembershipTest exercises
+ * the underlying role and nested-project rules without relying on the MVC layer.
+ */
 class ProjectMembershipControllerTest {
     private final ProjectService service = mock(ProjectService.class);
     private final MockMvc mvc = MockMvcBuilders.standaloneSetup(new ProjectController(service))

@@ -1,3 +1,11 @@
+/**
+ * User-service contracts. id identifies the profile document; authUserId identifies
+ * the credential account used by memberships and JWT subjects. UserSummary is safe
+ * directory data; UserProfile adds private contact, biography, and preferences.
+ * Search pagination follows Spring's number field, unlike the project page wrapper.
+ * Keep preference enum strings synchronized with backend validation and UI options.
+ */
+
 /** id is the profile document ID; authUserId joins profiles to project members and signed-in accounts. */
 export interface UserSummary {
   id: string;

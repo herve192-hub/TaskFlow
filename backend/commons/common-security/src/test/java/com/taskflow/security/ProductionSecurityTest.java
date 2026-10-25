@@ -16,6 +16,11 @@ import org.springframework.mock.env.MockEnvironment;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
+/**
+ * Exercises fail-fast production origin/cookie/onboarding, RSA key distribution, MongoDB TLS, and Kafka rules.
+ * Uses generated RSA material and synthetic example endpoints; no live provider is contacted.
+ * These property-level checks complement deployment probes and do not verify external IAM/backups.
+ */
 class ProductionSecurityTest {
     private static KeyPair keys;
     private static String publicKey;

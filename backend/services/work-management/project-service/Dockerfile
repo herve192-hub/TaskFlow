@@ -1,3 +1,11 @@
+# Build and run project-service using backend/ as the Docker build context.
+# The JDK builder uses Maven's selected module plus required reactor dependencies;
+# CI owns test execution, while image packaging skips tests. The final JRE contains
+# only the executable service JAR and runs as UID/GID 10001, matching file-secret
+# ownership in production. EXPOSE 8083 documents the internal port, not a host
+# publication; Compose controls network access and runtime configuration.
+# Project/member authorization; runtime receives its own database URI.
+
 # Dockerfile for Project Service
 
 FROM eclipse-temurin:21.0.12.1_1-jdk-noble@sha256:b468c3fc688b14450571494f588bd939378e7fd542ed5a73f8efc13f17872a87 AS builder

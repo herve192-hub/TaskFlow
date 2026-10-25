@@ -12,6 +12,12 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Converts task/domain/dependency failures into bounded structured HTTP errors.
+ * Known absence/access/conflict/input/outage cases map to 404/403/409/400/503. Invalid JSON,
+ * validation, and binding failures deliberately avoid echoing rejected values; unexpected errors
+ * receive generic 500 messages. Frontend apiError translates these bodies into user-facing text.
+ */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {

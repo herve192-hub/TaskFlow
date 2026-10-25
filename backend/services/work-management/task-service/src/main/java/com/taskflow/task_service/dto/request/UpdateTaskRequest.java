@@ -8,6 +8,12 @@ import lombok.Data;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Partial metadata update input, intentionally excluding status and project/creator identity.
+ * TaskMapper retains omitted/null values. A changed assignee still goes through management and
+ * membership checks in TaskServiceImpl, preventing generic updates from bypassing assignTask.
+ * Status/completion changes belong to the dedicated lifecycle endpoint.
+ */
 @Data
 public class UpdateTaskRequest {
 

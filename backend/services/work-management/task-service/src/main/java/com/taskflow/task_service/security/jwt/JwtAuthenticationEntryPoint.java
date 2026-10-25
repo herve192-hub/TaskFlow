@@ -11,6 +11,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+/**
+ * Returns a bounded HTTP 401 when task API authorization needs an authenticated caller.
+ * SecurityConfig wires this entry point after JWT filtering; it does not expose signature/parser
+ * exceptions or decide project membership permissions.
+ */
 @Component
 public class JwtAuthenticationEntryPoint
         implements AuthenticationEntryPoint {

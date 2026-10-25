@@ -9,6 +9,11 @@ import lombok.Data;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Detailed task projection returned after authorized create/read/update/lifecycle operations.
+ * Contains logical project/account references and completion/archive metadata, not joined profiles
+ * or a membership permission decision. Client read access still depends on the service endpoint.
+ */
 @Data
 @Builder
 public class TaskResponse {

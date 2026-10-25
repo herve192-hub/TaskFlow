@@ -1,3 +1,11 @@
+/**
+ * Caller-visible project landing page. Fetches the default server page, displays
+ * membership counts/metadata, and links to per-project tasks and teams. Successful
+ * creation increments a revision to reload authoritative results; failures remain
+ * in the dialog. Effect cleanup ignores stale responses. This screen currently
+ * shows only the default page; Teams and workspace aggregation handle pagination.
+ */
+
 import { useEffect, useState } from "react";
 import { apiErrorMessage } from "../utils/apiError";
 import { Link as RouterLink } from "react-router-dom";

@@ -1,3 +1,11 @@
+<!--
+Build the shared security JAR consumed by infrastructure and business services.
+Provides JWT, cookie/CSRF, and infrastructure-auth helpers without a Boot runtime.
+Servlet APIs are provided rather than forced into the reactive gateway. Root
+management pins JWT/Spring versions; test-scoped libraries exercise the shared
+contracts without adding them to service runtime dependencies.
+-->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0">
 
     <modelVersion>4.0.0</modelVersion>

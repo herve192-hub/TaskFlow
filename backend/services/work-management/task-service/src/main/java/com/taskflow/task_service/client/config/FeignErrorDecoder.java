@@ -8,7 +8,11 @@ import com.taskflow.task_service.exception.UserServiceUnavailableException;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 
-/** Map project/user HTTP failures to task-domain errors while retaining each downstream service's identity. */
+/**
+ * Maps project/user HTTP failures into task-domain access, validation, or dependency-outage errors.
+ * The Feign method key identifies which service failed; 404 is an invalid referenced entity and
+ * 5xx becomes a service-specific unavailable exception. Other statuses retain default decoding.
+ */
 public class FeignErrorDecoder
         implements ErrorDecoder {
 

@@ -12,7 +12,13 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 
-/** Basic authentication for Config Server and Eureka in production and secure CI stacks. */
+/**
+ * Protects Config Server and Eureka in prod or secure-infrastructure profiles.
+ * The deployment supplies one infrastructure username/password through scoped files; startup
+ * rejects missing/short credentials and stores a bcrypt verifier for Basic authentication.
+ * Health remains reachable for container probes, other actuator endpoints are denied, and
+ * Eureka's machine-to-machine endpoints are excluded from browser CSRF checks.
+ */
 @Configuration
 @Profile({"prod", "secure-infrastructure"})
 public class InfrastructureSecurity {

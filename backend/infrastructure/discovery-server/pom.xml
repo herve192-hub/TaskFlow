@@ -1,3 +1,10 @@
+<!--
+Executable Eureka registry module. Shared security protects registry APIs while
+Actuator provides restricted health checks for Compose. Boot packaging creates
+the JAR copied by this module's Dockerfile; service clients use discovery names
+rather than fixed container addresses for business routes.
+-->
+
 <!-- Herve Chendjou -->
 <!-- this pom file contains the dependencies for the discovery server -->
 <!-- it allows the application to register and discover services in the cloud -->

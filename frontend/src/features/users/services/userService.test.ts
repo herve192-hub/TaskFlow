@@ -1,3 +1,9 @@
+/**
+ * Verify /me-to-session synchronization, private-field exclusion, and stale-account
+ * protection. Mock HTTP responses exercise account ID matching so a previous user's
+ * late profile response cannot overwrite the current identity.
+ */
+
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as api from "../../../api/userApi";
 import { currentUser, clearSession, saveSession } from "../../auth/session";

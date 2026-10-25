@@ -1,3 +1,11 @@
+/**
+ * Private profile editor backed by /me. Server data initializes the keyed form;
+ * successful writes refresh safe session display fields through userService.
+ * Name/contact edits and avatar preparation share a pending lock to avoid concurrent
+ * writes. Sign-in email is read-only here. Phone/bio remain private profile data;
+ * avatar constraints also apply on the backend.
+ */
+
 import { useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { useForm } from "react-hook-form";

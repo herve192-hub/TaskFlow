@@ -1,3 +1,12 @@
+/**
+ * Shared HTTP transport for auth, users, projects, and tasks. Relative URLs normally
+ * use the NGINX/Vite same-origin gateway proxy; VITE_API_BASE_URL can override it.
+ * Credentials stay in cookies. Unsafe requests acquire the readable XSRF cookie
+ * through /auth/csrf and echo its value in X-XSRF-TOKEN; concurrent bootstrap calls
+ * share one promise. A 401 clears display metadata and returns protected pages to
+ * login. Keep CSRF acquisition on safe GET requests to avoid interceptor recursion.
+ */
+
 import axios, { AxiosHeaders } from "axios";
 import { clearSession } from '../features/auth/session'
 

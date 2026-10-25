@@ -10,7 +10,12 @@ import org.springframework.security.core.Authentication;
 
 import org.springframework.web.bind.annotation.*;
 
-/** Service-to-service project lookups; access decisions use the forwarded caller's authenticated subject. */
+/**
+ * Authenticated internal project/existence/membership API used by task-service Feign calls.
+ * Access decisions derive the acting user from Authentication, never from a caller-supplied
+ * identity parameter. The gateway does not publish /internal routes; the service still validates
+ * credentials and reports current membership rather than trusting old token role claims.
+ */
 @RestController
 @RequestMapping("/internal/projects")
 @RequiredArgsConstructor

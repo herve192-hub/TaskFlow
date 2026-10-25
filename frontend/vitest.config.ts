@@ -1,3 +1,10 @@
+/**
+ * Vitest unit/component integration configuration using jsdom. Named projects
+ * separate *.test.ts utility cases from *.integration.test.tsx React cases; neither
+ * requires real backend services. JUnit and V8 coverage artifacts feed frontend CI.
+ * Full browser and real-service scenarios use the separate Playwright configs.
+ */
+
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
 

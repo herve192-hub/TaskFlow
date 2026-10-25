@@ -1,3 +1,9 @@
+/**
+ * Unit coverage for API message/detail precedence and fallback behavior with Axios
+ * and non-Axios errors. No request is sent; callers remain responsible for a safe,
+ * screen-specific fallback.
+ */
+
 import { describe, expect, it } from 'vitest'
 import { apiErrorMessage } from './apiError'
 
